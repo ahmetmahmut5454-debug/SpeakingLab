@@ -11,22 +11,9 @@ export const auth = getAuth(app);
 // Use Google Auth
 const googleProvider = new GoogleAuthProvider();
 
-// Check for mobile redirect results automatically
-getRedirectResult(auth).catch(error => {
-  console.error("Redirect login error:", error);
-});
-
 export const loginWithGoogle = async () => {
   try {
-    // Check if user is on mobile/webview where popups usually fail
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-      // Mobile Apps (PWA/Capacitor/Web) MUST use Redirect, popups are blocked/unsupported
-      await signInWithRedirect(auth, googleProvider);
-    } else {
-      // Desktop standard
-      await signInWithPopup(auth, googleProvider);
-    }
+    await signInWithPopup(auth, googleProvider);
   } catch (error) {
     console.error("Login failed", error);
     throw error;
