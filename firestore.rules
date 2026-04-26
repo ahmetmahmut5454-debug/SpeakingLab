@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitives
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function isSignedIn() {
+      // Ensure the user is signed in
+      return request.auth != null;
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+
+    // Report Validation Blueprint
+    function isValidReport(data) {
+      return data.keys().hasAll(['userId', 'createdAt', 'level', 'mode', 'topic', 'reportText']) &&
+             data.keys().size() == 6 &&
+             data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128 && data.userId == request.auth.uid &&
+             data.level is string && data.level.size() <= 50 &&
+             data.mode is string && data.mode.size() <= 50 &&
+             data.topic is string && data.topic.size() <= 2000 &&
+             data.reportText is string && data.reportText.size() <= 20000;
+             // Note: data.createdAt is a timestamp and is validated explicitly in the create block.
+    }
+
+    // Path Variable constraints
+    match /reports/{reportId} {
+      allow get: if isSignedIn() && isValidId(reportId) && existing().userId == request.auth.uid;
+      
+      // Query Enforcer
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      // Strict creation blueprint and Temporal Integrity
+      allow create: if isSignedIn() 
+                   && isValidId(reportId) 
+                   && isValidReport(incoming()) 
+                   && incoming().createdAt == request.time;
+                   
+      // Immortal records - no updates allowed
+      allow update: if false;
+      
+      // User can delete their own reports
+      allow delete: if isSignedIn() && isValidId(reportId) && existing().userId == request.auth.uid;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "Report": {
+      "title": "Study Report",
+      "description": "A generated report for a student's speaking practice.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp", "description": "Server timestamp of report creation" },
+        "level": { "type": "string" },
+        "mode": { "type": "string" },
+        "topic": { "type": "string" },
+        "reportText": { "type": "string" }
+      },
+      "required": ["userId", "createdAt", "level", "mode", "topic", "reportText"]
+    }
+  },
+  "firestore": {
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/Report" },
+      "description": "Stores individual speaking practice reports for users."
+    }
+  }
+}

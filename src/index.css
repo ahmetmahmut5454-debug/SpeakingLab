@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply antialiased overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-white/5;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-green-500/20 rounded-full hover:bg-green-500/40;
+  }
+}
+
+/* CRT Flicker effect */
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.9; }
+  20% { opacity: 0.98; }
+  30% { opacity: 0.93; }
+  45% { opacity: 0.97; }
+  50% { opacity: 0.94; }
+  60% { opacity: 0.99; }
+  70% { opacity: 0.92; }
+  85% { opacity: 0.96; }
+  90% { opacity: 0.94; }
+  100% { opacity: 1; }
+}
+
+.crt-flicker {
+  animation: flicker 0.15s infinite;
+}
