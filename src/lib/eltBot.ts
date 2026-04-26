@@ -6,11 +6,14 @@ const getApiKey = () => {
     const local = localStorage.getItem('gemini_custom_key');
     if (local) return local;
 
-    const metaEnv = (import.meta as any).env;
-    if (typeof import.meta !== 'undefined' && metaEnv && metaEnv.VITE_GEMINI_API_KEY) {
-      return metaEnv.VITE_GEMINI_API_KEY;
+    // Check Vite environment variable natively (Vercel will inject this if named VITE_GEMINI_API_KEY)
+    if (import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) {
+      return import.meta.env.VITE_GEMINI_API_KEY;
     }
+
+    // @ts-ignore - Check process.env fallback for AI Studio's Node environment
     if (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) {
+      // @ts-ignore
       return process.env.GEMINI_API_KEY;
     }
   } catch (e) {}
@@ -45,7 +48,7 @@ export class EltBot {
   private session: any = null;
   private audioProcessor = new AudioProcessor();
   private audioPlayer = new AudioPlayer();
-  private isConnected = false;
+  public isConnected = false;
   private transcriptHistory: string[] = [];
   private recognition: any = null;
 
@@ -152,18 +155,25 @@ export class EltBot {
             });
           },
           onmessage: async (message: LiveServerMessage) => {
-            // Handle function calls
-            const toolCallParts = message.serverContent?.modelTurn?.parts;
-            if (toolCallParts) {
-              for (const part of toolCallParts) {
-                if (part.functionCall && part.functionCall.name === 'endConversation') {
+            // Handle function calls (GenAI SDK structure usually uses message.toolCall)
+            const functionCalls = message.toolCall?.functionCalls || [];
+            
+            // Also check legacy/alternative structure just in case
+            const altParts = message.serverContent?.modelTurn?.parts || [];
+            for (const p of altParts) {
+              if (p.functionCall) functionCalls.push(p.functionCall);
+            }
+
+            if (functionCalls.length > 0) {
+              for (const fc of functionCalls) {
+                if (fc.name === 'endConversation') {
                   console.log("AI called endConversation function!");
                   if (this.session && this.isConnected) {
                     try {
                       this.session.sendRealtimeInput([{
                         functionResponse: {
                           name: 'endConversation',
-                          id: part.functionCall.id,
+                          id: fc.id,
                           response: { success: true }
                         }
                       }]);
@@ -248,7 +258,7 @@ export class EltBot {
 
   async generateReport(context: BotContext): Promise<string> {
     if (this.transcriptHistory.length === 0) {
-      return "Sistem bağlantısı sağlandı ancak mikrofondan dişe dokunur bir ses metne dökülemedi. Konuşmanız çok kısa sürmüş veya mikrofona çok sessiz konuşmuş olabilirsiniz. Lütfen bağlantıyı kurduktan sonra biraz daha uzun pratik yapın.";
+      return "Sistem bağlantısı sağlandı ancak mikrofondan herhangi bir ses algılanamadı. Lütfen mikrofon izinlerinizi kontrol edin ve tekrar deneyin.";
     }
 
     try {
@@ -257,6 +267,7 @@ export class EltBot {
         model: "gemini-2.5-flash",
         contents: `
           The following transcript is a practice session between an English language student and an AI tutor.
+          Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them (e.g. if Tutor corrects a grammar mistake, infer the mistake. If Tutor says 'Great point!', infer good fluency).
           
           Target CEFR Level: ${context.level}
           Topic: ${context.topic}
@@ -266,20 +277,20 @@ export class EltBot {
           ${this.transcriptHistory.join("\n")}
           -------------------------------
 
-          Analyze the student's performance based ONLY on the transcript above. 
+          Analyze the student's performance based ONLY on the transcript above (and inferences from the Tutor's responses). 
           Provide a highly structured, constructive feedback report strictly categorized as follows:
 
           ### 1. Overall & CEFR Assessment
-          (Did they meet the goal? Are they speaking at the target ${context.level} level?)
+          (Did they seem to meet the goal based on the tutor's reactions?)
 
           ### 2. Pronunciation & Fluency
-          (Assess pacing, hesitation, and clarity based on the flow of the conversation. Note: You only have the text transcript, but you can infer fluency from completeness of sentences and thought progression.)
+          (Assess pacing and clarity based on how well the tutor understood them)
 
           ### 3. Grammar & Vocabulary
-          (Point out specific strong vocabulary used, and correct at least 1 or 2 specific grammatical mistakes made by the student in the transcript. Be precise.)
+          (Point out inferred strong vocabulary or grammatical mistakes based on the tutor's corrections)
 
           ### 4. Constructive Next Steps
-          (What exact exercises or topics should they focus on next?)
+          (Exact exercises or topics focus)
 
           Write the entire report in English. Use a professional, encouraging tone.
         `
@@ -288,7 +299,10 @@ export class EltBot {
       return response.text || "Failed to generate report.";
     } catch (err: any) {
       console.error("Report generation failed:", err);
-      return `❌ Rapor Oluşturma Hatası: ${err.message}\n\nFirebase'e veya API'ye kaydederken bir sorun oluştu. Detayları Console'dan veya yukarıdaki mesajdan inceleyebilirsiniz.`;
+      if (err?.message?.includes("503") || err?.message?.includes("UNAVAILABLE") || err?.status === 503) {
+         return `❌ Rapor Oluşturulamadı: Şu anda yapay zeka sunucularında yoğunluk yaşanıyor (503 Service Unavailable). Lütfen rapor yeteneğini daha sonra tekrar deneyin veya konuşmaya bir süre ara verin.\n\nEğer isterseniz sayfayı yenileyip tekrar bağlanabilirsiniz.`;
+      }
+      return `❌ Rapor Oluşturma Hatası: ${err.message}\n\nDetayları Console'dan veya yukarıdaki mesajdan inceleyebilirsiniz. Sunucu veya API bağlantı hatası oluşmuş olabilir.`;
     }
   }
 

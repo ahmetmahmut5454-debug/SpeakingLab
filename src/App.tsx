@@ -225,7 +225,11 @@ export default function App() {
     const localKey = localStorage.getItem('gemini_custom_key');
     const metaEnv = (import.meta as any).env;
     if (!localKey && !metaEnv?.VITE_GEMINI_API_KEY && typeof process === 'undefined') {
-      alert("CRITICAL ERROR: API Key is missing.\n\nEger projeyi Mac'inize/Local'inize indirdiyseniz:\n1. F12'ye basin (veya Sag tikla -> Incele -> Console sekmesine gidin)\n2. Su kodu yapistirin ve entera basin:\nlocalStorage.setItem('gemini_custom_key', 'BURAYA_KENDI_API_KEYINI_YAZ')\n3. Sayfayi yenileyin.");
+      const userKey = prompt("Bulut ortam değişkeni (VITE_GEMINI_API_KEY) bulunamadı.\n\nEğer kendi sunucunuzda/Vercel'de çalıştırıyorsanız, Vercel ayarlarından Environment Variables kısmına 'VITE_GEMINI_API_KEY' isminde anahtarınızı eklemelisiniz.\n\nYa da hızlıca test etmek için lütfen Gemini API Anahtarınızı buraya yapıştırın:");
+      if (userKey) {
+        localStorage.setItem('gemini_custom_key', userKey);
+        alert("API Anahtarı tarayıcınıza kaydedildi. Lütfen tekrar bağlanmayı deneyin.");
+      }
       return;
     }
 
@@ -254,22 +258,24 @@ export default function App() {
 
       <main className="relative z-10 max-w-4xl mx-auto p-4 md:p-12 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="flex justify-between items-center pb-8 mb-10">
-          <div className="flex items-center gap-5">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
-              <div className="relative bg-[#111113] p-3.5 rounded-2xl border border-white/10 shadow-2xl">
-                <Orbit className="w-7 h-7 text-emerald-400" />
+        <header className="flex flex-col md:flex-row justify-between items-center gap-6 pb-8 mb-6 md:mb-10 w-full">
+          <div className="flex items-center justify-between w-full md:w-auto">
+            <div className="flex items-center gap-3 md:gap-5">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
+                <div className="relative bg-[#111113] p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
+                  <Orbit className="w-5 h-5 md:w-7 md:h-7 text-emerald-400" />
+                </div>
+              </div>
+              <div className="flex flex-col items-start gap-1">
+                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-200 to-blue-400">
+                  Speaking Buddy
+                </h1>
+                <StatusBadge on={isRunning} />
               </div>
             </div>
-            <div className="flex flex-col items-start gap-1">
-              <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-200 to-blue-400">
-                Speaking Buddy
-              </h1>
-              <StatusBadge on={isRunning} />
-            </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
             {!user && (
               <>
                 <button 
@@ -346,7 +352,7 @@ export default function App() {
         {/* Main Application Area (Blurred if onboarding) */}
         <div className={`flex-1 flex flex-col items-center justify-center gap-16 transition-all duration-1000 ${showOnboarding && !isRunning ? 'blur-sm pointer-events-none opacity-50' : 'blur-0'}`}>
           {/* Main Visualizer Area */}
-          <div className="relative w-full max-w-2xl aspect-[21/9] bg-[#0f1013] border border-white/[0.04] rounded-[2.5rem] p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
+          <div className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[21/9] bg-[#0f1013] border border-white/[0.04] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
             {/* Ambient Background Glow based on connection (Toned Down) */}
             <div className={`absolute inset-0 transition-opacity duration-1000 blur-3xl pointer-events-none ${isRunning ? 'opacity-10' : 'opacity-0'}`}>
                <div className="absolute top-0 left-1/4 w-72 h-72 bg-emerald-500/10 rounded-full mix-blend-screen" />
@@ -366,7 +372,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="mx-6 self-center">
+              <div className="mx-2 md:mx-6 self-center shrink-0">
                 <RoleAvatar role={context.mode === 'Task' ? context.role : undefined} isActive={botLevel > 15} />
               </div>
 
@@ -476,7 +482,7 @@ export default function App() {
                 }
               }}
               disabled={generatingReport}
-              className={`relative overflow-hidden group flex items-center justify-center gap-4 px-16 py-5 rounded-full font-bold uppercase tracking-[0.2em] text-sm transition-all duration-500 shadow-2xl
+              className={`relative overflow-hidden group flex items-center justify-center gap-2 md:gap-4 px-6 md:px-16 py-4 md:py-5 rounded-full font-bold uppercase tracking-[0.2em] text-xs md:text-sm transition-all duration-500 shadow-2xl w-full max-w-md mx-auto
                 ${generatingReport 
                   ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30 cursor-not-allowed' 
                   : isRunning 
