@@ -130,9 +130,7 @@ export default function App() {
          setIsRunning(false);
       },
       onBotFinished: () => {
-        if (botRef.current && botRef.current['isConnected']) {
-           handleStopAndReport();
-        }
+        handleStopAndReport();
       }
     });
     return () => botRef.current?.stop();

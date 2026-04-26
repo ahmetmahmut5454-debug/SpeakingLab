@@ -167,6 +167,10 @@ export class AudioPlayer {
     }
   }
 
+  get isPlaying(): boolean {
+    return this.audioContext.currentTime < this.startTime;
+  }
+
   clear() {
     this.activeSources.forEach(source => {
       try {

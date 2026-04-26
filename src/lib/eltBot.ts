@@ -111,7 +111,7 @@ export class EltBot {
         4. DEEP CONVERSATION: Do not just ask superficial questions. Ask follow-up questions. If they mention a hobby, ask specific details about it. Give them space to elaborate.
         5. CONVERSATION RATIO: Keep your replies relatively short but engaging. The goal is for the student to speak 70% of the time, and you 30%.
         
-        CRITICAL CLOSING RULE: If the user says goodbye, "let's end this", "thank you that's all", or clearly wishes to terminate the conversation, YOU MUST IMMEDAITELY CALL THE \`endConversation\` function to officially end the call.
+        CRITICAL CLOSING RULE: If the user says goodbye, "let's end this", "thank you that's all", or clearly wishes to terminate the conversation, you must FIRST politely say goodbye (e.g. "Okay, it was great talking to you. See you next time!"). THEN, in the EXACT SAME TURN alongside your goodbye message, you MUST call the \`endConversation\` function to officially end the call.
 
         ${context.mode === 'Task' 
           ? `TASK-BASED MODE INSTRUCTIONS: 
@@ -179,9 +179,16 @@ export class EltBot {
                       }]);
                     } catch(e) {}
                   }
-                  if (this.callbacks.onBotFinished) {
-                    this.callbacks.onBotFinished();
-                  }
+                  const checkFinish = () => {
+                    if (this.audioPlayer.isPlaying) {
+                      setTimeout(checkFinish, 500);
+                    } else {
+                      if (this.callbacks.onBotFinished) {
+                        this.callbacks.onBotFinished();
+                      }
+                    }
+                  };
+                  checkFinish();
                 }
               }
             }
@@ -258,7 +265,7 @@ export class EltBot {
 
   async generateReport(context: BotContext): Promise<string> {
     if (this.transcriptHistory.length === 0) {
-      return "Sistem bağlantısı sağlandı ancak mikrofondan herhangi bir ses algılanamadı. Lütfen mikrofon izinlerinizi kontrol edin ve tekrar deneyin.";
+      return "Sistem bağlantısı sağlandığını ancak görüşme sırasında metne dönüştürme özelliğinin (Speech Recognition) bu cihazda/tarayıcıda desteklenmemesi nedeniyle rapor oluşturulamadığını tespit ettik. Uygulamayı PWA (Ana Ekrana Ekle) olarak yüklerseniz veya Chrome tarayıcı kullanırsanız mikrofondan metne dönüştürme özelliği daha stabil çalışacaktır.";
     }
 
     try {
