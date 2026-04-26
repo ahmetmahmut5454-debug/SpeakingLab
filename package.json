@@ -30,6 +30,11 @@
       "package.json"
     ]
   },
+  "overrides": {
+    "vite-plugin-pwa": {
+      "vite": "$vite"
+    }
+  },
   "dependencies": {
     "@google/genai": "^1.50.1",
     "@tailwindcss/vite": "^4.2.4",
