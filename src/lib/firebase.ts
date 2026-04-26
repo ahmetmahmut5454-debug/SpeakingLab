@@ -13,6 +13,7 @@ const googleProvider = new GoogleAuthProvider();
 
 export const loginWithGoogle = async () => {
   try {
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
     await signInWithPopup(auth, googleProvider);
   } catch (error) {
     console.error("Login failed", error);

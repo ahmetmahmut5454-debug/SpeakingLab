@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Settings, Mic, MicOff, Phone, PhoneOff, Terminal, Info, LayoutDashboard, Orbit, AudioLines, Sparkles, LogIn, LogOut, History, Trash2, Calendar, Ticket, Utensils, Headset, Home, Landmark, Briefcase, UserCircle } from 'lucide-react';
+import { Settings, Mic, MicOff, Phone, PhoneOff, Terminal, Info, LayoutDashboard, Orbit, AudioLines, Sparkles, LogIn, LogOut, History, Trash2, Calendar, Ticket, Utensils, Headset, Home, Landmark, Briefcase, UserCircle, X } from 'lucide-react';
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from './lib/eltBot';
 import { predefinedScenarios } from './lib/scenarios';
 import { auth, loginWithGoogle, logout, saveReportToDb, getUserReports, deleteReportFromDb, SavedReport } from './lib/firebase';
@@ -721,9 +721,17 @@ export default function App() {
               exit={{ x: 400 }}
               className="fixed right-0 top-0 bottom-0 w-80 bg-[#0f0f12] border-l border-white/10 p-6 z-40 shadow-2xl flex flex-col"
             >
-              <div className="flex items-center gap-3 mb-8">
-                <Terminal className="w-5 h-5 text-green-500" />
-                <h2 className="font-bold uppercase tracking-widest text-sm">Dev Console</h2>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <Terminal className="w-5 h-5 text-green-500" />
+                  <h2 className="font-bold uppercase tracking-widest text-sm">Dev Console</h2>
+                </div>
+                <button 
+                  onClick={() => setShowDev(false)}
+                  className="p-2 -mr-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
               <div className="space-y-6 flex-1 overflow-y-auto custom-scrollbar pr-2">
