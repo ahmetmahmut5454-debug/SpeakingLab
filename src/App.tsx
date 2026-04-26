@@ -11,6 +11,39 @@ import { predefinedScenarios } from './lib/scenarios';
 import { auth, loginWithGoogle, logout, saveReportToDb, getUserReports, deleteReportFromDb, SavedReport } from './lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
+const CustomLogo = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <clipPath id="circleClip">
+      <circle cx="50" cy="50" r="50" />
+    </clipPath>
+    
+    <g clipPath="url(#circleClip)">
+      <rect x="0" y="0" width="50" height="100" fill="#10b981" fillOpacity="0.1" />
+      <path d="M50 20 C 30 20, 20 40, 20 60 C 20 80, 40 90, 50 90" stroke="#34d399" strokeWidth="4" strokeLinecap="round" />
+      <path d="M30 45 Q 35 40 40 45 Q 35 50 30 45 Z" fill="#34d399" />
+      
+      <rect x="50" y="0" width="50" height="100" fill="#38bdf8" fillOpacity="0.1" />
+      <path d="M50 20 L 75 20 L 80 40 L 80 60 L 70 90 L 50 90" stroke="#38bdf8" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="58" y="42" width="12" height="6" rx="2" fill="#38bdf8" />
+      
+      <line x1="50" y1="15" x2="50" y2="95" stroke="#ffffff" strokeOpacity="0.2" strokeWidth="2" strokeDasharray="4 4" />
+      
+      <path d="M 70 85 C 85 85 95 75 95 60 C 95 45 85 35 70 35 C 55 35 45 45 45 60 C 45 66 48 72 52 75 L 50 85 L 60 82 C 63 84 66 85 70 85 Z" fill="#ffffff" />
+      
+      <circle cx="60" cy="60" r="2.5" fill="#0f0f12" />
+      <circle cx="70" cy="60" r="2.5" fill="#0f0f12" />
+      <circle cx="80" cy="60" r="2.5" fill="#0f0f12" />
+    </g>
+    <circle cx="50" cy="50" r="48" stroke="url(#techGradient)" strokeWidth="4" />
+    <defs>
+      <linearGradient id="techGradient" x1="0" y1="0" x2="100" y2="100">
+        <stop offset="0%" stopColor="#34d399" />
+        <stop offset="100%" stopColor="#38bdf8" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
 const StatusBadge = ({ on }: { on: boolean }) => (
   <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md shadow-lg">
     <div className={`w-2 h-2 rounded-full transition-all duration-300 ${on ? 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]' : 'bg-white/20'}`} />
@@ -262,7 +295,7 @@ export default function App() {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
                 <div className="relative bg-[#111113] p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
-                  <Orbit className="w-5 h-5 md:w-7 md:h-7 text-emerald-400" />
+                  <CustomLogo className="w-6 h-6 md:w-8 md:h-8" />
                 </div>
               </div>
               <div className="flex flex-col items-start gap-1">
@@ -696,7 +729,7 @@ export default function App() {
             >
               <div className="bg-[#111113] border border-white/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
-                <Orbit className="w-10 h-10 text-emerald-400 mx-auto mb-4" />
+                <CustomLogo className="w-16 h-16 mx-auto mb-6" />
                 <h2 className="text-xl font-bold tracking-tight mb-2">Welcome to Speaking Buddy</h2>
                 <p className="text-white/50 text-sm leading-relaxed mb-6">
                   Select a scenario from the settings panel on the right, review your briefing, and start speaking naturally. We'll track your English level and give you a detailed CEFR report when you finish.
