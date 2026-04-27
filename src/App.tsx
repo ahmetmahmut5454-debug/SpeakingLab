@@ -506,9 +506,11 @@ export default function App() {
                     if (errMsg.includes('auth/unauthorized-domain')) {
                        alert("Hata: " + errMsg + "\n\nÇÖZÜM: Firebase Console'da Authentication -> Settings -> Authorized Domains kısmına gidin ve lokaldeki adresinizi (örneğin localhost veya 127.0.0.1) ekleyin. Aksi halde lokalde test ederken Google Login çalışmaz.");
                     } else if (errMsg.includes('popup-blocked')) {
-                       alert("Pop-up engellendi. Uygulamayı yeni sekmede açmayı deneyin (Sağ üstte ok ikonu).");
+                       alert("Pop-up engellendi. Lütfen uygulamayı yeni sekmede açmayı deneyin (Sağ üstteki 'Open app in a new tab' butonu ile).");
+                    } else if (errMsg.includes('auth/cancelled-popup-request') || errMsg.includes('auth/popup-closed-by-user')) {
+                       alert("Giriş işlemi iptal edildi veya pop-up kapandı.\n\nNOT: Google Giriş ekranı yapay zeka stüdyosundaki küçük pencerede engellenebilir. Lütfen sağ üstteki ok işaretine ('Open app in a new tab') tıklayarak uygulamayı yeni sekmede açmayı deneyin.");
                     } else {
-                       alert("Google Login hatası: " + errMsg + "\n\nEğer lokal/telefon testindeyseniz sorunu çözmek için yukarıdaki hatayı inceleyin.");
+                       alert("Google Login hatası: " + errMsg + "\n\nEğer iFrame/test ortamındaysanız, uygulamayı sağ üstten yeni sekmede açarak deneyin.");
                     }
                   });
                 }}
