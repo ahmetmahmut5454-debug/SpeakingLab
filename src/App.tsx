@@ -179,38 +179,37 @@ const EmojiBurst = ({ icon, onComplete }: { icon: string, onComplete: () => void
 };
 
 const WalkingBadge = ({ icon }: { icon: string }) => {
-  const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [positionX, setPositionX] = useState(window.innerWidth / 2);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   
   useEffect(() => {
-    // Initial random position
-    setPosition({ x: Math.random() * (window.innerWidth - 100), y: Math.random() * (window.innerHeight - 100) });
+    // Initial random position X
+    setPositionX(Math.random() * (window.innerWidth - 100));
     
     const interval = setInterval(() => {
       if (!isHovered && !isClicked) {
-        setPosition(prev => ({
-          x: Math.max(20, Math.min(window.innerWidth - 60, prev.x + (Math.random() - 0.5) * 300)),
-          y: Math.max(20, Math.min(window.innerHeight - 60, prev.y + (Math.random() - 0.5) * 300)),
-        }));
+        setDirection(Math.random() > 0.5 ? 1 : -1);
+        setPositionX(prev => Math.max(20, Math.min(window.innerWidth - 60, prev + (Math.random() * 200 - 100))));
       }
-    }, 4000 + Math.random() * 3000);
+    }, 3000 + Math.random() * 2000);
     return () => clearInterval(interval);
   }, [isHovered, isClicked]);
 
   return (
     <motion.div
       animate={{ 
-        x: position.x, 
-        y: position.y,
-        scale: isClicked ? 1.5 : (isHovered ? 1.2 : 1),
-        rotate: isClicked ? [0, -20, 20, -20, 20, 0] : (position.x % 2 > 1 ? [0, 5, -5, 0] : [0, -5, 5, 0])
+        x: positionX, 
+        scaleX: direction === 1 ? -1 : 1, // Face the direction it's moving
+        scaleY: isClicked ? 1.5 : (isHovered ? 1.2 : 1),
+        y: isClicked ? -20 : 0, // slight jump on click
+        rotate: isClicked ? [0, -20, 20, -20, 20, 0] : [-5, 5, -5] // walking wobble
       }}
       transition={{ 
-        x: { duration: 4, ease: 'easeInOut' },
-        y: { duration: 4, ease: 'easeInOut' },
-        scale: { type: 'spring' },
-        rotate: isClicked ? { duration: 0.5 } : { duration: 2, repeat: Infinity, repeatType: "reverse" }
+        x: { duration: 3, ease: 'linear' },
+        rotate: isClicked ? { duration: 0.5 } : { duration: 1, repeat: Infinity, repeatType: "mirror" },
+        y: { type: "spring" }
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -218,8 +217,8 @@ const WalkingBadge = ({ icon }: { icon: string }) => {
         setIsClicked(true);
         setTimeout(() => setIsClicked(false), 1000);
       }}
-      className="fixed text-4xl cursor-pointer select-none z-10"
-      style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))" }}
+      className="fixed bottom-4 text-5xl cursor-pointer select-none pointer-events-auto"
+      style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))", zIndex: 100 }}
       title="Evcil Hayvanın"
     >
       {icon}
@@ -229,6 +228,7 @@ const WalkingBadge = ({ icon }: { icon: string }) => {
           animate={{ opacity: 0, y: -40, scale: 1.5 }} 
           transition={{ duration: 0.8 }} 
           className="absolute -top-4 left-2 text-2xl pointer-events-none"
+          style={{ transform: direction === 1 ? 'scaleX(-1)' : 'none' }} // unflip the text if parent is flipped
         >
           💖
         </motion.div>
