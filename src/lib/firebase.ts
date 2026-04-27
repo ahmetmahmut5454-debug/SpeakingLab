@@ -75,8 +75,21 @@ export const getUserStats = async (): Promise<UserStats | null> => {
           await setDoc(docRef, data);
       }
       return data;
+    } else {
+      const defaultStats: UserStats = {
+        userId: auth.currentUser.uid,
+        streak: 0,
+        lastActiveDate: getLocalDateString(),
+        todaySessions: 0,
+        xp: 0,
+        unlockedItems: ['outfit_default'],
+        equippedBadge: '',
+        equippedOutfit: 'outfit_default',
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(docRef, defaultStats);
+      return defaultStats;
     }
-    return null;
   } catch (error) {
     console.error("Failed to fetch user stats", error);
     return null;
