@@ -36,6 +36,36 @@ service cloud.firestore {
              // Note: data.createdAt is a timestamp and is validated explicitly in the create block.
     }
 
+    // User Stats Validation Blueprint
+    function isValidUserStat(data) {
+      return data.keys().hasAll(['userId', 'streak', 'lastActiveDate', 'todaySessions', 'xp', 'updatedAt']) &&
+             data.userId == request.auth.uid &&
+             data.streak is number && data.streak >= 0 &&
+             data.lastActiveDate is string && data.lastActiveDate.size() <= 15 &&
+             data.todaySessions is number && data.todaySessions >= 0 &&
+             data.xp is number && data.xp >= 0;
+    }
+
+    match /userStats/{statId} {
+      allow get: if isSignedIn() && isValidId(statId) && statId == request.auth.uid;
+      allow list: if false; // Not needed, directly fetch by uid
+      
+      allow create: if isSignedIn() 
+                   && isValidId(statId)
+                   && statId == request.auth.uid
+                   && isValidUserStat(incoming())
+                   && incoming().updatedAt == request.time;
+                   
+      allow update: if isSignedIn()
+                   && isValidId(statId)
+                   && statId == request.auth.uid
+                   && existing().userId == request.auth.uid
+                   && isValidUserStat(incoming())
+                   && incoming().updatedAt == request.time;
+                   
+      allow delete: if false;
+    }
+
     // Path Variable constraints
     match /reports/{reportId} {
       allow get: if isSignedIn() && isValidId(reportId) && existing().userId == request.auth.uid;

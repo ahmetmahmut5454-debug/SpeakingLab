@@ -5,10 +5,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Settings, Mic, MicOff, Phone, PhoneOff, Terminal, Info, LayoutDashboard, Orbit, AudioLines, Sparkles, LogIn, LogOut, History, Trash2, Calendar, Ticket, Utensils, Headset, Home, Landmark, Briefcase, UserCircle, X } from 'lucide-react';
+import { Settings, Mic, MicOff, Phone, PhoneOff, Terminal, Info, LayoutDashboard, Orbit, AudioLines, Sparkles, LogIn, LogOut, History, Trash2, Calendar, Ticket, Utensils, Headset, Home, Landmark, Briefcase, UserCircle, X, Flame, Target } from 'lucide-react';
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from './lib/eltBot';
 import { predefinedScenarios } from './lib/scenarios';
-import { auth, loginWithGoogle, logout, saveReportToDb, getUserReports, deleteReportFromDb, SavedReport } from './lib/firebase';
+import { auth, loginWithGoogle, logout, saveReportToDb, getUserReports, deleteReportFromDb, SavedReport, getUserStats, UserStats } from './lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
 const CustomLogo = ({ className }: { className?: string }) => (
@@ -129,6 +129,7 @@ export default function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [pastReports, setPastReports] = useState<SavedReport[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   
   // Scaffolding & Hint systems
   const [showPreTask, setShowPreTask] = useState(false);
@@ -140,8 +141,14 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        const stats = await getUserStats();
+        setUserStats(stats);
+      } else {
+        setUserStats(null);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -204,6 +211,8 @@ export default function App() {
     if (sessionReport && !sessionReport.includes("❌")) {
       if (user) {
          await saveReportToDb(context, sessionReport);
+         const stats = await getUserStats(); // Refresh stats after save
+         setUserStats(stats);
       } else {
          const localRep = { 
            id: Date.now().toString(), 
@@ -307,6 +316,25 @@ export default function App() {
             </div>
           </div>
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
+            {userStats && (
+              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-white/5 py-1.5 px-3 md:px-4 rounded-xl border border-white/10 text-xs md:text-sm">
+                <div className="flex items-center gap-1.5 text-orange-400" title="Daily Streak">
+                  <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current" />
+                  <span className="font-bold">{userStats.streak}</span>
+                </div>
+                <div className="h-4 w-[1px] bg-white/10" />
+                <div className="flex items-center gap-1.5 text-emerald-400" title="XP">
+                  <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="font-bold">{userStats.xp} XP</span>
+                </div>
+                <div className="h-4 w-[1px] bg-white/10" />
+                <div className={`flex items-center gap-1.5 ${userStats.todaySessions >= 3 ? 'text-yellow-400' : 'text-zinc-500'}`} title="Daily Quest (3 Sessions)">
+                  <Target className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="font-bold">{Math.min(3, userStats.todaySessions)}/3</span>
+                </div>
+              </div>
+            )}
+            
             {!user && (
               <>
                 <button 

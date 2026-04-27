@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer, collection, addDoc, query, where, orderBy, getDocs, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, getDocFromServer, collection, addDoc, query, where, orderBy, getDocs, deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { BotContext } from './eltBot';
 
@@ -41,6 +41,100 @@ const testConnection = async () => {
 };
 testConnection();
 
+export interface UserStats {
+  userId: string;
+  streak: number;
+  lastActiveDate: string; // YYYY-MM-DD format
+  todaySessions: number;
+  xp: number;
+  updatedAt?: any;
+}
+
+const getLocalDateString = (): string => {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().split('T')[0];
+};
+
+export const getUserStats = async (): Promise<UserStats | null> => {
+  if (!auth.currentUser) return null;
+  try {
+    const docRef = doc(db, 'userStats', auth.currentUser.uid);
+    const snap = await getDocFromServer(docRef);
+    if (snap.exists()) {
+      return snap.data() as UserStats;
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to fetch user stats", error);
+    return null;
+  }
+};
+
+// Internal function to update user gamification stats
+const updateGamificationStats = async () => {
+  if (!auth.currentUser) return;
+  const uid = auth.currentUser.uid;
+  const today = getLocalDateString();
+  const docRef = doc(db, 'userStats', uid);
+  
+  try {
+    const snap = await getDocFromServer(docRef);
+    let stats: UserStats = {
+      userId: uid,
+      streak: 1,
+      lastActiveDate: today,
+      todaySessions: 1,
+      xp: 50, // 50 XP per session
+      updatedAt: serverTimestamp()
+    };
+
+    if (snap.exists()) {
+      const existing = snap.data() as UserStats;
+      const lastDate = existing.lastActiveDate;
+      
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+      let newStreak = existing.streak;
+      let newTodaySessions = existing.todaySessions;
+      let newXp = existing.xp + 50;
+
+      if (lastDate === today) {
+        newTodaySessions += 1;
+        // Daily quest: 3 conversations
+        if (newTodaySessions === 3) {
+          newXp += 200; // Bonus 200 XP!
+          console.log("Daily quest completed! +200 XP");
+        }
+      } else if (lastDate === yesterdayStr) {
+        newStreak += 1;
+        newTodaySessions = 1;
+      } else {
+        // Break in streak
+        newStreak = 1;
+        newTodaySessions = 1;
+      }
+
+      stats = {
+        userId: uid,
+        streak: newStreak,
+        lastActiveDate: today,
+        todaySessions: newTodaySessions,
+        xp: newXp,
+        updatedAt: serverTimestamp()
+      };
+    }
+    
+    await setDoc(docRef, stats);
+    return stats;
+  } catch (error) {
+    console.error("Failed to update gamification stats:", error);
+  }
+};
+
 // Save report to database
 export const saveReportToDb = async (context: BotContext, reportText: string) => {
   if (!auth.currentUser) return;
@@ -55,6 +149,10 @@ export const saveReportToDb = async (context: BotContext, reportText: string) =>
       reportText: reportText
     });
     console.log("Report saved successfully!");
+    
+    // Trigger Gamification
+    await updateGamificationStats();
+    
   } catch (error: any) {
     console.error("Failed to save report:", error);
     alert("Firebase'e Kayıt Başarısız: " + (error.message || String(error)) + "\n\nBu hata Firestore Rules (güvenlik kuralları) ile ilgili olabilir.");

@@ -11,7 +11,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist dist-electron",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "cap:sync": "npx cap sync",
+    "cap:copy": "npx cap copy",
+    "cap:open": "npx cap open android"
   },
   "build": {
     "appId": "com.speakinglab.app",
@@ -36,6 +39,8 @@
     }
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
     "@google/genai": "^1.50.1",
     "@tailwindcss/vite": "^4.2.4",
     "@vitejs/plugin-react": "^6.0.1",
@@ -49,6 +54,7 @@
     "vite": "^8.0.10"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.1",
     "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
