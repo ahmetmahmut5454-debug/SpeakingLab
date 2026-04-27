@@ -16,7 +16,7 @@ export default defineConfig(({mode}) => {
         registerType: 'autoUpdate',
         manifest: {
           name: 'Speaking Buddy',
-          short_name: 'Speaking',
+          short_name: 'SpeakingBuddy',
           description: 'AI-Powered English Speaking Tutor',
           theme_color: '#10b981',
           background_color: '#0d0d0f',
