@@ -13,32 +13,32 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 
 const CustomLogo = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <clipPath id="circleClip">
-      <circle cx="50" cy="50" r="50" />
-    </clipPath>
+    <circle cx="50" cy="50" r="50" fill="url(#bgGradient)" />
     
-    <g clipPath="url(#circleClip)">
-      <rect x="0" y="0" width="50" height="100" fill="#10b981" fillOpacity="0.1" />
-      <path d="M50 20 C 30 20, 20 40, 20 60 C 20 80, 40 90, 50 90" stroke="#34d399" strokeWidth="4" strokeLinecap="round" />
-      <path d="M30 45 Q 35 40 40 45 Q 35 50 30 45 Z" fill="#34d399" />
-      
-      <rect x="50" y="0" width="50" height="100" fill="#38bdf8" fillOpacity="0.1" />
-      <path d="M50 20 L 75 20 L 80 40 L 80 60 L 70 90 L 50 90" stroke="#38bdf8" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-      <rect x="58" y="42" width="12" height="6" rx="2" fill="#38bdf8" />
-      
-      <line x1="50" y1="15" x2="50" y2="95" stroke="#ffffff" strokeOpacity="0.2" strokeWidth="2" strokeDasharray="4 4" />
-      
-      <path d="M 70 85 C 85 85 95 75 95 60 C 95 45 85 35 70 35 C 55 35 45 45 45 60 C 45 66 48 72 52 75 L 50 85 L 60 82 C 63 84 66 85 70 85 Z" fill="#ffffff" />
-      
-      <circle cx="60" cy="60" r="2.5" fill="#0f0f12" />
-      <circle cx="70" cy="60" r="2.5" fill="#0f0f12" />
-      <circle cx="80" cy="60" r="2.5" fill="#0f0f12" />
+    {/* Human Face Half (Left) */}
+    <path d="M 50 20 C 35 20, 25 30, 25 45 C 25 55, 28 64, 35 70 L 35 78 C 35 83, 42 85, 50 85 Z" fill="#ffffff" opacity="0.9" />
+    <path d="M 33 42 Q 38 38 42 42 Q 38 45 33 42 Z" fill="#111113" />
+    
+    {/* Robot Face Half (Right) */}
+    <path d="M 50 20 C 65 20, 75 30, 75 45 C 75 55, 72 64, 65 70 L 65 78 C 65 83, 58 85, 50 85 Z" fill="#10b981" />
+    <rect x="58" y="40" width="10" height="4" rx="1.5" fill="#0f0f12" />
+    <circle cx="63" cy="42" r="1.5" fill="#34d399" />
+    
+    {/* Center Divider */}
+    <line x1="50" y1="20" x2="50" y2="85" stroke="#0f172a" strokeWidth="1.5" opacity="0.3" />
+    
+    {/* Speech Bubble */}
+    <g transform="translate(0, 10)">
+      <path d="M 50 60 C 65 60 75 68 75 76 C 75 84 65 92 50 92 C 45 92 40 91 35 88 L 25 90 L 28 82 C 25 79 23 77 23 74 C 23 66 35 60 50 60 Z" fill="#38bdf8" />
+      <circle cx="41" cy="76" r="2.5" fill="#ffffff" />
+      <circle cx="50" cy="76" r="2.5" fill="#ffffff" />
+      <circle cx="59" cy="76" r="2.5" fill="#ffffff" />
     </g>
-    <circle cx="50" cy="50" r="48" stroke="url(#techGradient)" strokeWidth="4" />
+
     <defs>
-      <linearGradient id="techGradient" x1="0" y1="0" x2="100" y2="100">
-        <stop offset="0%" stopColor="#34d399" />
-        <stop offset="100%" stopColor="#38bdf8" />
+      <linearGradient id="bgGradient" x1="0" y1="0" x2="100" y2="100">
+        <stop offset="0%" stopColor="#1e293b" />
+        <stop offset="100%" stopColor="#0f172a" />
       </linearGradient>
     </defs>
   </svg>
