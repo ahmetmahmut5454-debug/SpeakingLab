@@ -5,13 +5,24 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Settings, Mic, MicOff, Phone, PhoneOff, Terminal, Info, LayoutDashboard, Orbit, AudioLines, Sparkles, LogIn, LogOut, History, Trash2, Calendar, Ticket, Utensils, Headset, Home, Landmark, Briefcase, UserCircle, X, Flame, Target } from 'lucide-react';
+import { Settings, Mic, MicOff, Phone, PhoneOff, Terminal, Info, LayoutDashboard, Orbit, AudioLines, Sparkles, LogIn, LogOut, History, Trash2, Calendar, Ticket, Utensils, Headset, Home, Landmark, Briefcase, UserCircle, X, Flame, Target, Store, Check, Lock } from 'lucide-react';
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from './lib/eltBot';
 import { predefinedScenarios } from './lib/scenarios';
-import { auth, loginWithGoogle, logout, saveReportToDb, getUserReports, deleteReportFromDb, SavedReport, getUserStats, UserStats } from './lib/firebase';
+import { auth, loginWithGoogle, logout, saveReportToDb, getUserReports, deleteReportFromDb, SavedReport, getUserStats, UserStats, updateUserPurchase } from './lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
-const CustomLogo = ({ className }: { className?: string }) => (
+const SHOP_ITEMS = [
+  { id: 'badge_turtle', name: 'Turtle Badge', price: 100, type: 'badge', icon: '🐢' },
+  { id: 'badge_deer', name: 'Deer Badge', price: 300, type: 'badge', icon: '🦌' },
+  { id: 'badge_lion', name: 'Lion Badge', price: 500, type: 'badge', icon: '🦁' },
+  { id: 'badge_tiger', name: 'Tiger Badge', price: 1000, type: 'badge', icon: '🐅' },
+  { id: 'badge_eagle', name: 'Eagle Badge', price: 2000, type: 'badge', icon: '🦅' },
+  { id: 'outfit_glasses', name: 'Cool Glasses', price: 200, type: 'outfit', icon: '🕶️' },
+  { id: 'outfit_cap', name: 'Red Cap', price: 400, type: 'outfit', icon: '🧢' },
+  { id: 'outfit_crown', name: 'Gold Crown', price: 3000, type: 'outfit', icon: '👑' },
+];
+
+const DynamicAvatar = ({ className, outfit }: { className?: string, outfit?: string }) => (
   <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="50" cy="50" r="50" fill="url(#bgGradient)" />
     
@@ -27,13 +38,40 @@ const CustomLogo = ({ className }: { className?: string }) => (
     {/* Center Divider */}
     <line x1="50" y1="20" x2="50" y2="85" stroke="#0f172a" strokeWidth="1.5" opacity="0.3" />
     
+    {/* Outfits */}
+    {outfit === 'outfit_glasses' && (
+      <g>
+        <rect x="25" y="38" width="22" height="10" rx="2" fill="#0f172a" />
+        <rect x="53" y="38" width="22" height="10" rx="2" fill="#0f172a" />
+        <line x1="47" y1="42" x2="53" y2="42" stroke="#0f172a" strokeWidth="3" />
+      </g>
+    )}
+    
+    {outfit === 'outfit_cap' && (
+      <g>
+        <path d="M 22 25 C 30 10, 70 10, 78 25 Z" fill="#ef4444" />
+        <path d="M 18 25 L 50 25 L 82 25" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
+      </g>
+    )}
+    
+    {outfit === 'outfit_crown' && (
+      <g>
+        <path d="M 30 20 L 35 5 L 50 15 L 65 5 L 70 20 Z" fill="#fbbf24" />
+        <circle cx="35" cy="5" r="2" fill="#ef4444" />
+        <circle cx="50" cy="15" r="2" fill="#3b82f6" />
+        <circle cx="65" cy="5" r="2" fill="#10b981" />
+      </g>
+    )}
+
     {/* Speech Bubble */}
-    <g transform="translate(0, 10)">
-      <path d="M 50 60 C 65 60 75 68 75 76 C 75 84 65 92 50 92 C 45 92 40 91 35 88 L 25 90 L 28 82 C 25 79 23 77 23 74 C 23 66 35 60 50 60 Z" fill="#38bdf8" />
-      <circle cx="41" cy="76" r="2.5" fill="#ffffff" />
-      <circle cx="50" cy="76" r="2.5" fill="#ffffff" />
-      <circle cx="59" cy="76" r="2.5" fill="#ffffff" />
-    </g>
+    {(!outfit || outfit === 'outfit_default') && (
+      <g transform="translate(0, 10)">
+        <path d="M 50 60 C 65 60 75 68 75 76 C 75 84 65 92 50 92 C 45 92 40 91 35 88 L 25 90 L 28 82 C 25 79 23 77 23 74 C 23 66 35 60 50 60 Z" fill="#38bdf8" />
+        <circle cx="41" cy="76" r="2.5" fill="#ffffff" />
+        <circle cx="50" cy="76" r="2.5" fill="#ffffff" />
+        <circle cx="59" cy="76" r="2.5" fill="#ffffff" />
+      </g>
+    )}
 
     <defs>
       <linearGradient id="bgGradient" x1="0" y1="0" x2="100" y2="100">
@@ -127,9 +165,46 @@ export default function App() {
 
   const [user, setUser] = useState<User | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showShop, setShowShop] = useState(false);
   const [pastReports, setPastReports] = useState<SavedReport[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
+
+  const handlePurchase = async (item: typeof SHOP_ITEMS[0]) => {
+    if (!userStats) return;
+    
+    // Check if already unlocked
+    const unlocked = userStats.unlockedItems || [];
+    if (unlocked.includes(item.id)) {
+      // Just equip
+      let newBadge = userStats.equippedBadge || '';
+      let newOutfit = userStats.equippedOutfit || 'outfit_default';
+      
+      if (item.type === 'badge') newBadge = item.id;
+      if (item.type === 'outfit') newOutfit = item.id;
+      
+      const newStats = await updateUserPurchase(userStats.xp, unlocked, newBadge, newOutfit);
+      if (newStats) setUserStats(newStats);
+      return;
+    }
+    
+    // Buy item
+    if (userStats.xp >= item.price) {
+      const remainingXp = userStats.xp - item.price;
+      const newUnlocked = [...unlocked, item.id];
+      
+      let newBadge = userStats.equippedBadge || '';
+      let newOutfit = userStats.equippedOutfit || 'outfit_default';
+      
+      if (item.type === 'badge') newBadge = item.id;
+      if (item.type === 'outfit') newOutfit = item.id;
+      
+      const newStats = await updateUserPurchase(remainingXp, newUnlocked, newBadge, newOutfit);
+      if (newStats) setUserStats(newStats);
+    } else {
+      alert("Not enough XP!");
+    }
+  };
   
   // Scaffolding & Hint systems
   const [showPreTask, setShowPreTask] = useState(false);
@@ -304,8 +379,13 @@ export default function App() {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
                 <div className="relative bg-[#111113] p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
-                  <CustomLogo className="w-6 h-6 md:w-8 md:h-8" />
+                  <DynamicAvatar className="w-6 h-6 md:w-8 md:h-8" outfit={userStats?.equippedOutfit} />
                 </div>
+                {userStats?.equippedBadge && (
+                  <div className="absolute -bottom-2 -right-2 bg-[#111113] border border-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
+                    {SHOP_ITEMS.find(i => i.id === userStats.equippedBadge)?.icon}
+                  </div>
+                )}
               </div>
               <div className="flex flex-col items-start gap-1">
                 <h1 className="text-xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-200 to-blue-400">
@@ -332,6 +412,14 @@ export default function App() {
                   <Target className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span className="font-bold">{Math.min(3, userStats.todaySessions)}/3</span>
                 </div>
+                <div className="h-4 w-[1px] bg-white/10" />
+                <button 
+                  onClick={() => setShowShop(true)}
+                  className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Store className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="font-bold hidden sm:inline">Store</span>
+                </button>
               </div>
             )}
             
@@ -745,6 +833,134 @@ export default function App() {
           )}
         </AnimatePresence>
 
+        {/* Shop Modal */}
+        <AnimatePresence>
+          {showShop && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="absolute inset-0 z-50 bg-[#0d0d0f]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
+            >
+              <div className="max-w-2xl w-full bg-[#111113] border border-white/10 rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                  <div>
+                    <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2 text-blue-400">
+                      <Store className="w-6 h-6" /> Item Store
+                    </h2>
+                    <p className="text-white/50 text-xs uppercase tracking-widest mt-1">Unlock badges and outfits with your XP</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl text-lg font-bold border border-emerald-500/20 shadow-lg">
+                      <Sparkles className="w-5 h-5" />
+                      {userStats?.xp || 0} XP
+                    </div>
+                    <button 
+                      onClick={() => setShowShop(false)}
+                      className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all border border-white/10 text-white/50 hover:text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {userStats ? (
+                  <div className="space-y-8">
+                    <div>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                        <Lock className="w-4 h-4" /> Badges
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        {SHOP_ITEMS.filter(i => i.type === 'badge').map(item => {
+                          const isUnlocked = userStats.unlockedItems?.includes(item.id);
+                          const isEquipped = userStats.equippedBadge === item.id;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => handlePurchase(item)}
+                              disabled={!isUnlocked && userStats.xp < item.price}
+                              className={`flex flex-col items-center p-4 rounded-2xl border transition-all relative overflow-hidden ${
+                                isEquipped ? 'bg-blue-500/20 border-blue-500/50 shadow-lg' : 
+                                isUnlocked ? 'bg-white/5 border-white/10 hover:bg-white/10' :
+                                userStats.xp >= item.price ? 'bg-white/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer' :
+                                'bg-black/50 border-white/5 opacity-50 cursor-not-allowed'
+                              }`}
+                            >
+                              <span className="text-4xl mb-2 drop-shadow-md">{item.icon}</span>
+                              <span className="font-bold text-[10px] uppercase tracking-wider text-center">{item.name}</span>
+                              <div className="mt-2 text-[10px] font-bold">
+                                {isEquipped ? (
+                                  <span className="text-blue-400 uppercase tracking-widest flex items-center gap-1"><Check className="w-3 h-3" /> Equipped</span>
+                                ) : isUnlocked ? (
+                                  <span className="text-white/70 uppercase tracking-widest">Equip</span>
+                                ) : (
+                                  <span className="text-emerald-400 flex items-center gap-1"><Sparkles className="w-3 h-3"/> {item.price}</span>
+                                )}
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                        <UserCircle className="w-4 h-4" /> Avatar Outfits
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <button
+                          onClick={() => handlePurchase({ id: 'outfit_default', name: 'Default', price: 0, type: 'outfit', icon: '' })}
+                          className={`flex flex-col items-center p-4 rounded-2xl border transition-all ${
+                            userStats.equippedOutfit === 'outfit_default' || !userStats.equippedOutfit ? 'bg-blue-500/20 border-blue-500/50' : 'bg-white/5 border-white/10 hover:bg-white/10'
+                          }`}
+                        >
+                          <DynamicAvatar className="w-12 h-12 mb-3 drop-shadow-lg" />
+                          <span className="font-bold text-[10px] uppercase tracking-wider">Default</span>
+                        </button>
+
+                        {SHOP_ITEMS.filter(i => i.type === 'outfit').map(item => {
+                          const isUnlocked = userStats.unlockedItems?.includes(item.id);
+                          const isEquipped = userStats.equippedOutfit === item.id;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => handlePurchase(item)}
+                              disabled={!isUnlocked && userStats.xp < item.price}
+                              className={`flex flex-col items-center p-4 rounded-2xl border transition-all relative overflow-hidden ${
+                                isEquipped ? 'bg-blue-500/20 border-blue-500/50 shadow-lg' : 
+                                isUnlocked ? 'bg-white/5 border-white/10 hover:bg-white/10' :
+                                userStats.xp >= item.price ? 'bg-white/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer' :
+                                'bg-black/50 border-white/5 opacity-50 cursor-not-allowed'
+                              }`}
+                            >
+                              <DynamicAvatar className="w-12 h-12 mb-3 drop-shadow-md opacity-80" outfit={item.id} />
+                              <span className="font-bold text-[10px] uppercase tracking-wider text-center">{item.name}</span>
+                              <div className="mt-2 text-[10px] font-bold">
+                                {isEquipped ? (
+                                  <span className="text-blue-400 uppercase tracking-widest flex items-center gap-1"><Check className="w-3 h-3" /> Equipped</span>
+                                ) : isUnlocked ? (
+                                  <span className="text-white/70 uppercase tracking-widest">Equip</span>
+                                ) : (
+                                  <span className="text-emerald-400 flex items-center gap-1"><Sparkles className="w-3 h-3"/> {item.price}</span>
+                                )}
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Lock className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                    <p className="text-white/50 text-sm uppercase tracking-widest">Please sign in to access the store</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Onboarding Guide Modal */}
         <AnimatePresence>
           {showOnboarding && !isRunning && !showPreTask && !showHistory && !report && (
@@ -757,7 +973,7 @@ export default function App() {
             >
               <div className="bg-[#111113] border border-white/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
-                <CustomLogo className="w-16 h-16 mx-auto mb-6" />
+                <DynamicAvatar className="w-16 h-16 mx-auto mb-6 drop-shadow-lg" outfit={userStats?.equippedOutfit} />
                 <h2 className="text-xl font-bold tracking-tight mb-2">Welcome to Speaking Buddy</h2>
                 <p className="text-white/50 text-sm leading-relaxed mb-6">
                   Select a scenario from the settings panel on the right, review your briefing, and start speaking naturally. We'll track your English level and give you a detailed CEFR report when you finish.

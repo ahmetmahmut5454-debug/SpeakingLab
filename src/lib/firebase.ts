@@ -47,6 +47,9 @@ export interface UserStats {
   lastActiveDate: string; // YYYY-MM-DD format
   todaySessions: number;
   xp: number;
+  unlockedItems?: string[];
+  equippedBadge?: string;
+  equippedOutfit?: string;
   updatedAt?: any;
 }
 
@@ -62,7 +65,16 @@ export const getUserStats = async (): Promise<UserStats | null> => {
     const docRef = doc(db, 'userStats', auth.currentUser.uid);
     const snap = await getDocFromServer(docRef);
     if (snap.exists()) {
-      return snap.data() as UserStats;
+      const data = snap.data() as UserStats;
+      // Migration for old docs
+      let needsUpdate = false;
+      if (!data.unlockedItems) { data.unlockedItems = ['outfit_default']; needsUpdate = true; }
+      if (!data.equippedBadge) { data.equippedBadge = ''; needsUpdate = true; }
+      if (!data.equippedOutfit) { data.equippedOutfit = 'outfit_default'; needsUpdate = true; }
+      if (needsUpdate) {
+          await setDoc(docRef, data);
+      }
+      return data;
     }
     return null;
   } catch (error) {
@@ -70,6 +82,31 @@ export const getUserStats = async (): Promise<UserStats | null> => {
     return null;
   }
 };
+
+export const updateUserPurchase = async (newXp: number, newUnlockedItems: string[], newBadge: string, newOutfit: string) => {
+  if (!auth.currentUser) return null;
+  try {
+    const uid = auth.currentUser.uid;
+    const docRef = doc(db, 'userStats', uid);
+    const snap = await getDocFromServer(docRef);
+    if (!snap.exists()) return null;
+    
+    const stats = snap.data() as UserStats;
+    const updatedStats: UserStats = {
+      ...stats,
+      xp: newXp,
+      unlockedItems: newUnlockedItems,
+      equippedBadge: newBadge,
+      equippedOutfit: newOutfit,
+      updatedAt: serverTimestamp()
+    };
+    await setDoc(docRef, updatedStats);
+    return updatedStats;
+  } catch (error) {
+    console.error("Failed to update purchase", error);
+    return null;
+  }
+}
 
 // Internal function to update user gamification stats
 const updateGamificationStats = async () => {
@@ -86,6 +123,9 @@ const updateGamificationStats = async () => {
       lastActiveDate: today,
       todaySessions: 1,
       xp: 50, // 50 XP per session
+      unlockedItems: ['outfit_default'],
+      equippedBadge: '',
+      equippedOutfit: 'outfit_default',
       updatedAt: serverTimestamp()
     };
 
@@ -124,6 +164,9 @@ const updateGamificationStats = async () => {
         lastActiveDate: today,
         todaySessions: newTodaySessions,
         xp: newXp,
+        unlockedItems: existing.unlockedItems || ['outfit_default'],
+        equippedBadge: existing.equippedBadge || '',
+        equippedOutfit: existing.equippedOutfit || 'outfit_default',
         updatedAt: serverTimestamp()
       };
     }

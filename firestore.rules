@@ -43,7 +43,9 @@ service cloud.firestore {
              data.streak is number && data.streak >= 0 &&
              data.lastActiveDate is string && data.lastActiveDate.size() <= 15 &&
              data.todaySessions is number && data.todaySessions >= 0 &&
-             data.xp is number && data.xp >= 0;
+             data.xp is number && data.xp >= 0 &&
+             (data.keys().hasAll(['unlockedItems', 'equippedBadge', 'equippedOutfit']) ? 
+               (data.unlockedItems is list && data.equippedBadge is string && data.equippedOutfit is string && data.equippedOutfit.size() <= 50 && data.equippedBadge.size() <= 50) : true);
     }
 
     match /userStats/{statId} {
