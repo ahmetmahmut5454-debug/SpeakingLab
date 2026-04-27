@@ -141,6 +141,102 @@ const RoleAvatar = ({ role, isActive }: { role?: string, isActive: boolean }) =>
   );
 };
 
+const EmojiBurst = ({ icon, onComplete }: { icon: string, onComplete: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 2000);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  const particles = Array.from({ length: 30 }).map((_, i) => ({
+    id: i,
+    angle: Math.random() * Math.PI * 2,
+    speed: 50 + Math.random() * 150,
+    size: 1 + Math.random() * 2,
+    rotation: Math.random() * 360,
+  }));
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+      {particles.map(p => (
+        <motion.div
+          key={p.id}
+          initial={{ x: 0, y: 0, scale: 0, rotate: 0, opacity: 1 }}
+          animate={{
+            x: Math.cos(p.angle) * p.speed * 2,
+            y: Math.sin(p.angle) * p.speed * 2,
+            scale: p.size,
+            rotate: p.rotation + 360,
+            opacity: 0
+          }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute text-4xl"
+        >
+          {icon}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+const WalkingBadge = ({ icon }: { icon: string }) => {
+  const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  
+  useEffect(() => {
+    // Initial random position
+    setPosition({ x: Math.random() * (window.innerWidth - 100), y: Math.random() * (window.innerHeight - 100) });
+    
+    const interval = setInterval(() => {
+      if (!isHovered && !isClicked) {
+        setPosition(prev => ({
+          x: Math.max(20, Math.min(window.innerWidth - 60, prev.x + (Math.random() - 0.5) * 300)),
+          y: Math.max(20, Math.min(window.innerHeight - 60, prev.y + (Math.random() - 0.5) * 300)),
+        }));
+      }
+    }, 4000 + Math.random() * 3000);
+    return () => clearInterval(interval);
+  }, [isHovered, isClicked]);
+
+  return (
+    <motion.div
+      animate={{ 
+        x: position.x, 
+        y: position.y,
+        scale: isClicked ? 1.5 : (isHovered ? 1.2 : 1),
+        rotate: isClicked ? [0, -20, 20, -20, 20, 0] : (position.x % 2 > 1 ? [0, 5, -5, 0] : [0, -5, 5, 0])
+      }}
+      transition={{ 
+        x: { duration: 4, ease: 'easeInOut' },
+        y: { duration: 4, ease: 'easeInOut' },
+        scale: { type: 'spring' },
+        rotate: isClicked ? { duration: 0.5 } : { duration: 2, repeat: Infinity, repeatType: "reverse" }
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => {
+        setIsClicked(true);
+        setTimeout(() => setIsClicked(false), 1000);
+      }}
+      className="fixed text-4xl cursor-pointer select-none z-10"
+      style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))" }}
+      title="Evcil Hayvanın"
+    >
+      {icon}
+      {isClicked && (
+        <motion.div 
+          initial={{ opacity: 1, y: 0, scale: 1 }} 
+          animate={{ opacity: 0, y: -40, scale: 1.5 }} 
+          transition={{ duration: 0.8 }} 
+          className="absolute -top-4 left-2 text-2xl pointer-events-none"
+        >
+          💖
+        </motion.div>
+      )}
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [context, setContext] = useState<BotContext>({
     level: 'B1-B2',
@@ -170,6 +266,7 @@ export default function App() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isStreakAnimating, setIsStreakAnimating] = useState(false);
+  const [purchasedBadgeInfo, setPurchasedBadgeInfo] = useState<{ id: string, icon: string } | null>(null);
 
   const handlePurchase = async (item: typeof SHOP_ITEMS[0]) => {
     if (!userStats) return;
@@ -191,6 +288,9 @@ export default function App() {
     
     // Buy item
     if (userStats.xp >= item.price) {
+      if (item.type === 'badge') {
+         setPurchasedBadgeInfo({ id: item.id, icon: item.icon });
+      }
       const remainingXp = userStats.xp - item.price;
       const newUnlocked = [...unlocked, item.id];
       
@@ -368,7 +468,22 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0f] text-[#c9c9c9] font-mono selection:bg-green-500/20 antialiased">
+    <div className="min-h-screen bg-[#0d0d0f] text-[#c9c9c9] font-mono selection:bg-green-500/20 antialiased overflow-hidden relative">
+      {purchasedBadgeInfo && (
+        <EmojiBurst 
+          icon={purchasedBadgeInfo.icon} 
+          onComplete={() => setPurchasedBadgeInfo(null)} 
+        />
+      )}
+      
+      {userStats?.unlockedItems?.map(id => {
+        const item = SHOP_ITEMS.find(i => i.id === id);
+        if (item && item.type === 'badge') {
+          return <WalkingBadge key={"walk_" + id} icon={item.icon} />;
+        }
+        return null;
+      })}
+
       {/* HUD Background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#2a2a2a_0%,_transparent_75%)]" />
