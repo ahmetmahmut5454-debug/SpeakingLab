@@ -169,6 +169,7 @@ export default function App() {
   const [pastReports, setPastReports] = useState<SavedReport[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [isStreakAnimating, setIsStreakAnimating] = useState(false);
 
   const handlePurchase = async (item: typeof SHOP_ITEMS[0]) => {
     if (!userStats) return;
@@ -285,9 +286,12 @@ export default function App() {
     // Save to Firebase if logged in, otherwise save to LocalStorage (Mac/Desktop fallback)
     if (sessionReport && !sessionReport.includes("❌")) {
       if (user) {
-         await saveReportToDb(context, sessionReport);
-         const stats = await getUserStats(); // Refresh stats after save
-         setUserStats(stats);
+         const stats = await saveReportToDb(context, sessionReport);
+         if (stats) {
+            setUserStats(stats);
+            setIsStreakAnimating(true);
+            setTimeout(() => setIsStreakAnimating(false), 3000);
+         }
       } else {
          const localRep = { 
            id: Date.now().toString(), 
@@ -398,14 +402,49 @@ export default function App() {
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
             {userStats && (
               <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-white/5 py-1.5 px-3 md:px-4 rounded-xl border border-white/10 text-xs md:text-sm">
-                <div className="flex items-center gap-1.5 text-orange-400" title="Daily Streak">
-                  <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current" />
-                  <span className="font-bold">{userStats.streak}</span>
+                <div className="flex items-center gap-1.5 text-orange-400 relative" title="Daily Streak">
+                  <motion.div
+                    animate={
+                      isStreakAnimating 
+                        ? { scale: [1, 1.5, 1], filter: "drop-shadow(0 0 12px rgba(251, 146, 60, 1))" }
+                        : { scale: [1, 1.1, 1], filter: ["drop-shadow(0 0 2px rgba(251, 146, 60, 0.5))", "drop-shadow(0 0 6px rgba(251, 146, 60, 0.8))", "drop-shadow(0 0 2px rgba(251, 146, 60, 0.5))"] }
+                    }
+                    transition={
+                      isStreakAnimating 
+                        ? { duration: 0.5, repeat: 5 } // Fast pulse
+                        : { duration: 2, repeat: Infinity, ease: "easeInOut" } // Normal breathing
+                    }
+                    className={isStreakAnimating ? "text-orange-300" : "text-orange-400"}
+                  >
+                    <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current" />
+                  </motion.div>
+                  <motion.span 
+                    animate={isStreakAnimating ? { scale: [1, 1.3, 1], color: ["#fb923c", "#fcd34d", "#fb923c"] } : {}}
+                    transition={{ duration: 0.5, repeat: 5 }}
+                    className="font-bold"
+                  >
+                    {userStats.streak}
+                  </motion.span>
                 </div>
                 <div className="h-4 w-[1px] bg-white/10" />
-                <div className="flex items-center gap-1.5 text-emerald-400" title="XP">
-                  <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                  <span className="font-bold">{userStats.xp} XP</span>
+                <div className="flex items-center gap-1.5 text-emerald-400 relative" title="XP">
+                  <motion.div
+                    animate={
+                      isStreakAnimating 
+                        ? { scale: [1, 1.5, 1], filter: "drop-shadow(0 0 10px rgba(52, 211, 153, 1))" }
+                        : {}
+                    }
+                    transition={{ duration: 0.5, repeat: 5 }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  </motion.div>
+                  <motion.span 
+                    animate={isStreakAnimating ? { scale: [1, 1.2, 1], color: ["#34d399", "#6ee7b7", "#34d399"] } : {}}
+                    transition={{ duration: 0.5, repeat: 5 }}
+                    className="font-bold"
+                  >
+                    {userStats.xp} XP
+                  </motion.span>
                 </div>
                 <div className="h-4 w-[1px] bg-white/10" />
                 <div className={`flex items-center gap-1.5 ${userStats.todaySessions >= 3 ? 'text-yellow-400' : 'text-zinc-500'}`} title="Daily Quest (3 Sessions)">

@@ -105,11 +105,11 @@ export class EltBot {
         
         Strict Pedagogical & Turn-Taking Rules:
         1. VOICE ONLY: Speak naturally like a human tutor during a phone call. No text formatting.
-        2. EXTREME PATIENCE: The user is a language learner. They will frequently pause, say "um", "uh", or stay silent to think. 
-           DO NOT interrupt them. Give them plenty of time to finish their thoughts. If they pause, assume they are thinking.
+        2. EXTREME PATIENCE (CRITICAL): The user is a language learner. They will frequently pause for 3-5 seconds, say "um", "uh", or stay silent to think. YOU MUST NEVER INTERRUPT THEM. Always wait an extra few seconds before you reply to guarantee they are finished speaking. If they pause mid-sentence, remain completely silent and let them continue.
         3. ENCOURAGEMENT: If they struggle in absolute silence for a long time, gently offer a hint or ask a guiding question, but do it softly.
         4. DEEP CONVERSATION: Do not just ask superficial questions. Ask follow-up questions. If they mention a hobby, ask specific details about it. Give them space to elaborate.
         5. CONVERSATION RATIO: Keep your replies relatively short but engaging. The goal is for the student to speak 70% of the time, and you 30%.
+        6. ENDING THE CALL: WHEN the user wants to end the call, you MUST audibly say "Thanks for the conversation, let's look at your report now. Goodbye!" BEFORE you trigger the endConversation tool. Do not just stop abruptly.
         
         CRITICAL CLOSING RULE: If the user says goodbye, "let's end this", "thank you that's all", or clearly wishes to terminate the conversation, you must FIRST politely say goodbye (e.g. "Okay, it was great talking to you. See you next time!"). THEN, in the EXACT SAME TURN alongside your goodbye message, you MUST call the \`endConversation\` function to officially end the call.
 
@@ -183,12 +183,16 @@ export class EltBot {
                     if (this.audioPlayer.isPlaying) {
                       setTimeout(checkFinish, 500);
                     } else {
-                      if (this.callbacks.onBotFinished) {
-                        this.callbacks.onBotFinished();
-                      }
+                      // Add a small buffer after audio finishes (or if it never started)
+                      setTimeout(() => {
+                        if (this.callbacks.onBotFinished) {
+                          this.callbacks.onBotFinished();
+                        }
+                      }, 3000);
                     }
                   };
-                  checkFinish();
+                  // Wait before checking so audio has time to start playing if part of the same turn
+                  setTimeout(checkFinish, 2000);
                 }
               }
             }

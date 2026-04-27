@@ -72,6 +72,7 @@ export const getUserStats = async (): Promise<UserStats | null> => {
       if (!data.equippedBadge) { data.equippedBadge = ''; needsUpdate = true; }
       if (!data.equippedOutfit) { data.equippedOutfit = 'outfit_default'; needsUpdate = true; }
       if (needsUpdate) {
+          data.updatedAt = serverTimestamp();
           await setDoc(docRef, data);
       }
       return data;
@@ -188,6 +189,7 @@ const updateGamificationStats = async () => {
     return stats;
   } catch (error) {
     console.error("Failed to update gamification stats:", error);
+    throw error;
   }
 };
 
@@ -206,8 +208,9 @@ export const saveReportToDb = async (context: BotContext, reportText: string) =>
     });
     console.log("Report saved successfully!");
     
-    // Trigger Gamification
-    await updateGamificationStats();
+    // Trigger Gamification & return it
+    const stats = await updateGamificationStats();
+    return stats;
     
   } catch (error: any) {
     console.error("Failed to save report:", error);
