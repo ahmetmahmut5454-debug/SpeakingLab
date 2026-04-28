@@ -272,49 +272,71 @@ export class EltBot {
       return "Sistem bağlantısı sağlandığını ancak görüşme sırasında metne dönüştürme özelliğinin (Speech Recognition) bu cihazda/tarayıcıda desteklenmemesi nedeniyle rapor oluşturulamadığını tespit ettik. Uygulamayı PWA (Ana Ekrana Ekle) olarak yüklerseniz veya Chrome tarayıcı kullanırsanız mikrofondan metne dönüştürme özelliği daha stabil çalışacaktır.";
     }
 
-    try {
-      const ai = getAiClient();
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `
-          The following transcript is a practice session between an English language student and an AI tutor.
-          Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them (e.g. if Tutor corrects a grammar mistake, infer the mistake. If Tutor says 'Great point!', infer good fluency).
-          
-          Target CEFR Level: ${context.level}
-          Topic: ${context.topic}
-          Student's Goal: ${context.objective}
+    let attempt = 0;
+    const maxRetries = 3;
+    const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    let lastErr: any;
 
-          --- CONVERSATION TRANSCRIPT ---
-          ${this.transcriptHistory.join("\n")}
-          -------------------------------
+    while (attempt < maxRetries) {
+      try {
+        const ai = getAiClient();
+        const response = await ai.models.generateContent({
+          model: modelsToTry[attempt] || "gemini-2.0-flash",
+          contents: `
+            The following transcript is a practice session between an English language student and an AI tutor.
+            Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them (e.g. if Tutor corrects a grammar mistake, infer the mistake. If Tutor says 'Great point!', infer good fluency).
+            
+            Target CEFR Level: ${context.level}
+            Topic: ${context.topic}
+            Student's Goal: ${context.objective}
 
-          Analyze the student's performance based ONLY on the transcript above (and inferences from the Tutor's responses). 
-          Provide a highly structured, constructive feedback report strictly categorized as follows:
+            --- CONVERSATION TRANSCRIPT ---
+            ${this.transcriptHistory.join("\n")}
+            -------------------------------
 
-          ### 1. Overall & CEFR Assessment
-          (Did they seem to meet the goal based on the tutor's reactions?)
+            Analyze the student's performance based ONLY on the transcript above (and inferences from the Tutor's responses). 
+            Provide a highly structured, constructive feedback report strictly categorized as follows:
 
-          ### 2. Pronunciation & Fluency
-          (Assess pacing and clarity based on how well the tutor understood them)
+            ### 1. Overall & CEFR Assessment
+            (Did they seem to meet the goal based on the tutor's reactions?)
 
-          ### 3. Grammar & Vocabulary
-          (Point out inferred strong vocabulary or grammatical mistakes based on the tutor's corrections)
+            ### 2. Pronunciation & Fluency
+            (Assess pacing and clarity based on how well the tutor understood them)
 
-          ### 4. Constructive Next Steps
-          (Exact exercises or topics focus)
+            ### 3. Grammar & Vocabulary
+            (Point out inferred strong vocabulary or grammatical mistakes based on the tutor's corrections)
 
-          Write the entire report in English. Use a professional, encouraging tone.
-        `
-      });
+            ### 4. Constructive Next Steps
+            (Exact exercises or topics focus)
 
-      return response.text || "Failed to generate report.";
-    } catch (err: any) {
-      console.error("Report generation failed:", err);
-      if (err?.message?.includes("503") || err?.message?.includes("UNAVAILABLE") || err?.status === 503) {
-         return `❌ Rapor Oluşturulamadı: Şu anda yapay zeka sunucularında yoğunluk yaşanıyor (503 Service Unavailable). Lütfen rapor yeteneğini daha sonra tekrar deneyin veya konuşmaya bir süre ara verin.\n\nEğer isterseniz sayfayı yenileyip tekrar bağlanabilirsiniz.`;
+            Write the entire report in English. Use a professional, encouraging tone.
+          `
+        });
+
+        return response.text || "Failed to generate report.";
+      } catch (err: any) {
+        lastErr = err;
+        console.error(`Report generation failed on attempt ${attempt + 1}:`, err);
+        
+        // If it's a 503 or overload error, retry with exponential backoff and fallback model
+        if (err?.message?.includes("503") || err?.message?.includes("UNAVAILABLE") || err?.status === 503 || err?.message?.includes("Overloaded") || err?.message?.includes("fetch failed")) {
+          attempt++;
+          if (attempt < maxRetries) {
+            console.log(`Retrying report generation (${attempt}/${maxRetries}) using fallback model...`);
+            await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
+            continue;
+          }
+        }
+        
+        // If not a retryable error, or max retries reached, break
+        break;
       }
-      return `❌ Rapor Oluşturma Hatası: ${err.message}\n\nDetayları Console'dan veya yukarıdaki mesajdan inceleyebilirsiniz. Sunucu veya API bağlantı hatası oluşmuş olabilir.`;
     }
+
+    if (lastErr?.message?.includes("503") || lastErr?.message?.includes("UNAVAILABLE") || lastErr?.status === 503 || lastErr?.message?.includes("Overloaded")) {
+       return `❌ Rapor Oluşturulamadı: Şu anda yapay zeka sunucularında yoğunluk yaşanıyor (503 Service Unavailable). Otomatik tekrar denemeler de başarısız oldu. Lütfen rapor yeteneğini daha sonra tekrar deneyin veya konuşmaya bir süre ara verin.`;
+    }
+    return `❌ Rapor Oluşturma Hatası: ${lastErr?.message || "Unknown error"}\n\nDetayları Console'dan veya yukarıdaki mesajdan inceleyebilirsiniz. Sunucu veya API bağlantı hatası oluşmuş olabilir.`;
   }
 
   stop() {
