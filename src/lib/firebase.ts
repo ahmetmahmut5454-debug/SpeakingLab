@@ -201,10 +201,10 @@ export const saveReportToDb = async (context: BotContext, reportText: string) =>
     await addDoc(collection(db, 'reports'), {
       userId: auth.currentUser.uid,
       createdAt: serverTimestamp(),
-      level: context.level,
-      mode: context.mode,
-      topic: context.topic,
-      reportText: reportText
+      level: context.level || '',
+      mode: context.mode || '',
+      topic: context.topic || context.objective || '',
+      reportText: reportText || ''
     });
     console.log("Report saved successfully!");
     
