@@ -49,6 +49,7 @@ import {
   getUserStats,
   UserStats,
   updateUserPurchase,
+  updateGamificationStats,
 } from "./lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 
@@ -562,15 +563,20 @@ export default function App() {
     setReport(sessionReport);
     setGeneratingReport(false);
 
+    // Always give XP for participating, even if report generation (LLM) fails
+    if (user) {
+      const stats = await updateGamificationStats();
+      if (stats) {
+        setUserStats(stats);
+        setIsStreakAnimating(true);
+        setTimeout(() => setIsStreakAnimating(false), 3000);
+      }
+    }
+
     // Save to Firebase if logged in, otherwise save to LocalStorage (Mac/Desktop fallback)
     if (sessionReport && !sessionReport.includes("❌")) {
       if (user) {
-        const stats = await saveReportToDb(context, sessionReport);
-        if (stats) {
-          setUserStats(stats);
-          setIsStreakAnimating(true);
-          setTimeout(() => setIsStreakAnimating(false), 3000);
-        }
+        await saveReportToDb(context, sessionReport);
       } else {
         const localRep = {
           id: Date.now().toString(),
