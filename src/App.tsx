@@ -671,10 +671,11 @@ export default function App() {
                   }
                   transition={{ duration: 0.8, repeat: 3 }}
                   className={`flex items-center gap-1.5 ${userStats.todaySessions >= 3 ? "text-yellow-400" : "text-zinc-500"}`}
-                  title="Daily Quest (3 Sessions)"
+                  title="3 Sessions (Daily)"
                 >
                   <Target className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span className="font-bold relative">
+                    <span className="hidden sm:inline">Daily: </span>
                     {Math.min(3, userStats.todaySessions)}/3
                   </span>
                 </motion.div>
@@ -694,10 +695,11 @@ export default function App() {
                   }
                   transition={{ duration: 0.8, repeat: 3 }}
                   className={`flex items-center gap-1.5 ${(userStats.todayTaskSessions || 0) >= 2 ? "text-yellow-400" : "text-zinc-500"}`}
-                  title="Task Quest (2 TBLT Sessions)"
+                  title="2 TBLT Sessions (Weekly)"
                 >
                   <Briefcase className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span className="font-bold relative">
+                    <span className="hidden sm:inline">Tasks: </span>
                     {Math.min(2, userStats.todayTaskSessions || 0)}/2
                   </span>
                 </motion.div>
@@ -705,6 +707,7 @@ export default function App() {
                 <button
                   onClick={() => setShowShop(true)}
                   className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors"
+                  title="Item Store"
                 >
                   <Store className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span className="font-bold hidden sm:inline">Store</span>
@@ -1612,9 +1615,9 @@ export default function App() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <Terminal className="w-5 h-5 text-green-500" />
+                  <Settings className="w-5 h-5 text-slate-500" />
                   <h2 className="font-bold uppercase tracking-widest text-sm">
-                    Dev Console
+                    Scenario Settings
                   </h2>
                 </div>
                 <button
