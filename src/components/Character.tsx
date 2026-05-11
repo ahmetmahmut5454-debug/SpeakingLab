@@ -143,16 +143,16 @@ export const Character = ({ type, expression, className = "" }: CharacterProps) 
               <g>
                 {/* Big smile with more realistic teeth */}
                 <path d="M82,128 Q100,148 118,128 Z" fill="#702459" />
-                {/* Row of teeth - narrower to avoid "bucktooth" look */}
+                {/* Row of teeth - very subtle and narrow */}
                 <path 
-                  d="M93,129 Q100,131 107,129 L106,133 Q100,135 94,133 Z" 
+                  d="M95,129 Q100,131 105,129 L104.5,132.5 Q100,134.5 95.5,132.5 Z" 
                   fill="white" 
                 />
                 {/* Subtle tooth separators */}
-                <g opacity="0.2">
-                  <rect x="96.5" y="129" width="0.4" height="4" fill="#702459" />
-                  <rect x="99.7" y="129.5" width="0.6" height="5" fill="#702459" />
-                  <rect x="103" y="129" width="0.4" height="4" fill="#702459" />
+                <g opacity="0.12">
+                  <rect x="97" y="129" width="0.4" height="3.5" fill="#702459" />
+                  <rect x="99.8" y="129.5" width="0.4" height="4" fill="#702459" />
+                  <rect x="102.6" y="129" width="0.4" height="3.5" fill="#702459" />
                 </g>
                 {/* Subtle tongue / depth */}
                 <path d="M92,142 Q100,146 108,142" stroke="#FF9999" strokeWidth="1.5" fill="none" opacity="0.3" />
