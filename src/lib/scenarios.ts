@@ -8,11 +8,13 @@ export interface Scenario {
   icebreaker?: string;
   vocabulary?: string[];
   studentBriefing?: string;
+  imageUrl?: string;
 }
 
 export const predefinedScenarios: Scenario[] = [
   {
     id: "s1",
+    imageUrl: "https://images.unsplash.com/photo-1471018259965-02b4bc9da464?w=500&q=80",
     title: "The Broken Ticket (Train Station)",
     level: "A2",
     role: "station",
@@ -32,6 +34,7 @@ export const predefinedScenarios: Scenario[] = [
   },
   {
     id: "s2",
+    imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80",
     title: "Dinner Plans (Making Choices)",
     level: "A2",
     role: "default",
@@ -49,6 +52,7 @@ export const predefinedScenarios: Scenario[] = [
   },
   {
     id: "s3",
+    imageUrl: "https://images.unsplash.com/photo-1628102491629-77858ab5721d?w=500&q=80",
     title: "The Empty Box Complaint",
     level: "B1-B2",
     role: "support",
@@ -67,6 +71,7 @@ export const predefinedScenarios: Scenario[] = [
   },
   {
     id: "s4",
+    imageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80",
     title: "Chore Negotiation & Boundaries",
     level: "B1-B2",
     role: "roommate",
@@ -85,6 +90,7 @@ export const predefinedScenarios: Scenario[] = [
   },
   {
     id: "s5",
+    imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80",
     title: "Pitching the Mayor",
     level: "C1",
     role: "mayor",
@@ -101,6 +107,7 @@ export const predefinedScenarios: Scenario[] = [
   },
   {
     id: "s6",
+    imageUrl: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=500&q=80",
     title: "Startup Pitch to Billionaire",
     level: "C1",
     role: "investor",

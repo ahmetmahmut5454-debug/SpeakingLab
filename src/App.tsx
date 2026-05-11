@@ -114,107 +114,34 @@ const DynamicAvatar = ({
 }: {
   className?: string;
   outfit?: string;
-}) => (
-  <svg
-    viewBox="0 0 100 100"
-    className={className}
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <circle cx="50" cy="50" r="50" fill="url(#bgGradient)" />
-
-    {/* Human Face Half (Left) */}
-    <path
-      d="M 50 20 C 35 20, 25 30, 25 45 C 25 55, 28 64, 35 70 L 35 78 C 35 83, 42 85, 50 85 Z"
-      fill="#ffffff"
-      opacity="0.9"
+}) => {
+  let seed = "Leo";
+  let bg = "b6e3f4";
+  if (outfit === "outfit_glasses") {
+    seed = "Molly";
+    bg = "ffd5dc";
+  } else if (outfit === "outfit_cap") {
+    seed = "Jack";
+    bg = "d1d4f9";
+  } else if (outfit === "outfit_crown") {
+    seed = "King";
+    bg = "c0aede";
+  }
+  return (
+    <img 
+      src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${seed}&backgroundColor=${bg}`} 
+      alt="Avatar" 
+      className={`rounded-full object-cover shadow-inner ${className}`}
     />
-    <path d="M 33 42 Q 38 38 42 42 Q 38 45 33 42 Z" fill="#111113" />
-
-    {/* Robot Face Half (Right) */}
-    <path
-      d="M 50 20 C 65 20, 75 30, 75 45 C 75 55, 72 64, 65 70 L 65 78 C 65 83, 58 85, 50 85 Z"
-      fill="#10b981"
-    />
-    <rect x="58" y="40" width="10" height="4" rx="1.5" fill="#0f0f12" />
-    <circle cx="63" cy="42" r="1.5" fill="#34d399" />
-
-    {/* Center Divider */}
-    <line
-      x1="50"
-      y1="20"
-      x2="50"
-      y2="85"
-      stroke="#0f172a"
-      strokeWidth="1.5"
-      opacity="0.3"
-    />
-
-    {/* Outfits */}
-    {outfit === "outfit_glasses" && (
-      <g>
-        <rect x="25" y="38" width="22" height="10" rx="2" fill="#0f172a" />
-        <rect x="53" y="38" width="22" height="10" rx="2" fill="#0f172a" />
-        <line
-          x1="47"
-          y1="42"
-          x2="53"
-          y2="42"
-          stroke="#0f172a"
-          strokeWidth="3"
-        />
-      </g>
-    )}
-
-    {outfit === "outfit_cap" && (
-      <g>
-        <path d="M 22 25 C 30 10, 70 10, 78 25 Z" fill="#ef4444" />
-        <path
-          d="M 18 25 L 50 25 L 82 25"
-          stroke="#ef4444"
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-      </g>
-    )}
-
-    {outfit === "outfit_crown" && (
-      <g>
-        <path d="M 30 20 L 35 5 L 50 15 L 65 5 L 70 20 Z" fill="#fbbf24" />
-        <circle cx="35" cy="5" r="2" fill="#ef4444" />
-        <circle cx="50" cy="15" r="2" fill="#3b82f6" />
-        <circle cx="65" cy="5" r="2" fill="#10b981" />
-      </g>
-    )}
-
-    {/* Speech Bubble */}
-    {(!outfit || outfit === "outfit_default") && (
-      <g transform="translate(0, 10)">
-        <path
-          d="M 50 60 C 65 60 75 68 75 76 C 75 84 65 92 50 92 C 45 92 40 91 35 88 L 25 90 L 28 82 C 25 79 23 77 23 74 C 23 66 35 60 50 60 Z"
-          fill="#38bdf8"
-        />
-        <circle cx="41" cy="76" r="2.5" fill="#ffffff" />
-        <circle cx="50" cy="76" r="2.5" fill="#ffffff" />
-        <circle cx="59" cy="76" r="2.5" fill="#ffffff" />
-      </g>
-    )}
-
-    <defs>
-      <linearGradient id="bgGradient" x1="0" y1="0" x2="100" y2="100">
-        <stop offset="0%" stopColor="#1e293b" />
-        <stop offset="100%" stopColor="#0f172a" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
+  );
+};
 
 const StatusBadge = ({ on }: { on: boolean }) => (
-  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md shadow-lg">
+  <div className="flex items-center gap-2 bg-slate-900/5 px-4 py-2 rounded-full border border-slate-900/10 backdrop-blur-md shadow-lg">
     <div
-      className={`w-2 h-2 rounded-full transition-all duration-300 ${on ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" : "bg-white/20"}`}
+      className={`w-2 h-2 rounded-full transition-all duration-300 ${on ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" : "bg-slate-900/20"}`}
     />
-    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/70">
+    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-slate-600/70">
       {on ? "Neural Link Active" : "System Standby"}
     </span>
   </div>
@@ -278,7 +205,7 @@ const RoleAvatar = ({
           : "0 0 0px rgba(96, 165, 250, 0)",
         scale: isActive ? 1.05 : 1,
       }}
-      className={`relative rounded-full p-4 border flex items-center justify-center transition-colors duration-500 ${role ? "border-blue-500/30 bg-blue-500/10 text-blue-400" : "border-white/10 bg-white/5 text-white/40"}`}
+      className={`relative rounded-full p-4 border flex items-center justify-center transition-colors duration-500 ${role ? "border-blue-500/30 bg-blue-500/10 text-blue-400" : "border-slate-900/10 bg-slate-900/5 text-slate-600/40"}`}
     >
       <IconComponent />
     </motion.div>
@@ -363,8 +290,8 @@ const WalkingBadge = ({ icon }: { icon: string }) => {
       animate={{
         x: positionX,
         scaleX: direction === 1 ? -1 : 1, // Face the direction it's moving
-        scaleY: isClicked ? 1.5 : isHovered ? 1.2 : 1,
-        y: isClicked ? -20 : 0, // slight jump on click
+        scaleY: isHovered ? 1.1 : 1,
+        y: isClicked ? -10 : 0, // slight jump on click
         rotate: isClicked ? [0, -20, 20, -20, 20, 0] : [-5, 5, -5], // walking wobble
       }}
       transition={{
@@ -380,7 +307,7 @@ const WalkingBadge = ({ icon }: { icon: string }) => {
         setIsClicked(true);
         setTimeout(() => setIsClicked(false), 1000);
       }}
-      className="fixed bottom-24 md:bottom-12 text-5xl cursor-pointer select-none pointer-events-auto"
+      className="fixed bottom-10 origin-bottom md:bottom-12 text-5xl cursor-pointer select-none pointer-events-auto"
       style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))", zIndex: 100 }}
       title="Evcil Hayvanın"
     >
@@ -689,7 +616,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0f] text-[#c9c9c9] font-mono selection:bg-green-500/20 antialiased overflow-hidden relative">
+    <div className="min-h-screen bg-[#f0fdf4] text-slate-800 font-sans selection:bg-green-500/30 antialiased overflow-hidden relative">
       {purchasedBadgeInfo && (
         <EmojiBurst
           icon={purchasedBadgeInfo.icon}
@@ -706,9 +633,8 @@ export default function App() {
       })}
 
       {/* HUD Background elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#2a2a2a_0%,_transparent_75%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,_rgba(0,0,0,0.1)_50%),_linear-gradient(90deg,rgba(0,0,0,0.1),rgba(0,0,0,0),rgba(0,0,0,0.1))] bg-[length:100%_3px,4px_100%]" />
+      <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-[0.02]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#4ade80_0%,_transparent_75%)]" />
       </div>
 
       <main className="relative z-10 max-w-4xl mx-auto p-4 md:p-12 flex flex-col min-h-screen">
@@ -718,14 +644,14 @@ export default function App() {
             <div className="flex items-center gap-3 md:gap-5">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
-                <div className="relative bg-[#111113] p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
+                <div className="relative bg-white p-2 md:p-3.5 rounded-2xl border border-slate-900/10 shadow-2xl">
                   <DynamicAvatar
                     className="w-6 h-6 md:w-8 md:h-8"
                     outfit={userStats?.equippedOutfit}
                   />
                 </div>
                 {userStats?.equippedBadge && (
-                  <div className="absolute -bottom-2 -right-2 bg-[#111113] border border-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
+                  <div className="absolute -bottom-2 -right-2 bg-white border border-slate-900/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
                     {
                       SHOP_ITEMS.find((i) => i.id === userStats.equippedBadge)
                         ?.icon
@@ -743,7 +669,7 @@ export default function App() {
           </div>
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
             {userStats && (
-              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-white/5 py-1.5 px-3 md:px-4 rounded-xl border border-white/10 text-xs md:text-sm">
+              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-slate-900/5 py-1.5 px-3 md:px-4 rounded-xl border border-slate-900/10 text-xs md:text-sm">
                 <div
                   className="flex items-center gap-1.5 text-orange-400 relative"
                   title="Daily Streak"
@@ -791,7 +717,7 @@ export default function App() {
                     {userStats.streak}
                   </motion.span>
                 </div>
-                <div className="h-4 w-[1px] bg-white/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <div
                   className="flex items-center gap-1.5 text-emerald-400 relative"
                   title="XP"
@@ -834,7 +760,7 @@ export default function App() {
                     )}
                   </motion.span>
                 </div>
-                <div className="h-4 w-[1px] bg-white/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <motion.div
                   animate={
                     isQuestAnimating
@@ -857,7 +783,7 @@ export default function App() {
                     {Math.min(3, userStats.todaySessions)}/3
                   </span>
                 </motion.div>
-                <div className="h-4 w-[1px] bg-white/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <motion.div
                   animate={
                     isQuestAnimating
@@ -880,7 +806,7 @@ export default function App() {
                     {Math.min(2, userStats.todayTaskSessions || 0)}/2
                   </span>
                 </motion.div>
-                <div className="h-4 w-[1px] bg-white/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <button
                   onClick={() => setShowShop(true)}
                   className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors"
@@ -902,7 +828,7 @@ export default function App() {
                 >
                   <Trophy className="w-3 h-3" />
                 </button>
-                <div className="h-6 w-[1px] bg-white/10 mx-1" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-1" />
                 <button
                   onClick={() => {
                     loadReports();
@@ -912,7 +838,7 @@ export default function App() {
                 >
                   <History className="w-3 h-3" /> Local Reports
                 </button>
-                <div className="h-6 w-[1px] bg-white/10 mx-1" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-1" />
               </>
             )}
 
@@ -928,7 +854,7 @@ export default function App() {
                   <Trophy className="w-4 h-4" />{" "}
                   <span className="hidden sm:inline">Leaderboard</span>
                 </button>
-                <div className="h-6 w-[1px] bg-white/10 mx-2" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
                 <button
                   onClick={() => {
                     loadReports();
@@ -938,10 +864,10 @@ export default function App() {
                 >
                   <History className="w-4 h-4" /> Reports
                 </button>
-                <div className="h-6 w-[1px] bg-white/10 mx-2" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
                 <button
                   onClick={logout}
-                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-white/5 border border-white/5 text-white/50 hover:bg-white/10 hover:text-white/80 transition-all text-xs font-bold uppercase tracking-widest"
+                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-slate-900/5 border border-slate-900/5 text-slate-600/50 hover:bg-slate-900/10 hover:text-slate-600/80 transition-all text-xs font-bold uppercase tracking-widest"
                 >
                   <img
                     src={user.photoURL || ""}
@@ -983,23 +909,23 @@ export default function App() {
                     }
                   });
                 }}
-                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white/10 border border-white/10 hover:bg-white/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-slate-900/10 border border-slate-900/10 hover:bg-slate-900/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
               >
                 <LogIn className="w-4 h-4" /> Sign In to Save Reports
               </button>
             )}
 
-            <div className="h-6 w-[1px] bg-white/10 mx-2" />
+            <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
 
             <button
               onClick={() => setShowSubtitles(!showSubtitles)}
-              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg ${showSubtitles ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"}`}
+              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg ${showSubtitles ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "bg-slate-900/5 border-slate-900/5 text-slate-600/40 hover:bg-slate-900/10"}`}
             >
               CC
             </button>
             <button
               onClick={() => setShowDev(!showDev)}
-              className={`p-3 rounded-xl border transition-all duration-500 shadow-lg ${showDev ? "bg-white/10 border-white/20 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]" : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10 hover:text-white/80"}`}
+              className={`p-3 rounded-xl border transition-all duration-500 shadow-lg ${showDev ? "bg-slate-900/10 border-slate-900/20 text-slate-900 shadow-[0_0_20px_rgba(255,255,255,0.1)]" : "bg-slate-900/5 border-slate-900/5 text-slate-600/40 hover:bg-slate-900/10 hover:text-slate-600/80"}`}
             >
               <Settings className="w-5 h-5" />
             </button>
@@ -1011,7 +937,7 @@ export default function App() {
           className={`flex-1 flex flex-col items-center justify-center gap-16 transition-all duration-1000 ${showOnboarding && !isRunning ? "blur-sm pointer-events-none opacity-50" : "blur-0"}`}
         >
           {/* Main Visualizer Area */}
-          <div className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[21/9] bg-[#0f1013] border border-white/[0.04] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
+          <div className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[21/9] bg-white border border-white/[0.04] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
             {/* Ambient Background Glow based on connection (Toned Down) */}
             <div
               className={`absolute inset-0 transition-opacity duration-1000 blur-3xl pointer-events-none ${isRunning ? "opacity-10" : "opacity-0"}`}
@@ -1062,7 +988,7 @@ export default function App() {
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
                       Human
                     </span>
-                    <span className="text-xs uppercase tracking-widest text-white/50 font-medium">
+                    <span className="text-xs uppercase tracking-widest text-slate-600/50 font-medium">
                       Transmitting
                     </span>
                   </motion.div>
@@ -1076,7 +1002,7 @@ export default function App() {
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">
                       AI Core
                     </span>
-                    <span className="text-xs uppercase tracking-widest text-white/50 font-medium">
+                    <span className="text-xs uppercase tracking-widest text-slate-600/50 font-medium">
                       Processing
                     </span>
                   </motion.div>
@@ -1123,7 +1049,7 @@ export default function App() {
                   className="absolute bottom-6 left-0 right-0 px-24 pointer-events-none text-center"
                 >
                   <p
-                    className={`text-base md:text-lg font-medium leading-relaxed tracking-wide drop-shadow-md bg-black/40 inline-block px-4 py-1.5 rounded-lg border border-white/5 backdrop-blur-sm ${currentSubtitle.isBot ? "text-blue-100" : "text-emerald-100"}`}
+                    className={`text-base md:text-lg font-medium leading-relaxed tracking-wide drop-shadow-md bg-white/80 border border-slate-200 inline-block px-4 py-1.5 rounded-lg border border-slate-900/5 backdrop-blur-sm ${currentSubtitle.isBot ? "text-blue-600" : "text-emerald-600"}`}
                   >
                     {currentSubtitle.text}
                   </p>
@@ -1143,7 +1069,7 @@ export default function App() {
                 onChange={(e) =>
                   setContext({ ...context, voice: e.target.value as VoiceType })
                 }
-                className="bg-[#151619] border border-white/10 rounded-lg px-4 py-2 text-sm text-white/80 focus:outline-none focus:border-white/30"
+                className="bg-white border border-slate-900/10 rounded-lg px-4 py-2 text-sm text-slate-600/80 focus:outline-none focus:border-slate-900/30"
                 disabled={isRunning}
               >
                 <option value="Aoede">Tutor: Aoede (Female, Calm)</option>
@@ -1195,13 +1121,13 @@ export default function App() {
               )}
             </motion.button>
             <div className="flex gap-6 items-center">
-              <p className="text-[10px] text-white/30 text-center uppercase tracking-widest font-medium">
+              <p className="text-[10px] text-slate-600/30 text-center uppercase tracking-widest font-medium">
                 Pulsar Audio Engine Active
               </p>
-              <div className="w-1 h-1 rounded-full bg-white/20" />
+              <div className="w-1 h-1 rounded-full bg-slate-900/20" />
               <div className="flex gap-2 items-center">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-60 shadow-[0_0_5px_#10b981]" />
-                <span className="text-[9px] text-white/30 uppercase tracking-widest">
+                <span className="text-[9px] text-slate-600/30 uppercase tracking-widest">
                   End-to-End Encrypted
                 </span>
               </div>
@@ -1218,7 +1144,7 @@ export default function App() {
               exit={{ opacity: 0, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-[#151619] border border-white/10 p-8 rounded-2xl max-w-lg w-full shadow-2xl">
+              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-lg w-full shadow-2xl">
                 <div className="flex items-center gap-3 mb-6">
                   <LayoutDashboard className="w-6 h-6 text-green-500" />
                   <h2 className="text-xl font-bold uppercase tracking-tight">
@@ -1232,7 +1158,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => setReport(null)}
-                  className="w-full py-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 font-bold uppercase tracking-widest transition-all"
+                  className="w-full py-3 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all"
                 >
                   Close Report
                 </button>
@@ -1250,23 +1176,28 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-[#111113] border border-white/10 p-10 rounded-[2rem] max-w-lg w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+              <div className="bg-white border-4 border-slate-200 p-10 rounded-[2rem] max-w-lg w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
                 <div className="flex flex-col items-center gap-6 text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                    <RoleAvatar role={context.role} isActive={false} />
-                  </div>
+                  
+                  {predefinedScenarios.find((s) => s.role === context.role)?.imageUrl ? (
+                    <img src={predefinedScenarios.find((s) => s.role === context.role)?.imageUrl} alt="Scenario" className="w-full h-40 object-cover rounded-2xl shadow-inner mb-2" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <RoleAvatar role={context.role} isActive={false} />
+                    </div>
+                  )}
                   <div>
                     <h2 className="text-2xl font-bold tracking-tight mb-2">
                       Scenario Briefing
                     </h2>
-                    <p className="text-white/80 text-sm leading-relaxed mb-4 bg-[#15161A] p-4 rounded-xl border border-white/10">
+                    <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-slate-100 p-4 rounded-xl border border-slate-200 shadow-inner">
                       {predefinedScenarios.find((s) => s.role === context.role)
                         ?.studentBriefing ||
                         "Get ready to solve the problem using your English skills!"}
                     </p>
                   </div>
 
-                  <div className="w-full bg-[#15161A] rounded-2xl p-6 text-left border border-white/5">
+                  <div className="w-full bg-slate-50 rounded-2xl p-6 text-left border border-slate-900/5">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">
                       Key Vocabulary
                     </h3>
@@ -1276,7 +1207,7 @@ export default function App() {
                         ?.vocabulary?.map((word, i) => (
                           <span
                             key={i}
-                            className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white/80"
+                            className="px-3 py-1 bg-slate-900/5 border border-slate-900/10 rounded-lg text-sm text-slate-600/80"
                           >
                             {word}
                           </span>
@@ -1287,7 +1218,7 @@ export default function App() {
                   <div className="flex gap-4 w-full mt-4">
                     <button
                       onClick={() => setShowPreTask(false)}
-                      className="flex-1 py-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 font-bold uppercase tracking-widest transition-all text-xs"
+                      className="flex-1 py-4 bg-slate-900/5 border border-slate-900/10 rounded-xl hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all text-xs"
                     >
                       Cancel
                     </button>
@@ -1317,8 +1248,8 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-[#111113] border border-white/10 p-8 rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl">
-                <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
+              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl">
+                <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-900/10">
                   <div className="flex items-center gap-3">
                     <History className="w-6 h-6 text-indigo-400" />
                     <h2 className="text-xl font-bold uppercase tracking-tight">
@@ -1327,7 +1258,7 @@ export default function App() {
                   </div>
                   <button
                     onClick={() => setShowHistory(false)}
-                    className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 font-bold uppercase tracking-widest transition-all text-xs"
+                    className="px-4 py-2 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all text-xs"
                   >
                     Close
                   </button>
@@ -1336,16 +1267,16 @@ export default function App() {
                 {/* Stats Bar */}
                 {!loadingHistory && pastReports.length > 0 && (
                   <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-[#151619] border border-white/5 p-5 rounded-2xl">
-                      <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest mb-1">
+                    <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
+                      <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Total Sessions
                       </div>
-                      <div className="text-3xl font-light text-white">
+                      <div className="text-3xl font-light text-slate-900">
                         {pastReports.length}
                       </div>
                     </div>
-                    <div className="bg-[#151619] border border-white/5 p-5 rounded-2xl">
-                      <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest mb-1">
+                    <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
+                      <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Most Frequent Level
                       </div>
                       <div className="text-3xl font-light text-emerald-400">
@@ -1361,8 +1292,8 @@ export default function App() {
                           "N/A"}
                       </div>
                     </div>
-                    <div className="bg-[#151619] border border-white/5 p-5 rounded-2xl">
-                      <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest mb-1">
+                    <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
+                      <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Status
                       </div>
                       <div className="text-3xl font-light text-blue-400">
@@ -1374,11 +1305,11 @@ export default function App() {
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-4 pr-2">
                   {loadingHistory ? (
-                    <div className="flex-1 flex items-center justify-center text-white/50 uppercase tracking-widest text-sm animate-pulse">
+                    <div className="flex-1 flex items-center justify-center text-slate-600/50 uppercase tracking-widest text-sm animate-pulse">
                       Loading Archives...
                     </div>
                   ) : pastReports.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-white/30">
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-slate-600/30">
                       <Calendar className="w-12 h-12 opacity-50" />
                       <p className="uppercase tracking-widest text-xs">
                         No records found initialized.
@@ -1388,17 +1319,17 @@ export default function App() {
                     pastReports.map((r) => (
                       <div
                         key={r.id}
-                        className="bg-[#1a1b1e] border border-white/5 rounded-xl p-6 relative group flex flex-col gap-4"
+                        className="bg-[#1a1b1e] border border-slate-900/5 rounded-xl p-6 relative group flex flex-col gap-4"
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex gap-2 items-center">
-                            <span className="px-2 py-1 bg-white/10 rounded text-[10px] font-bold uppercase tracking-widest text-white/70">
+                            <span className="px-2 py-1 bg-slate-900/10 rounded text-[10px] font-bold uppercase tracking-widest text-slate-600/70">
                               {r.level}
                             </span>
-                            <span className="px-2 py-1 bg-white/5 rounded text-[10px] uppercase tracking-widest text-white/50">
+                            <span className="px-2 py-1 bg-slate-900/5 rounded text-[10px] uppercase tracking-widest text-slate-600/50">
                               {r.mode}
                             </span>
-                            <span className="text-[10px] uppercase tracking-widest text-white/40 ml-2">
+                            <span className="text-[10px] uppercase tracking-widest text-slate-600/40 ml-2">
                               {typeof r.createdAt !== "undefined" &&
                               "seconds" in r.createdAt
                                 ? new Date(
@@ -1420,10 +1351,10 @@ export default function App() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <div className="text-xs uppercase tracking-widest text-white/50 border-l-2 border-indigo-500/50 pl-3">
+                        <div className="text-xs uppercase tracking-widest text-slate-600/50 border-l-2 border-indigo-500/50 pl-3">
                           {r.topic}
                         </div>
-                        <div className="prose prose-invert prose-sm text-white/80 mt-2">
+                        <div className="prose prose-invert prose-sm text-slate-600/80 mt-2">
                           {r.reportText.split("\n").map((line, i) => (
                             <p key={i}>{line}</p>
                           ))}
@@ -1444,9 +1375,9 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute inset-0 z-50 bg-[#0a0a0b]/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8"
+              className="absolute inset-0 z-50 bg-[#f7fdfc]/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8"
             >
-              <div className="w-full max-w-lg bg-[#0f1013] border border-yellow-500/10 rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]">
+              <div className="w-full max-w-lg bg-white border border-yellow-500/10 rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]">
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
@@ -1463,7 +1394,7 @@ export default function App() {
                   </div>
                   <button
                     onClick={() => setShowLeaderboard(false)}
-                    className="p-2 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 transition-colors"
+                    className="p-2 bg-slate-900/5 border border-slate-900/5 rounded-full hover:bg-slate-900/10 transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1475,7 +1406,7 @@ export default function App() {
                       Loading Ranks...
                     </div>
                   ) : leaderboardData.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-white/30">
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-slate-600/30">
                       <Trophy className="w-12 h-12 opacity-50" />
                       <p className="uppercase tracking-widest text-xs">
                         No records found.
@@ -1485,11 +1416,11 @@ export default function App() {
                     leaderboardData.map((stat, idx) => (
                       <div
                         key={stat.userId}
-                        className={`p-4 rounded-xl flex items-center justify-between border ${stat.userId === user?.uid ? "bg-yellow-500/10 border-yellow-500/20" : "bg-[#15161A] border-white/5"} transition-all`}
+                        className={`p-4 rounded-xl flex items-center justify-between border ${stat.userId === user?.uid ? "bg-yellow-500/10 border-yellow-500/20" : "bg-slate-50 border-slate-900/5"} transition-all`}
                       >
                         <div className="flex items-center gap-4">
                           <div
-                            className={`text-sm font-bold w-6 text-center ${idx === 0 ? "text-yellow-400 text-lg" : idx === 1 ? "text-gray-300" : idx === 2 ? "text-amber-600" : "text-white/30"}`}
+                            className={`text-sm font-bold w-6 text-center ${idx === 0 ? "text-yellow-400 text-lg" : idx === 1 ? "text-gray-300" : idx === 2 ? "text-amber-600" : "text-slate-600/30"}`}
                           >
                             #{idx + 1}
                           </div>
@@ -1497,15 +1428,15 @@ export default function App() {
                             <img
                               src={stat.photoURL}
                               alt="Profile"
-                              className="w-10 h-10 rounded-full border border-white/10"
+                              className="w-10 h-10 rounded-full border border-slate-900/10"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
-                              <UserCircle className="w-6 h-6 text-white/50" />
+                            <div className="w-10 h-10 rounded-full bg-slate-900/5 flex items-center justify-center">
+                              <UserCircle className="w-6 h-6 text-slate-600/50" />
                             </div>
                           )}
                           <div className="flex flex-col">
-                            <span className="font-semibold text-white/90 text-sm">
+                            <span className="font-semibold text-slate-600/90 text-sm">
                               {stat.displayName || "Unknown Scholar"}
                               {stat.userId === user?.uid && (
                                 <span className="ml-2 text-[10px] uppercase text-yellow-500/70 border border-yellow-500/30 px-1.5 py-0.5 rounded-full">
@@ -1514,7 +1445,7 @@ export default function App() {
                               )}
                             </span>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-white/40 flex items-center gap-1">
+                              <span className="text-xs text-slate-600/40 flex items-center gap-1">
                                 <Flame className="w-3 h-3 text-orange-400" />{" "}
                                 {stat.streak} Day Flow
                               </span>
@@ -1550,15 +1481,15 @@ export default function App() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute inset-0 z-50 bg-[#0d0d0f]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
+              className="absolute inset-0 z-50 bg-[#f0fdf4]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
             >
-              <div className="max-w-2xl w-full bg-[#111113] border border-white/10 rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-                <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+              <div className="max-w-2xl w-full bg-white border border-slate-900/10 rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="flex justify-between items-center mb-8 border-b border-slate-900/10 pb-4">
                   <div>
                     <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2 text-blue-400">
                       <Store className="w-6 h-6" /> Item Store
                     </h2>
-                    <p className="text-white/50 text-xs uppercase tracking-widest mt-1">
+                    <p className="text-slate-600/50 text-xs uppercase tracking-widest mt-1">
                       Unlock badges and outfits with your XP
                     </p>
                   </div>
@@ -1569,7 +1500,7 @@ export default function App() {
                     </div>
                     <button
                       onClick={() => setShowShop(false)}
-                      className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all border border-white/10 text-white/50 hover:text-white"
+                      className="p-3 bg-slate-900/5 hover:bg-slate-900/10 rounded-full transition-all border border-slate-900/10 text-slate-600/50 hover:text-slate-900"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -1579,7 +1510,7 @@ export default function App() {
                 {userStats ? (
                   <div className="space-y-8">
                     <div>
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600/40 mb-4 flex items-center gap-2">
                         <Lock className="w-4 h-4" /> Badges
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -1600,10 +1531,10 @@ export default function App() {
                                   isEquipped
                                     ? "bg-blue-500/20 border-blue-500/50 shadow-lg"
                                     : isUnlocked
-                                      ? "bg-white/5 border-white/10 hover:bg-white/10"
+                                      ? "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                                       : userStats.xp >= item.price
-                                        ? "bg-white/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
-                                        : "bg-black/50 border-white/5 opacity-50 cursor-not-allowed"
+                                        ? "bg-slate-900/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
+                                        : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
                                 }`}
                               >
                                 <span className="text-4xl mb-2 drop-shadow-md">
@@ -1618,7 +1549,7 @@ export default function App() {
                                       <Check className="w-3 h-3" /> Equipped
                                     </span>
                                   ) : isUnlocked ? (
-                                    <span className="text-white/70 uppercase tracking-widest">
+                                    <span className="text-slate-600/70 uppercase tracking-widest">
                                       Equip
                                     </span>
                                   ) : (
@@ -1636,7 +1567,7 @@ export default function App() {
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600/40 mb-4 flex items-center gap-2">
                         <UserCircle className="w-4 h-4" /> Avatar Outfits
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -1654,7 +1585,7 @@ export default function App() {
                             userStats.equippedOutfit === "outfit_default" ||
                             !userStats.equippedOutfit
                               ? "bg-blue-500/20 border-blue-500/50"
-                              : "bg-white/5 border-white/10 hover:bg-white/10"
+                              : "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                           }`}
                         >
                           <DynamicAvatar className="w-12 h-12 mb-3 drop-shadow-lg" />
@@ -1680,10 +1611,10 @@ export default function App() {
                                   isEquipped
                                     ? "bg-blue-500/20 border-blue-500/50 shadow-lg"
                                     : isUnlocked
-                                      ? "bg-white/5 border-white/10 hover:bg-white/10"
+                                      ? "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                                       : userStats.xp >= item.price
-                                        ? "bg-white/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
-                                        : "bg-black/50 border-white/5 opacity-50 cursor-not-allowed"
+                                        ? "bg-slate-900/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
+                                        : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
                                 }`}
                               >
                                 <DynamicAvatar
@@ -1699,7 +1630,7 @@ export default function App() {
                                       <Check className="w-3 h-3" /> Equipped
                                     </span>
                                   ) : isUnlocked ? (
-                                    <span className="text-white/70 uppercase tracking-widest">
+                                    <span className="text-slate-600/70 uppercase tracking-widest">
                                       Equip
                                     </span>
                                   ) : (
@@ -1718,8 +1649,8 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Lock className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                    <p className="text-white/50 text-sm uppercase tracking-widest">
+                    <Lock className="w-12 h-12 text-slate-600/20 mx-auto mb-4" />
+                    <p className="text-slate-600/50 text-sm uppercase tracking-widest">
                       Please sign in to access the store
                     </p>
                   </div>
@@ -1743,26 +1674,24 @@ export default function App() {
                 transition={{ delay: 0.5, duration: 0.4 }}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 max-w-sm w-full"
               >
-                <div className="bg-[#111113] border border-white/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
+                <div className="bg-white border border-slate-900/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
                   <DynamicAvatar
                     className="w-16 h-16 mx-auto mb-6 drop-shadow-lg"
                     outfit={userStats?.equippedOutfit}
                   />
                   <h2 className="text-xl font-bold tracking-tight mb-2">
-                    Welcome to Speaking Buddy
+                    Let's do practice together!
                   </h2>
-                  <p className="text-white/50 text-sm leading-relaxed mb-6">
-                    Select a scenario from the settings panel on the right,
-                    review your briefing, and start speaking naturally. We'll
-                    track your English level and give you a detailed CEFR report
-                    when you finish.
+                  <p className="text-slate-600/70 font-medium text-sm leading-relaxed mb-6">
+                    Pick a scenario from the settings, review your briefing, and start speaking. 
+                    I'll track your English level and reward you with XP and cool new items!
                   </p>
                   <button
                     onClick={() => setShowOnboarding(false)}
-                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-white font-bold uppercase tracking-widest text-xs rounded-xl transition-all border border-white/5 hover:border-white/20"
+                    className="w-full py-3 bg-slate-900/5 hover:bg-slate-900/10 text-slate-900 font-bold uppercase tracking-widest text-xs rounded-xl transition-all border border-slate-900/5 hover:border-slate-900/20"
                   >
-                    Enter the Lab
+                    Start Learning
                   </button>
                 </div>
               </motion.div>
@@ -1776,7 +1705,7 @@ export default function App() {
               initial={{ x: 400 }}
               animate={{ x: 0 }}
               exit={{ x: 400 }}
-              className="fixed right-0 top-0 bottom-0 w-80 bg-[#0f0f12] border-l border-white/10 p-6 z-40 shadow-2xl flex flex-col"
+              className="fixed right-0 top-0 bottom-0 w-80 bg-white border-l border-slate-900/10 p-6 z-40 shadow-2xl flex flex-col"
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
@@ -1787,7 +1716,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => setShowDev(false)}
-                  className="p-2 -mr-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  className="p-2 -mr-2 rounded-lg text-slate-600/50 hover:text-slate-900 hover:bg-slate-900/10 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1798,18 +1727,18 @@ export default function App() {
                   <label className="text-[10px] uppercase opacity-50 tracking-widest">
                     Pedagogical Mode
                   </label>
-                  <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
+                  <div className="flex bg-slate-900/5 rounded-lg p-1 border border-slate-900/10">
                     <button
                       onClick={() =>
                         setContext({ ...context, mode: "Practice" })
                       }
-                      className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-all ${context.mode === "Practice" ? "bg-green-500/20 text-green-500 shadow-sm" : "text-gray-500 hover:text-white"}`}
+                      className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-all ${context.mode === "Practice" ? "bg-green-500/20 text-green-500 shadow-sm" : "text-gray-500 hover:text-slate-900"}`}
                     >
                       Practice
                     </button>
                     <button
                       onClick={() => setContext({ ...context, mode: "Task" })}
-                      className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-all ${context.mode === "Task" ? "bg-blue-500/20 text-blue-500 shadow-sm" : "text-gray-500 hover:text-white"}`}
+                      className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-md transition-all ${context.mode === "Task" ? "bg-blue-500/20 text-blue-500 shadow-sm" : "text-gray-500 hover:text-slate-900"}`}
                     >
                       Task-Based(TBLT)
                     </button>
@@ -1866,7 +1795,7 @@ export default function App() {
                           });
                         }
                       }}
-                      className="w-full bg-[#151619] border border-emerald-500/30 text-emerald-400 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50"
+                      className="w-full bg-white border border-emerald-500/30 text-emerald-400 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50"
                     >
                       <option value="">-- Start with a Scenario --</option>
                       {predefinedScenarios.map((s) => (
@@ -1890,7 +1819,7 @@ export default function App() {
                         level: e.target.value as ProficiencyLevel,
                       })
                     }
-                    className="w-full bg-[#151619] border border-white/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50"
+                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50"
                   >
                     <option value="A2">A2 (Pre-Intermediate)</option>
                     <option value="B1-B2">B1-B2 (Intermediate)</option>
@@ -1909,7 +1838,7 @@ export default function App() {
                     }
                     placeholder="e.g. You are a friendly barista. We are at a coffee shop."
                     rows={2}
-                    className="w-full bg-[#151619] border border-white/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50 resize-none"
+                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50 resize-none"
                   />
                 </div>
 
@@ -1930,12 +1859,12 @@ export default function App() {
                         : "e.g. Practice 'used to' and past tense verbs."
                     }
                     rows={3}
-                    className="w-full bg-[#151619] border border-white/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50 resize-none"
+                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50 resize-none"
                   />
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-white/10 text-[10px] uppercase tracking-widest opacity-30 flex flex-col gap-2">
+              <div className="pt-6 border-t border-slate-900/10 text-[10px] uppercase tracking-widest opacity-30 flex flex-col gap-2">
                 <div className="flex justify-between italic">
                   <span>Engine</span>
                   <span>Gemini 3.1 Flash Live</span>
@@ -1950,7 +1879,7 @@ export default function App() {
         </AnimatePresence>
 
         {/* Footer info */}
-        <footer className="mt-8 pt-4 border-t border-white/5 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-30">
+        <footer className="mt-8 pt-4 border-t border-slate-900/5 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-30">
           <div className="flex gap-4">
             <span>Lat: 37.7749</span>
             <span>Lng: -122.4194</span>
