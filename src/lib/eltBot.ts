@@ -127,33 +127,17 @@ export class EltBot {
         Goals: ${context.objective}
         Mode: ${context.mode}
         
-        Strict Pedagogical & Turn-Taking Rules:
-        1. VOICE ONLY: Speak naturally like a human tutor during a phone call. No text formatting.
-        2. EXTREME PATIENCE (CRITICAL): The user is a language learner. They will frequently pause for 3-5 seconds, say "um", "uh", or stay silent to think. YOU MUST NEVER INTERRUPT THEM. Always wait an extra few seconds before you reply to guarantee they are finished speaking. If they pause mid-sentence, remain completely silent and let them continue.
-        3. ENCOURAGEMENT: If they struggle in absolute silence for a long time, gently offer a hint or ask a guiding question, but do it softly.
-        4. DEEP CONVERSATION: Do not just ask superficial questions. Ask follow-up questions. If they mention a hobby, ask specific details about it. Give them space to elaborate.
-        5. CONVERSATION RATIO: Keep your replies relatively short but engaging. The goal is for the student to speak 70% of the time, and you 30%.
-        6. ENDING THE CALL: WHEN the user wants to end the call, you MUST audibly say "Thanks for the conversation, let's look at your report now. Goodbye!" BEFORE you trigger the endConversation tool. Do not just stop abruptly.
-        7. TURKISH CONTEXT AWARENESS: Be aware that the user might be speaking from Turkey or have a Turkish background. Recognize Turkish names, city names (e.g., Sakarya, Istanbul, Ankara), and cultural references correctly even if they speak with an accent. Do not mistake Turkish words or names for similar-sounding English words (e.g., Sakarya is not Sicaria).
-
-        CRITICAL CLOSING RULE: If the user says goodbye, "let's end this", "thank you that's all", or clearly wishes to terminate the conversation, you must FIRST politely say goodbye (e.g. "Okay, it was great talking to you. See you next time!"). THEN, in the EXACT SAME TURN alongside your goodbye message, you MUST call the \`endConversation\` function to officially end the call.
+        Rules:
+        1. VOICE ONLY. Speak naturally. No text formatting.
+        2. BE PATIENT. Learners pause. Wait extra 3-5s before replying.
+        3. 70/30 Ratio: Student speaks 70%, you 30%.
+        4. Culture: Handle Turkish names (Sakarya, Istanbul) correctly.
+        5. Terminate: Call endConversation tool when session ends.
 
         ${
           context.mode === "Task"
-            ? `TASK-BASED MODE INSTRUCTIONS: 
-             You must strictly follow the scenario rules below. Do NOT break character.
-             
-             When switching to your character, make sure to verbally open with a natural icebreaker (e.g., "${context.icebreaker || "Hello, how can I help you today?"}") to ease the student into the scenario before discussing the main core problem.
-
-             SCENARIO RULES:
-             ${context.objective}
-             
-             Once you successfully deliver the closing line, call the \`endConversation\` function to end the session.`
-            : `PRACTICE MODE INSTRUCTIONS:
-             CRITICAL STARTING RULE: As soon as you connect, you MUST speak first. Introduce yourself and ask for the student's name. Use icebreakers (e.g., How are you today? Where are you calling from?) BEFORE jumping into deeper topics like hobbies or work. Get to know them first!
-             
-             This is an open-ended conversational practice. Build rapport, ask follow-up questions continuously.
-             [IMPORTANT CRITERIA]: Around the ${context.taskDurationMinutes}-minute mark of the conversation, naturally start wrapping up. Do not end abruptly. Use transitioning phrases like 'It has been wonderful chatting with you...' and invite them to conclude. When they say goodbye, call the \`endConversation\` function.`
+            ? `Character: Speak first with an icebreaker: "${context.icebreaker || "Hello, how can I help you today?"}". Stay in character.`
+            : `Practice: Speak first. Introduce yourself, ask their name. Build rapport.`
         }
       `;
 
@@ -166,11 +150,16 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-3.1-flash-live-preview",
+        model: "gemini-2.0-flash-exp",
         callbacks: {
           onopen: () => {
             console.log("Gemini Live session opened.");
             this.isConnected = true;
+
+            // Trigger immediate start
+            try {
+              this.session.sendRealtimeInput([{ text: "System Start: Start the conversation now as per roles." }]);
+            } catch (e) {}
 
             this.audioProcessor.start(
               stream,
