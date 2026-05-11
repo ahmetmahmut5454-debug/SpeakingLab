@@ -108,33 +108,8 @@ const SHOP_ITEMS = [
   },
 ];
 
-const DynamicAvatar = ({
-  className,
-  outfit,
-}: {
-  className?: string;
-  outfit?: string;
-}) => {
-  let seed = "Leo";
-  let bg = "b6e3f4";
-  if (outfit === "outfit_glasses") {
-    seed = "Molly";
-    bg = "ffd5dc";
-  } else if (outfit === "outfit_cap") {
-    seed = "Jack";
-    bg = "d1d4f9";
-  } else if (outfit === "outfit_crown") {
-    seed = "King";
-    bg = "c0aede";
-  }
-  return (
-    <img 
-      src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${seed}&backgroundColor=${bg}`} 
-      alt="Avatar" 
-      className={`rounded-full object-cover shadow-inner ${className}`}
-    />
-  );
-};
+import { Mascot } from "./components/Mascot";
+import { Guide } from "./components/Guide";
 
 const StatusBadge = ({ on }: { on: boolean }) => (
   <div className="flex items-center gap-2 bg-slate-900/5 px-4 py-2 rounded-full border border-slate-900/10 backdrop-blur-md shadow-lg">
@@ -252,78 +227,6 @@ const EmojiBurst = ({
         </motion.div>
       ))}
     </div>
-  );
-};
-
-const WalkingBadge = ({ icon }: { icon: string }) => {
-  const [positionX, setPositionX] = useState(window.innerWidth / 2);
-  const [direction, setDirection] = useState<1 | -1>(1);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
-
-  useEffect(() => {
-    // Initial random position X
-    setPositionX(Math.random() * (window.innerWidth - 100));
-
-    const interval = setInterval(
-      () => {
-        if (!isHovered && !isClicked) {
-          setDirection(Math.random() > 0.5 ? 1 : -1);
-          setPositionX((prev) =>
-            Math.max(
-              20,
-              Math.min(
-                window.innerWidth - 60,
-                prev + (Math.random() * 200 - 100),
-              ),
-            ),
-          );
-        }
-      },
-      3000 + Math.random() * 2000,
-    );
-    return () => clearInterval(interval);
-  }, [isHovered, isClicked]);
-
-  return (
-    <motion.div
-      animate={{
-        x: positionX,
-        scaleX: direction === 1 ? -1 : 1, // Face the direction it's moving
-        scaleY: isHovered ? 1.1 : 1,
-        y: isClicked ? -10 : 0, // slight jump on click
-        rotate: isClicked ? [0, -20, 20, -20, 20, 0] : [-5, 5, -5], // walking wobble
-      }}
-      transition={{
-        x: { duration: 3, ease: "linear" },
-        rotate: isClicked
-          ? { duration: 0.5 }
-          : { duration: 1, repeat: Infinity, repeatType: "mirror" },
-        y: { type: "spring" },
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={() => {
-        setIsClicked(true);
-        setTimeout(() => setIsClicked(false), 1000);
-      }}
-      className="fixed bottom-10 origin-bottom md:bottom-12 text-5xl cursor-pointer select-none pointer-events-auto"
-      style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))", zIndex: 100 }}
-      title="Evcil Hayvanın"
-    >
-      {icon}
-      {isClicked && (
-        <motion.div
-          initial={{ opacity: 1, y: 0, scale: 1 }}
-          animate={{ opacity: 0, y: -40, scale: 1.5 }}
-          transition={{ duration: 0.8 }}
-          className="absolute -top-4 left-2 text-2xl pointer-events-none"
-          style={{ transform: direction === 1 ? "scaleX(-1)" : "none" }} // unflip the text if parent is flipped
-        >
-          💖
-        </motion.div>
-      )}
-    </motion.div>
   );
 };
 
@@ -624,14 +527,6 @@ export default function App() {
         />
       )}
 
-      {userStats?.unlockedItems?.map((id) => {
-        const item = SHOP_ITEMS.find((i) => i.id === id);
-        if (item && item.type === "badge") {
-          return <WalkingBadge key={"walk_" + id} icon={item.icon} />;
-        }
-        return null;
-      })}
-
       {/* HUD Background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-[0.02]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#4ade80_0%,_transparent_75%)]" />
@@ -645,7 +540,7 @@ export default function App() {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
                 <div className="relative bg-white p-2 md:p-3.5 rounded-2xl border border-slate-900/10 shadow-2xl">
-                  <DynamicAvatar
+                  <Mascot
                     className="w-6 h-6 md:w-8 md:h-8"
                     outfit={userStats?.equippedOutfit}
                   />
@@ -1178,9 +1073,16 @@ export default function App() {
             >
               <div className="bg-white border-4 border-slate-200 p-10 rounded-[2rem] max-w-lg w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
                 <div className="flex flex-col items-center gap-6 text-center">
-                  
-                  {predefinedScenarios.find((s) => s.role === context.role)?.imageUrl ? (
-                    <img src={predefinedScenarios.find((s) => s.role === context.role)?.imageUrl} alt="Scenario" className="w-full h-40 object-cover rounded-2xl shadow-inner mb-2" />
+                  {predefinedScenarios.find((s) => s.role === context.role)
+                    ?.imageUrl ? (
+                    <img
+                      src={
+                        predefinedScenarios.find((s) => s.role === context.role)
+                          ?.imageUrl
+                      }
+                      alt="Scenario"
+                      className="w-full h-40 object-cover rounded-2xl shadow-inner mb-2"
+                    />
                   ) : (
                     <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                       <RoleAvatar role={context.role} isActive={false} />
@@ -1588,7 +1490,7 @@ export default function App() {
                               : "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                           }`}
                         >
-                          <DynamicAvatar className="w-12 h-12 mb-3 drop-shadow-lg" />
+                          <Mascot className="w-12 h-12 mb-3 drop-shadow-lg" />
                           <span className="font-bold text-[10px] uppercase tracking-wider">
                             Default
                           </span>
@@ -1617,7 +1519,7 @@ export default function App() {
                                         : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
                                 }`}
                               >
-                                <DynamicAvatar
+                                <Mascot
                                   className="w-12 h-12 mb-3 drop-shadow-md opacity-80"
                                   outfit={item.id}
                                 />
@@ -1676,7 +1578,7 @@ export default function App() {
               >
                 <div className="bg-white border border-slate-900/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
-                  <DynamicAvatar
+                  <Mascot
                     className="w-16 h-16 mx-auto mb-6 drop-shadow-lg"
                     outfit={userStats?.equippedOutfit}
                   />
@@ -1684,8 +1586,9 @@ export default function App() {
                     Let's do practice together!
                   </h2>
                   <p className="text-slate-600/70 font-medium text-sm leading-relaxed mb-6">
-                    Pick a scenario from the settings, review your briefing, and start speaking. 
-                    I'll track your English level and reward you with XP and cool new items!
+                    Pick a scenario from the settings, review your briefing, and
+                    start speaking. I'll track your English level and reward you
+                    with XP and cool new items!
                   </p>
                   <button
                     onClick={() => setShowOnboarding(false)}
@@ -1886,6 +1789,11 @@ export default function App() {
           </div>
           <span>Built for ELT Professionals</span>
         </footer>
+
+        <Guide isRunning={isRunning} onStartPractice={() => {
+           if (context.mode === "Task") setShowPreTask(true);
+           else toggleBot();
+        }} />
       </main>
     </div>
   );
