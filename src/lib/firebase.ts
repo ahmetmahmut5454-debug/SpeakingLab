@@ -91,10 +91,40 @@ export const getUserStats = async (): Promise<UserStats | null> => {
   try {
     const docRef = doc(db, "userStats", auth.currentUser.uid);
     const snap = await getDocFromServer(docRef);
+    const today = getLocalDateString();
+
     if (snap.exists()) {
       const data = snap.data() as UserStats;
-      // Migration for old docs
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setMinutes(
+        yesterday.getMinutes() - yesterday.getTimezoneOffset(),
+      );
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      // Migration for old docs & Daily Reset
       let needsUpdate = false;
+
+      // If the last active date was not today, we might need to reset daily sessions or break streak
+      if (data.lastActiveDate !== today) {
+        // Reset daily limits ONLY if they haven't been reset yet (or if date is old)
+        if (data.todaySessions !== 0 || data.todayTaskSessions !== 0) {
+          data.todaySessions = 0;
+          data.todayTaskSessions = 0;
+          needsUpdate = true;
+        }
+
+        // Check if streak is broken (more than 1 day gap)
+        if (data.lastActiveDate !== yesterdayStr && data.streak !== 0) {
+          data.streak = 0;
+          needsUpdate = true;
+        }
+
+        // Note: We deliberately DON'T update lastActiveDate to today here.
+        // It's updated only in updateGamificationStats when a session is completed.
+        // This avoids breaking the streak increment logic.
+      }
+
       if (!data.unlockedItems) {
         data.unlockedItems = ["outfit_default"];
         needsUpdate = true;
@@ -209,17 +239,36 @@ export const updateGamificationStats = async (
       );
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      let newStreak = existing.streak;
-      let newTodaySessions = existing.todaySessions;
+      let newStreak = existing.streak || 0;
+      let newTodaySessions = existing.todaySessions || 0;
       let newTodayTaskSessions = existing.todayTaskSessions || 0;
-      let newXp = existing.xp + 50;
+      let newXp = existing.xp || 0;
+
+      console.log(`Gamification Update - Last Active: ${lastDate}, Today: ${today}, Yesterday: ${yesterdayStr}`);
 
       if (lastDate === today) {
+        console.log("Activity detected today. Incrementing daily counts.");
         newTodaySessions += 1;
         if (mode === "Task") {
           newTodayTaskSessions += 1;
         }
+        newXp += 50; 
+      } else if (lastDate === yesterdayStr) {
+        console.log("Activity detected on consecutive day. Incrementing streak.");
+        newStreak += 1;
+        newTodaySessions = 1;
+        newTodayTaskSessions = mode === "Task" ? 1 : 0;
+        newXp += 50;
+      } else {
+        console.log("Streak broken or new user. Setting streak to 1.");
+        newStreak = 1;
+        newTodaySessions = 1;
+        newTodayTaskSessions = mode === "Task" ? 1 : 0;
+        newXp += 50;
+      }
 
+      // Bonus XP for new sessions
+      if (lastDate === today) {
         // Daily quest 1: 3 total conversations
         if (newTodaySessions === 3) {
           newXp += 200; // Bonus 200 XP!
@@ -232,10 +281,6 @@ export const updateGamificationStats = async (
           console.log("Task quest completed! +300 XP");
         }
       } else if (lastDate === yesterdayStr) {
-        newStreak += 1;
-        newTodaySessions = 1;
-        newTodayTaskSessions = mode === "Task" ? 1 : 0;
-
         // Streak milestones
         if (newStreak === 3) {
           newXp += 150;
@@ -245,15 +290,6 @@ export const updateGamificationStats = async (
           newXp += 500;
           console.log("Streak 7 days! +500 XP");
         }
-        if (newStreak === 30) {
-          newXp += 2000;
-          console.log("Streak 30 days! +2000 XP");
-        }
-      } else {
-        // Break in streak
-        newStreak = 1;
-        newTodaySessions = 1;
-        newTodayTaskSessions = mode === "Task" ? 1 : 0;
       }
 
       stats = {

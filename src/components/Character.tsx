@@ -141,9 +141,21 @@ export const Character = ({ type, expression, className = "" }: CharacterProps) 
               />
             ) : isHappy ? (
               <g>
-                {/* Big smile with teeth (Gülüp dişlerini gösteren) */}
-                <path d="M85,128 Q100,145 115,128 Z" fill="#702459" />
-                <rect x="92" y="129" width="16" height="4" rx="1" fill="white" />
+                {/* Big smile with more realistic teeth */}
+                <path d="M82,128 Q100,148 118,128 Z" fill="#702459" />
+                {/* Row of teeth */}
+                <path 
+                  d="M87,129 Q100,132 113,129 L112,135 Q100,138 88,135 Z" 
+                  fill="white" 
+                />
+                {/* Tooth separators for detail */}
+                <g opacity="0.25">
+                  <rect x="93" y="129" width="0.5" height="5.5" fill="#702459" />
+                  <rect x="99.5" y="130" width="1" height="6.5" fill="#702459" />
+                  <rect x="106.5" y="129" width="0.5" height="5.5" fill="#702459" />
+                </g>
+                {/* Subtle tongue / depth */}
+                <path d="M92,142 Q100,146 108,142" stroke="#FF9999" strokeWidth="1.5" fill="none" opacity="0.3" />
               </g>
             ) : isBored ? (
               <path d="M92,135 Q100,132 108,135" stroke="#702459" strokeWidth="2.5" fill="none" strokeLinecap="round" />
