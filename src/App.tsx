@@ -35,6 +35,7 @@ import {
   Store,
   Check,
   Lock,
+  Trophy,
 } from "lucide-react";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from "./lib/eltBot";
 import { predefinedScenarios } from "./lib/scenarios";
@@ -50,6 +51,7 @@ import {
   UserStats,
   updateUserPurchase,
   updateGamificationStats,
+  getLeaderboard,
 } from "./lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 
@@ -426,10 +428,14 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showShop, setShowShop] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardData, setLeaderboardData] = useState<UserStats[]>([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [pastReports, setPastReports] = useState<SavedReport[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isStreakAnimating, setIsStreakAnimating] = useState(false);
+  const [isQuestAnimating, setIsQuestAnimating] = useState(false);
   const [purchasedBadgeInfo, setPurchasedBadgeInfo] = useState<{
     id: string;
     icon: string;
@@ -565,11 +571,13 @@ export default function App() {
 
     // Always give XP for participating, even if report generation (LLM) fails
     if (user) {
-      const stats = await updateGamificationStats();
+      const stats = await updateGamificationStats(context.mode);
       if (stats) {
         setUserStats(stats);
         setIsStreakAnimating(true);
+        setIsQuestAnimating(true);
         setTimeout(() => setIsStreakAnimating(false), 3000);
+        setTimeout(() => setIsQuestAnimating(false), 3000);
       }
     }
 
@@ -597,6 +605,13 @@ export default function App() {
     }
 
     botRef.current.stop();
+  };
+
+  const loadLeaderboard = async () => {
+    setLoadingLeaderboard(true);
+    const data = await getLeaderboard(20);
+    setLeaderboardData(data);
+    setLoadingLeaderboard(false);
   };
 
   const loadReports = async () => {
@@ -820,15 +835,51 @@ export default function App() {
                   </motion.span>
                 </div>
                 <div className="h-4 w-[1px] bg-white/10" />
-                <div
+                <motion.div
+                  animate={
+                    isQuestAnimating
+                      ? {
+                          scale: [1, 1.2, 1],
+                          filter: [
+                            "drop-shadow(0 0 0px rgba(239,68,68,0))",
+                            "drop-shadow(0 0 15px rgba(239,68,68,1))",
+                            "drop-shadow(0 0 0px rgba(239,68,68,0))",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.8, repeat: 3 }}
                   className={`flex items-center gap-1.5 ${userStats.todaySessions >= 3 ? "text-yellow-400" : "text-zinc-500"}`}
                   title="Daily Quest (3 Sessions)"
                 >
                   <Target className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                  <span className="font-bold">
+                  <span className="font-bold relative">
                     {Math.min(3, userStats.todaySessions)}/3
                   </span>
-                </div>
+                </motion.div>
+                <div className="h-4 w-[1px] bg-white/10" />
+                <motion.div
+                  animate={
+                    isQuestAnimating
+                      ? {
+                          scale: [1, 1.2, 1],
+                          filter: [
+                            "drop-shadow(0 0 0px rgba(239,68,68,0))",
+                            "drop-shadow(0 0 15px rgba(239,68,68,1))",
+                            "drop-shadow(0 0 0px rgba(239,68,68,0))",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.8, repeat: 3 }}
+                  className={`flex items-center gap-1.5 ${(userStats.todayTaskSessions || 0) >= 2 ? "text-yellow-400" : "text-zinc-500"}`}
+                  title="Task Quest (2 TBLT Sessions)"
+                >
+                  <Briefcase className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="font-bold relative">
+                    {Math.min(2, userStats.todayTaskSessions || 0)}/2
+                  </span>
+                </motion.div>
                 <div className="h-4 w-[1px] bg-white/10" />
                 <button
                   onClick={() => setShowShop(true)}
@@ -844,6 +895,16 @@ export default function App() {
               <>
                 <button
                   onClick={() => {
+                    loadLeaderboard();
+                    setShowLeaderboard(true);
+                  }}
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 hover:bg-yellow-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                >
+                  <Trophy className="w-3 h-3" />
+                </button>
+                <div className="h-6 w-[1px] bg-white/10 mx-1" />
+                <button
+                  onClick={() => {
                     loadReports();
                     setShowHistory(true);
                   }}
@@ -857,6 +918,17 @@ export default function App() {
 
             {user ? (
               <>
+                <button
+                  onClick={() => {
+                    loadLeaderboard();
+                    setShowLeaderboard(true);
+                  }}
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                >
+                  <Trophy className="w-4 h-4" />{" "}
+                  <span className="hidden sm:inline">Leaderboard</span>
+                </button>
+                <div className="h-6 w-[1px] bg-white/10 mx-2" />
                 <button
                   onClick={() => {
                     loadReports();
@@ -1355,6 +1427,112 @@ export default function App() {
                           {r.reportText.split("\n").map((line, i) => (
                             <p key={i}>{line}</p>
                           ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Leaderboard Modal */}
+        <AnimatePresence>
+          {showLeaderboard && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="absolute inset-0 z-50 bg-[#0a0a0b]/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8"
+            >
+              <div className="w-full max-w-lg bg-[#0f1013] border border-yellow-500/10 rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
+                      <Trophy className="w-5 h-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-light text-yellow-50 tracking-tight">
+                        Leaderboard
+                      </h2>
+                      <p className="text-xs text-yellow-500/50 uppercase tracking-widest mt-1">
+                        Global Rankings
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowLeaderboard(false)}
+                    className="p-2 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 pr-2">
+                  {loadingLeaderboard ? (
+                    <div className="flex-1 flex items-center justify-center text-yellow-500/50 uppercase tracking-widest text-sm animate-pulse">
+                      Loading Ranks...
+                    </div>
+                  ) : leaderboardData.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-white/30">
+                      <Trophy className="w-12 h-12 opacity-50" />
+                      <p className="uppercase tracking-widest text-xs">
+                        No records found.
+                      </p>
+                    </div>
+                  ) : (
+                    leaderboardData.map((stat, idx) => (
+                      <div
+                        key={stat.userId}
+                        className={`p-4 rounded-xl flex items-center justify-between border ${stat.userId === user?.uid ? "bg-yellow-500/10 border-yellow-500/20" : "bg-[#15161A] border-white/5"} transition-all`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`text-sm font-bold w-6 text-center ${idx === 0 ? "text-yellow-400 text-lg" : idx === 1 ? "text-gray-300" : idx === 2 ? "text-amber-600" : "text-white/30"}`}
+                          >
+                            #{idx + 1}
+                          </div>
+                          {stat.photoURL ? (
+                            <img
+                              src={stat.photoURL}
+                              alt="Profile"
+                              className="w-10 h-10 rounded-full border border-white/10"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
+                              <UserCircle className="w-6 h-6 text-white/50" />
+                            </div>
+                          )}
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-white/90 text-sm">
+                              {stat.displayName || "Unknown Scholar"}
+                              {stat.userId === user?.uid && (
+                                <span className="ml-2 text-[10px] uppercase text-yellow-500/70 border border-yellow-500/30 px-1.5 py-0.5 rounded-full">
+                                  You
+                                </span>
+                              )}
+                            </span>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-white/40 flex items-center gap-1">
+                                <Flame className="w-3 h-3 text-orange-400" />{" "}
+                                {stat.streak} Day Flow
+                              </span>
+                              {stat.equippedBadge && (
+                                <span className="text-sm bg-black/20 rounded-full px-1">
+                                  {SHOP_ITEMS.find(
+                                    (i) => i.id === stat.equippedBadge,
+                                  )?.icon || ""}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-emerald-400">
+                          <span className="font-black text-lg">{stat.xp}</span>
+                          <span className="text-[10px] uppercase tracking-widest font-bold opacity-70">
+                            XP
+                          </span>
                         </div>
                       </div>
                     ))

@@ -44,13 +44,16 @@ service cloud.firestore {
              data.lastActiveDate is string && data.lastActiveDate.size() <= 15 &&
              data.todaySessions is number && data.todaySessions >= 0 &&
              data.xp is number && data.xp >= 0 &&
+             (!('todayTaskSessions' in data.keys()) || (data.todayTaskSessions is number && data.todayTaskSessions >= 0)) &&
+             (!('displayName' in data.keys()) || (data.displayName is string && data.displayName.size() <= 100)) &&
+             (!('photoURL' in data.keys()) || (data.photoURL is string && data.photoURL.size() <= 2000)) &&
              (data.keys().hasAll(['unlockedItems', 'equippedBadge', 'equippedOutfit']) ? 
                (data.unlockedItems is list && data.equippedBadge is string && data.equippedOutfit is string && data.equippedOutfit.size() <= 50 && data.equippedBadge.size() <= 50) : true);
     }
 
     match /userStats/{statId} {
       allow get: if isSignedIn() && isValidId(statId) && statId == request.auth.uid;
-      allow list: if false; // Not needed, directly fetch by uid
+      allow list: if isSignedIn() && request.query.limit <= 20; 
       
       allow create: if isSignedIn() 
                    && isValidId(statId)

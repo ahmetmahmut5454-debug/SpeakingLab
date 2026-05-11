@@ -20,6 +20,7 @@ import {
   deleteDoc,
   serverTimestamp,
   setDoc,
+  limit,
 } from "firebase/firestore";
 import firebaseConfig from "../../firebase-applet-config.json";
 import { BotContext } from "./eltBot";
@@ -66,9 +67,12 @@ testConnection();
 
 export interface UserStats {
   userId: string;
+  displayName?: string;
+  photoURL?: string;
   streak: number;
   lastActiveDate: string; // YYYY-MM-DD format
   todaySessions: number;
+  todayTaskSessions?: number;
   xp: number;
   unlockedItems?: string[];
   equippedBadge?: string;
@@ -95,6 +99,14 @@ export const getUserStats = async (): Promise<UserStats | null> => {
         data.unlockedItems = ["outfit_default"];
         needsUpdate = true;
       }
+      if (
+        !data.displayName ||
+        data.displayName !== auth.currentUser.displayName
+      ) {
+        data.displayName = auth.currentUser.displayName || "Unknown Scholar";
+        data.photoURL = auth.currentUser.photoURL || "";
+        needsUpdate = true;
+      }
       if (!data.equippedBadge) {
         data.equippedBadge = "";
         needsUpdate = true;
@@ -114,6 +126,7 @@ export const getUserStats = async (): Promise<UserStats | null> => {
         streak: 0,
         lastActiveDate: getLocalDateString(),
         todaySessions: 0,
+        todayTaskSessions: 0,
         xp: 0,
         unlockedItems: ["outfit_default"],
         equippedBadge: "",
@@ -160,7 +173,9 @@ export const updateUserPurchase = async (
 };
 
 // Internal function to update user gamification stats
-export const updateGamificationStats = async () => {
+export const updateGamificationStats = async (
+  mode: "Practice" | "Task" = "Practice",
+) => {
   if (!auth.currentUser) return;
   const uid = auth.currentUser.uid;
   const today = getLocalDateString();
@@ -170,9 +185,12 @@ export const updateGamificationStats = async () => {
     const snap = await getDocFromServer(docRef);
     let stats: UserStats = {
       userId: uid,
+      displayName: auth.currentUser.displayName || "Unknown Scholar",
+      photoURL: auth.currentUser.photoURL || "",
       streak: 1,
       lastActiveDate: today,
       todaySessions: 1,
+      todayTaskSessions: mode === "Task" ? 1 : 0,
       xp: 50, // 50 XP per session
       unlockedItems: ["outfit_default"],
       equippedBadge: "",
@@ -193,29 +211,62 @@ export const updateGamificationStats = async () => {
 
       let newStreak = existing.streak;
       let newTodaySessions = existing.todaySessions;
+      let newTodayTaskSessions = existing.todayTaskSessions || 0;
       let newXp = existing.xp + 50;
 
       if (lastDate === today) {
         newTodaySessions += 1;
-        // Daily quest: 3 conversations
+        if (mode === "Task") {
+          newTodayTaskSessions += 1;
+        }
+
+        // Daily quest 1: 3 total conversations
         if (newTodaySessions === 3) {
           newXp += 200; // Bonus 200 XP!
           console.log("Daily quest completed! +200 XP");
         }
+
+        // Daily quest 2: 2 TBLT (Task) conversations
+        if (mode === "Task" && newTodayTaskSessions === 2) {
+          newXp += 300; // Bonus 300 XP
+          console.log("Task quest completed! +300 XP");
+        }
       } else if (lastDate === yesterdayStr) {
         newStreak += 1;
         newTodaySessions = 1;
+        newTodayTaskSessions = mode === "Task" ? 1 : 0;
+
+        // Streak milestones
+        if (newStreak === 3) {
+          newXp += 150;
+          console.log("Streak 3 days! +150 XP");
+        }
+        if (newStreak === 7) {
+          newXp += 500;
+          console.log("Streak 7 days! +500 XP");
+        }
+        if (newStreak === 30) {
+          newXp += 2000;
+          console.log("Streak 30 days! +2000 XP");
+        }
       } else {
         // Break in streak
         newStreak = 1;
         newTodaySessions = 1;
+        newTodayTaskSessions = mode === "Task" ? 1 : 0;
       }
 
       stats = {
         userId: uid,
+        displayName:
+          auth.currentUser.displayName ||
+          existing.displayName ||
+          "Unknown Scholar",
+        photoURL: auth.currentUser.photoURL || existing.photoURL || "",
         streak: newStreak,
         lastActiveDate: today,
         todaySessions: newTodaySessions,
+        todayTaskSessions: newTodayTaskSessions,
         xp: newXp,
         unlockedItems: existing.unlockedItems || ["outfit_default"],
         equippedBadge: existing.equippedBadge || "",
@@ -229,6 +280,24 @@ export const updateGamificationStats = async () => {
   } catch (error) {
     console.error("Failed to update gamification stats:", error);
     throw error;
+  }
+};
+
+// Fetch Top Users
+export const getLeaderboard = async (
+  limitCount: number = 10,
+): Promise<UserStats[]> => {
+  try {
+    const q = query(
+      collection(db, "userStats"),
+      orderBy("xp", "desc"),
+      limit(limitCount), // Note: using 100 limit here locally in our codebase we can do more but 10 is standard
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((doc) => doc.data() as UserStats);
+  } catch (error) {
+    console.error("Failed to fetch leaderboard:", error);
+    return [];
   }
 };
 

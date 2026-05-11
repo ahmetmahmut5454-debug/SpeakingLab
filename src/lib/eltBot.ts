@@ -3,7 +3,7 @@ import { AudioProcessor, AudioPlayer } from "./audioManager";
 
 const getApiKey = () => {
   try {
-    const local = localStorage.getItem('gemini_custom_key');
+    const local = localStorage.getItem("gemini_custom_key");
     if (local) return local;
 
     // Check Vite environment variable natively (Vercel will inject this if named VITE_GEMINI_API_KEY)
@@ -12,7 +12,11 @@ const getApiKey = () => {
     }
 
     // @ts-ignore - Check process.env fallback for AI Studio's Node environment
-    if (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) {
+    if (
+      typeof process !== "undefined" &&
+      process.env &&
+      process.env.GEMINI_API_KEY
+    ) {
       // @ts-ignore
       return process.env.GEMINI_API_KEY;
     }
@@ -22,26 +26,40 @@ const getApiKey = () => {
 
 const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 
-export type ProficiencyLevel = 'A2' | 'B1-B2' | 'C1';
+export type ProficiencyLevel = "A2" | "B1-B2" | "C1";
 
-export type VoiceType = 'Zephyr' | 'Puck' | 'Aoede' | 'Charon' | 'Kore' | 'Fenrir';
+export type VoiceType =
+  | "Zephyr"
+  | "Puck"
+  | "Aoede"
+  | "Charon"
+  | "Kore"
+  | "Fenrir";
 
 export interface BotContext {
   level: ProficiencyLevel;
   objective: string;
   topic: string;
-  mode: 'Practice' | 'Task';
+  mode: "Practice" | "Task";
   taskDurationMinutes: number; // For Practice mode closing
   customRules?: string;
-  role?: 'station' | 'restaurant' | 'support' | 'roommate' | 'mayor' | 'investor' | 'default';
+  role?:
+    | "station"
+    | "restaurant"
+    | "support"
+    | "roommate"
+    | "mayor"
+    | "investor"
+    | "default";
   voice?: VoiceType;
   icebreaker?: string;
 }
 
 const DEFAULT_PROMPTS: Record<ProficiencyLevel, string> = {
-  'A2': "You are an English teacher speaking to an A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics. Be very encouraging. Provide gentle corrections.",
-  'B1-B2': "You are an English conversation partner for a B1-B2 level student. Speak at a natural pace. Use common idioms. Ask follow-up questions to encourage the student. Provide occasional corrections.",
-  'C1': "You are a sophisticated debate partner for a C1 level student. Speak at a fully natural pace. Use advanced vocabulary. Challenge the student's opinions and ask for justifications."
+  A2: "You are an English teacher speaking to an A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics. Be very encouraging. Provide gentle corrections.",
+  "B1-B2":
+    "You are an English conversation partner for a B1-B2 level student. Speak at a natural pace. Use common idioms. Ask follow-up questions to encourage the student. Provide occasional corrections.",
+  C1: "You are a sophisticated debate partner for a C1 level student. Speak at a fully natural pace. Use advanced vocabulary. Challenge the student's opinions and ask for justifications.",
 };
 
 export class EltBot {
@@ -59,7 +77,7 @@ export class EltBot {
       onBotLevel?: (level: number) => void;
       onError?: (err: any) => void;
       onBotFinished?: () => void;
-    }
+    },
   ) {}
 
   async start(context: BotContext) {
@@ -72,12 +90,14 @@ export class EltBot {
       console.log("Microphone access granted.");
 
       // Setup parallel Browser Speech Recognition to capture the user's side of the transcript reliably
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const SpeechRecognition =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = true;
         this.recognition.interimResults = false;
-        this.recognition.lang = 'en-US';
+        this.recognition.lang = "en-US";
         this.recognition.onresult = (event: any) => {
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
@@ -91,10 +111,14 @@ export class EltBot {
         };
         this.recognition.onend = () => {
           if (this.isConnected) {
-            try { this.recognition.start(); } catch(e) {}
+            try {
+              this.recognition.start();
+            } catch (e) {}
           }
         };
-        try { this.recognition.start(); } catch(e) {}
+        try {
+          this.recognition.start();
+        } catch (e) {}
       }
 
       const systemInstruction = `
@@ -110,20 +134,22 @@ export class EltBot {
         4. DEEP CONVERSATION: Do not just ask superficial questions. Ask follow-up questions. If they mention a hobby, ask specific details about it. Give them space to elaborate.
         5. CONVERSATION RATIO: Keep your replies relatively short but engaging. The goal is for the student to speak 70% of the time, and you 30%.
         6. ENDING THE CALL: WHEN the user wants to end the call, you MUST audibly say "Thanks for the conversation, let's look at your report now. Goodbye!" BEFORE you trigger the endConversation tool. Do not just stop abruptly.
-        
+        7. TURKISH CONTEXT AWARENESS: Be aware that the user might be speaking from Turkey or have a Turkish background. Recognize Turkish names, city names (e.g., Sakarya, Istanbul, Ankara), and cultural references correctly even if they speak with an accent. Do not mistake Turkish words or names for similar-sounding English words (e.g., Sakarya is not Sicaria).
+
         CRITICAL CLOSING RULE: If the user says goodbye, "let's end this", "thank you that's all", or clearly wishes to terminate the conversation, you must FIRST politely say goodbye (e.g. "Okay, it was great talking to you. See you next time!"). THEN, in the EXACT SAME TURN alongside your goodbye message, you MUST call the \`endConversation\` function to officially end the call.
 
-        ${context.mode === 'Task' 
-          ? `TASK-BASED MODE INSTRUCTIONS: 
+        ${
+          context.mode === "Task"
+            ? `TASK-BASED MODE INSTRUCTIONS: 
              You must strictly follow the scenario rules below. Do NOT break character.
              
-             When switching to your character, make sure to verbally open with a natural icebreaker (e.g., "${context.icebreaker || 'Hello, how can I help you today?'}") to ease the student into the scenario before discussing the main core problem.
+             When switching to your character, make sure to verbally open with a natural icebreaker (e.g., "${context.icebreaker || "Hello, how can I help you today?"}") to ease the student into the scenario before discussing the main core problem.
 
              SCENARIO RULES:
              ${context.objective}
              
              Once you successfully deliver the closing line, call the \`endConversation\` function to end the session.`
-          : `PRACTICE MODE INSTRUCTIONS:
+            : `PRACTICE MODE INSTRUCTIONS:
              CRITICAL STARTING RULE: As soon as you connect, you MUST speak first. Introduce yourself and ask for the student's name. Use icebreakers (e.g., How are you today? Where are you calling from?) BEFORE jumping into deeper topics like hobbies or work. Get to know them first!
              
              This is an open-ended conversational practice. Build rapport, ask follow-up questions continuously.
@@ -131,9 +157,11 @@ export class EltBot {
         }
       `;
 
-      const localKey = localStorage.getItem('gemini_custom_key');
+      const localKey = localStorage.getItem("gemini_custom_key");
       if (!localKey && !getApiKey()) {
-        throw new Error("GEMINI_API_KEY is missing! Lutfen ayarlardan kendi API anahtarinizi girin veya .env dosyasina ekleyin.");
+        throw new Error(
+          "GEMINI_API_KEY is missing! Lutfen ayarlardan kendi API anahtarinizi girin veya .env dosyasina ekleyin.",
+        );
       }
 
       const ai = getAiClient();
@@ -144,20 +172,24 @@ export class EltBot {
             console.log("Gemini Live session opened.");
             this.isConnected = true;
 
-            this.audioProcessor.start(stream, (data) => {
-              if (this.session && this.isConnected) {
-                this.session.sendRealtimeInput({
-                  audio: { data, mimeType: 'audio/pcm;rate=16000' }
-                });
-              }
-            }, (level) => {
-              this.callbacks.onUserLevel?.(level);
-            });
+            this.audioProcessor.start(
+              stream,
+              (data) => {
+                if (this.session && this.isConnected) {
+                  this.session.sendRealtimeInput({
+                    audio: { data, mimeType: "audio/pcm;rate=16000" },
+                  });
+                }
+              },
+              (level) => {
+                this.callbacks.onUserLevel?.(level);
+              },
+            );
           },
           onmessage: async (message: LiveServerMessage) => {
             // Handle function calls (GenAI SDK structure usually uses message.toolCall)
             const functionCalls = message.toolCall?.functionCalls || [];
-            
+
             // Also check legacy/alternative structure just in case
             const altParts = message.serverContent?.modelTurn?.parts || [];
             for (const p of altParts) {
@@ -166,18 +198,20 @@ export class EltBot {
 
             if (functionCalls.length > 0) {
               for (const fc of functionCalls) {
-                if (fc.name === 'endConversation') {
+                if (fc.name === "endConversation") {
                   console.log("AI called endConversation function!");
                   if (this.session && this.isConnected) {
                     try {
-                      this.session.sendRealtimeInput([{
-                        functionResponse: {
-                          name: 'endConversation',
-                          id: fc.id,
-                          response: { success: true }
-                        }
-                      }]);
-                    } catch(e) {}
+                      this.session.sendRealtimeInput([
+                        {
+                          functionResponse: {
+                            name: "endConversation",
+                            id: fc.id,
+                            response: { success: true },
+                          },
+                        },
+                      ]);
+                    } catch (e) {}
                   }
                   const checkFinish = () => {
                     if (this.audioPlayer.isPlaying) {
@@ -205,7 +239,7 @@ export class EltBot {
             const parts = message.serverContent?.modelTurn?.parts;
             if (parts && parts.length > 0) {
               const part = parts[0];
-              
+
               // Audio
               if (part.inlineData?.data) {
                 this.audioPlayer.playChunk(part.inlineData.data, (level) => {
@@ -215,7 +249,7 @@ export class EltBot {
 
               // Text (transcription)
               const text = part.text || part.thought;
-              if (text && typeof text === 'string') {
+              if (text && typeof text === "string") {
                 this.transcriptHistory.push(`[Tutor]: ${text}`);
                 if (this.callbacks.onTranscription) {
                   this.callbacks.onTranscription(text, true);
@@ -232,20 +266,35 @@ export class EltBot {
             console.log("Gemini Live session closed.");
             this.isConnected = false;
             this.stop();
-          }
+          },
         },
         config: {
           generationConfig: {
             responseModalities: ["AUDIO"] as any,
             speechConfig: {
-              voiceConfig: { prebuiltVoiceConfig: { voiceName: context.voice || (context.level === 'C1' ? "Charon" : "Zephyr") } },
-            }
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName:
+                    context.voice ||
+                    (context.level === "C1" ? "Charon" : "Zephyr"),
+                },
+              },
+            },
           },
           systemInstruction: { parts: [{ text: systemInstruction }] },
-          tools: [{ functionDeclarations: [{ name: "endConversation", description: "Call this when the conversation naturally concludes or when the user explicitly requests to end it, say goodbye, or finish the task." }] }]
-        }
+          tools: [
+            {
+              functionDeclarations: [
+                {
+                  name: "endConversation",
+                  description:
+                    "Call this when the conversation naturally concludes or when the user explicitly requests to end it, say goodbye, or finish the task.",
+                },
+              ],
+            },
+          ],
+        },
       });
-
     } catch (err) {
       console.error("Failed to start ELT Bot:", err);
       this.callbacks.onError?.(err);
@@ -258,9 +307,11 @@ export class EltBot {
     if (this.session && this.isConnected) {
       try {
         console.log("Sending hint request to bot...");
-        this.session.sendRealtimeInput([{
-          text: "System Note: The student has been silent for a long time and might be struggling to find the right words. Without breaking character, give a very short, friendly hint, encourage them, or ask a simpler variation of your last question to keep the conversation going."
-        }]);
+        this.session.sendRealtimeInput([
+          {
+            text: "System Note: The student has been silent for a long time and might be struggling to find the right words. Without breaking character, give a very short, friendly hint, encourage them, or ask a simpler variation of your last question to keep the conversation going.",
+          },
+        ]);
       } catch (e) {
         console.error("Failed to send hint request:", e);
       }
@@ -274,7 +325,11 @@ export class EltBot {
 
     let attempt = 0;
     const maxRetries = 3;
-    const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    const modelsToTry = [
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+    ];
     let lastErr: any;
 
     while (attempt < maxRetries) {
@@ -310,31 +365,47 @@ export class EltBot {
             (Exact exercises or topics focus)
 
             Write the entire report in English. Use a professional, encouraging tone.
-          `
+          `,
         });
 
         return response.text || "Failed to generate report.";
       } catch (err: any) {
         lastErr = err;
-        console.error(`Report generation failed on attempt ${attempt + 1}:`, err);
-        
+        console.error(
+          `Report generation failed on attempt ${attempt + 1}:`,
+          err,
+        );
+
         // If it's a 503 or overload error, retry with exponential backoff and fallback model
-        if (err?.message?.includes("503") || err?.message?.includes("UNAVAILABLE") || err?.status === 503 || err?.message?.includes("Overloaded") || err?.message?.includes("fetch failed")) {
+        if (
+          err?.message?.includes("503") ||
+          err?.message?.includes("UNAVAILABLE") ||
+          err?.status === 503 ||
+          err?.message?.includes("Overloaded") ||
+          err?.message?.includes("fetch failed")
+        ) {
           attempt++;
           if (attempt < maxRetries) {
-            console.log(`Retrying report generation (${attempt}/${maxRetries}) using fallback model...`);
-            await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
+            console.log(
+              `Retrying report generation (${attempt}/${maxRetries}) using fallback model...`,
+            );
+            await new Promise((resolve) => setTimeout(resolve, 1500 * attempt));
             continue;
           }
         }
-        
+
         // If not a retryable error, or max retries reached, break
         break;
       }
     }
 
-    if (lastErr?.message?.includes("503") || lastErr?.message?.includes("UNAVAILABLE") || lastErr?.status === 503 || lastErr?.message?.includes("Overloaded")) {
-       return `❌ Rapor Oluşturulamadı: Şu anda yapay zeka sunucularında yoğunluk yaşanıyor (503 Service Unavailable). Otomatik tekrar denemeler de başarısız oldu. Lütfen rapor yeteneğini daha sonra tekrar deneyin veya konuşmaya bir süre ara verin.`;
+    if (
+      lastErr?.message?.includes("503") ||
+      lastErr?.message?.includes("UNAVAILABLE") ||
+      lastErr?.status === 503 ||
+      lastErr?.message?.includes("Overloaded")
+    ) {
+      return `❌ Rapor Oluşturulamadı: Şu anda yapay zeka sunucularında yoğunluk yaşanıyor (503 Service Unavailable). Otomatik tekrar denemeler de başarısız oldu. Lütfen rapor yeteneğini daha sonra tekrar deneyin veya konuşmaya bir süre ara verin.`;
     }
     return `❌ Rapor Oluşturma Hatası: ${lastErr?.message || "Unknown error"}\n\nDetayları Console'dan veya yukarıdaki mesajdan inceleyebilirsiniz. Sunucu veya API bağlantı hatası oluşmuş olabilir.`;
   }
@@ -344,10 +415,12 @@ export class EltBot {
     this.audioPlayer.stop();
     this.session?.close();
     this.isConnected = false;
-    
+
     if (this.recognition) {
       this.recognition.onend = null;
-      try { this.recognition.stop(); } catch(e) {}
+      try {
+        this.recognition.stop();
+      } catch (e) {}
     }
   }
 }
