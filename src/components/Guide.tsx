@@ -43,7 +43,7 @@ export const Guide = ({ isRunning, onStartPractice }: GuideProps) => {
         <div className="relative -ml-4 z-10 scale-x-[-1]">
           <Character
             type="lily"
-            expression={state === "bored" ? "bored" : "idle"}
+            expression={state === "bored" ? "bored" : state === "greeting" ? "happy" : "idle"}
             className="w-32 h-32 md:w-48 md:h-48"
           />
         </div>

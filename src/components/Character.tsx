@@ -27,48 +27,89 @@ export const Character = ({ type, expression, className = "" }: CharacterProps) 
           {/* Face */}
           <path d="M60,80 Q60,60 100,60 Q140,60 140,80 L145,130 Q100,160 55,130 Z" fill="#FFDBAC" />
           
+          {/* Blush (Yanak kızarması) */}
+          <AnimatePresence>
+            {isHappy && (
+              <motion.g
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <circle cx="75" cy="115" r="8" fill="#FCA5A5" opacity="0.6" filter="blur(2px)" />
+                <circle cx="125" cy="115" r="8" fill="#FCA5A5" opacity="0.6" filter="blur(2px)" />
+              </motion.g>
+            )}
+          </AnimatePresence>
+
           {/* Hair front / Bangs */}
           <path d="M55,80 Q100,50 145,80 L150,110 Q150,110 130,90 Q100,80 60,100 Z" fill="#8B5CF6" />
           
           {/* Eyes */}
           <g transform="translate(0, 5)">
             {isBored ? (
-              <>
-                <rect x="75" y="95" width="15" height="3" rx="1.5" fill="#2D3748" />
-                <rect x="110" y="95" width="15" height="3" rx="1.5" fill="#2D3748" />
-                {/* Eyelids for bored look */}
-                <path d="M70,85 Q82,88 95,85" stroke="#7C3AED" strokeWidth="4" fill="none" opacity="0.3" />
-                <path d="M105,85 Q118,88 130,85" stroke="#7C3AED" strokeWidth="4" fill="none" opacity="0.3" />
-              </>
+              <g>
+                {/* Rolling Eyes (Göz devirme) */}
+                <circle cx="82" cy="100" r="7" fill="white" />
+                <circle cx="118" cy="100" r="7" fill="white" />
+                <motion.circle 
+                  cx="82" cy="100" r="3.5" fill="#2D3748" 
+                  animate={{ 
+                    cy: [100, 94, 94, 100],
+                    cx: [82, 82, 85, 82]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, times: [0, 0.4, 0.6, 1] }}
+                />
+                <motion.circle 
+                  cx="118" cy="100" r="3.5" fill="#2D3748" 
+                  animate={{ 
+                    cy: [100, 94, 94, 100],
+                    cx: [118, 118, 121, 118]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, times: [0, 0.4, 0.6, 1] }}
+                />
+                {/* Heavy eyelids */}
+                <path d="M70,92 Q82,92 95,92" stroke="#FFDBAC" strokeWidth="6" fill="none" />
+                <path d="M105,92 Q118,92 130,92" stroke="#FFDBAC" strokeWidth="6" fill="none" />
+              </g>
             ) : isHappy ? (
               <>
-                <path d="M75,100 Q82,90 90,100" stroke="#2D3748" strokeWidth="3" fill="none" strokeLinecap="round" />
-                <path d="M110,100 Q117,90 125,100" stroke="#2D3748" strokeWidth="3" fill="none" strokeLinecap="round" />
+                <path d="M75,102 Q82,92 89,102" stroke="#2D3748" strokeWidth="4" fill="none" strokeLinecap="round" />
+                <path d="M111,102 Q118,92 125,102" stroke="#2D3748" strokeWidth="4" fill="none" strokeLinecap="round" />
               </>
             ) : (
               <>
-                <circle cx="82" cy="100" r="5" fill="#2D3748" />
-                <circle cx="118" cy="100" r="5" fill="#2D3748" />
+                <circle cx="82" cy="100" r="6" fill="white" />
+                <circle cx="118" cy="100" r="6" fill="white" />
+                <circle cx="82" cy="100" r="3" fill="#2D3748" />
+                <circle cx="118" cy="100" r="3" fill="#2D3748" />
               </>
             )}
           </g>
 
           {/* Mouth */}
-          {isTalking ? (
-            <motion.ellipse
-              cx="100"
-              cy="125"
-              rx="8"
-              ry="4"
-              fill="#702459"
-              animate={{ ry: [2, 6, 2] }}
-              transition={{ duration: 0.2, repeat: Infinity }}
-            />
-          ) : isBored ? (
-            <path d="M90,130 Q100,128 110,130" stroke="#702459" strokeWidth="2" fill="none" strokeLinecap="round" />
-          ) : (
-            <path d="M90,125 Q100,135 110,125" stroke="#702459" strokeWidth="2" fill="none" strokeLinecap="round" />
-          )}
+          <g transform="translate(0, 5)">
+            {isTalking ? (
+              <motion.ellipse
+                cx="100"
+                cy="125"
+                rx="8"
+                ry="4"
+                fill="#702459"
+                animate={{ ry: [2, 6, 2] }}
+                transition={{ duration: 0.2, repeat: Infinity }}
+              />
+            ) : isHappy ? (
+              <g>
+                {/* Big smile with teeth (Gülüp dişlerini gösteren) */}
+                <path d="M85,128 Q100,145 115,128 Z" fill="#702459" />
+                <rect x="92" y="129" width="16" height="4" rx="1" fill="white" />
+              </g>
+            ) : isBored ? (
+              <path d="M92,135 Q100,132 108,135" stroke="#702459" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            ) : (
+              <path d="M90,130 Q100,138 110,130" stroke="#702459" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            )}
+          </g>
 
           {/* Scarf / Outfit */}
           <path d="M65,145 Q100,165 135,145 L140,160 Q100,180 60,160 Z" fill="#5B21B6" />
