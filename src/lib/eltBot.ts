@@ -150,7 +150,7 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-3.1-flash-live-preview",
+        model: "gemini-2.0-flash-exp",
         callbacks: {
             onopen: () => {
             console.log("Gemini Live session opened.");
@@ -162,9 +162,9 @@ export class EltBot {
               (data) => {
                 if (this.session && this.isConnected) {
                   try {
-                    this.session.sendRealtimeInput([{
+                    this.session.sendRealtimeInput({
                       audio: { data, mimeType: "audio/pcm;rate=16000" },
-                    }]);
+                    });
                   } catch (e) {}
                 }
               },
@@ -177,7 +177,7 @@ export class EltBot {
             setTimeout(() => {
               if (this.session && this.isConnected) {
                 try {
-                  this.session.sendRealtimeInput([{ text: "The student has connected. Please introduce yourself and start the conversation naturally." }]);
+                  this.session.sendRealtimeInput({ text: "The student has connected. Please introduce yourself and start the conversation naturally." });
                 } catch (e) {}
               }
             }, 500);
