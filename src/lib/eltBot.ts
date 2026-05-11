@@ -152,15 +152,11 @@ export class EltBot {
       this.session = await ai.live.connect({
         model: "gemini-2.0-flash-exp",
         callbacks: {
-          onopen: () => {
+            onopen: () => {
             console.log("Gemini Live session opened.");
             this.isConnected = true;
 
-            // Trigger immediate start
-            try {
-              this.session.sendRealtimeInput([{ text: "System Start: Start the conversation now as per roles." }]);
-            } catch (e) {}
-
+            // 1. Start audio capture FIRST to ensure we are listening before we speak
             this.audioProcessor.start(
               stream,
               (data) => {
@@ -174,6 +170,15 @@ export class EltBot {
                 this.callbacks.onUserLevel?.(level);
               },
             );
+
+            // 2. Trigger the bot to start after a small delay
+            setTimeout(() => {
+              if (this.session && this.isConnected) {
+                try {
+                  this.session.sendRealtimeInput({ text: "Hello! The student has connected. Please introduce yourself and start the conversation naturally." });
+                } catch (e) {}
+              }
+            }, 400);
           },
           onmessage: async (message: LiveServerMessage) => {
             // Handle function calls (GenAI SDK structure usually uses message.toolCall)
