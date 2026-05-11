@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Character } from "./Character";
 
 interface GuideProps {
   isRunning: boolean;
@@ -38,12 +39,12 @@ export const Guide = ({ isRunning, onStartPractice }: GuideProps) => {
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
         className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-30 flex items-end gap-0"
       >
-        {/* 3D Human Avatar (Like Lily/Oscar) */}
-        <div className="relative -ml-4 z-10">
-          <img
-            src="https://images.unsplash.com/photo-1628157588553-5eeea00af15c?auto=format&fit=crop&q=80&w=256&h=256"
-            alt="Guide"
-            className="w-28 h-28 md:w-40 md:h-40 rounded-full object-cover shadow-2xl border-4 border-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.2)]"
+        {/* Character Avatar (Lily Style) */}
+        <div className="relative -ml-4 z-10 scale-x-[-1]">
+          <Character
+            type="lily"
+            expression={state === "bored" ? "bored" : "idle"}
+            className="w-32 h-32 md:w-48 md:h-48"
           />
         </div>
 
@@ -64,6 +65,8 @@ export const Guide = ({ isRunning, onStartPractice }: GuideProps) => {
           <p className="text-xs text-slate-500 font-bold mt-2 uppercase tracking-wide">
             Click here to start
           </p>
+          {/* Bubble Tail */}
+          <div className="absolute bottom-0 left-0 -mb-2 w-4 h-4 bg-white border-b border-l border-slate-200 transform -rotate-45" />
         </motion.div>
       </motion.div>
     </AnimatePresence>
