@@ -150,9 +150,9 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-3.1-flash-live-preview",
         callbacks: {
-            onopen: () => {
+          onopen: () => {
             console.log("Gemini Live session opened.");
             this.isConnected = true;
 
@@ -162,10 +162,16 @@ export class EltBot {
               (data) => {
                 if (this.session && this.isConnected) {
                   try {
+                    // Correct audio frame format per skill
                     this.session.sendRealtimeInput({
-                      audio: { data, mimeType: "audio/pcm;rate=16000" },
+                      audio: {
+                        data,
+                        mimeType: "audio/pcm;rate=16000",
+                      },
                     });
-                  } catch (e) {}
+                  } catch (e) {
+                    console.error("Error sending audio frame:", e);
+                  }
                 }
               },
               (level) => {
@@ -177,7 +183,9 @@ export class EltBot {
             setTimeout(() => {
               if (this.session && this.isConnected) {
                 try {
-                  this.session.sendRealtimeInput({ text: "The student has connected. Please introduce yourself and start the conversation naturally." });
+                  this.session.sendRealtimeInput({
+                    text: "The student has connected. Please introduce yourself and start the conversation naturally.",
+                  });
                 } catch (e) {}
               }
             }, 500);
@@ -198,7 +206,8 @@ export class EltBot {
                   console.log("AI called endConversation function!");
                   if (this.session && this.isConnected) {
                     try {
-                      this.session.sendRealtimeInput([
+                      // Use sendToolResponse per skill guidelines
+                      this.session.sendToolResponse([
                         {
                           functionResponse: {
                             name: "endConversation",
@@ -207,7 +216,9 @@ export class EltBot {
                           },
                         },
                       ]);
-                    } catch (e) {}
+                    } catch (e) {
+                      console.error("Error sending tool response:", e);
+                    }
                   }
                   const checkFinish = () => {
                     if (this.audioPlayer.isPlaying) {
@@ -303,11 +314,9 @@ export class EltBot {
     if (this.session && this.isConnected) {
       try {
         console.log("Sending hint request to bot...");
-        this.session.sendRealtimeInput([
-          {
-            text: "System Note: The student has been silent for a long time and might be struggling to find the right words. Without breaking character, give a very short, friendly hint, encourage them, or ask a simpler variation of your last question to keep the conversation going.",
-          },
-        ]);
+        this.session.sendRealtimeInput({
+          text: "System Note: The student has been silent for a long time and might be struggling to find the right words. Without breaking character, give a very short, friendly hint, encourage them, or ask a simpler variation of your last question to keep the conversation going.",
+        });
       } catch (e) {
         console.error("Failed to send hint request:", e);
       }
@@ -340,11 +349,12 @@ export class EltBot {
     while (attempt < maxRetries) {
       try {
         const ai = getAiClient();
-        const modelName = modelsToTry[attempt] || "gemini-1.5-flash";
+        const modelName = modelsToTry[attempt] || "gemini-3-flash-preview";
         console.log(`Generating report with model: ${modelName}`);
         
-        const model = ai.getGenerativeModel({ model: modelName });
-        const response = await model.generateContent(`
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: `
             The following transcript is a practice session between an English language student and an AI tutor.
             Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them.
             
@@ -369,10 +379,10 @@ export class EltBot {
 
             ### 4. Next Steps
             (Key focus areas)
-          `);
+          `
+        });
 
-        const result = await response.response;
-        return result.text() || "Failed to generate report text.";
+        return response.text || "Failed to generate report text.";
       } catch (err: any) {
         lastErr = err;
         console.error(
