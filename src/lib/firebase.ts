@@ -301,32 +301,49 @@ export const getLeaderboard = async (
   }
 };
 
-// Save report to database
+// Save report or session session to database
 export const saveReportToDb = async (
   context: BotContext,
   reportText: string,
+  transcript?: string[],
 ) => {
   if (!auth.currentUser) return;
 
   try {
-    await addDoc(collection(db, "reports"), {
+    const docRef = await addDoc(collection(db, "reports"), {
       userId: auth.currentUser.uid,
       createdAt: serverTimestamp(),
       level: context.level || "",
       mode: context.mode || "",
       topic: context.topic || context.objective || "",
       reportText: reportText || "",
+      transcript: transcript || [],
     });
-    console.log("Report saved successfully!");
+    console.log("Report session saved successfully!");
 
-    return true;
+    return docRef.id;
   } catch (error: any) {
     console.error("Failed to save report:", error);
-    alert(
-      "Firebase'e Kayıt Başarısız: " +
-        (error.message || String(error)) +
-        "\n\nBu hata Firestore Rules (güvenlik kuralları) ile ilgili olabilir.",
+    return null;
+  }
+};
+
+// Update an existing report (usually adding reportText to a session that only had transcript)
+export const updateReportInDb = async (reportId: string, reportText: string) => {
+  if (!auth.currentUser) return;
+  try {
+    await setDoc(
+      doc(db, "reports", reportId),
+      {
+        reportText: reportText,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
     );
+    return true;
+  } catch (error) {
+    console.error("Failed to update report:", error);
+    return false;
   }
 };
 
@@ -337,6 +354,8 @@ export interface SavedReport {
   mode: string;
   topic: string;
   reportText: string;
+  transcript?: string[];
+  isLocal?: boolean;
 }
 
 // Fetch user's reports

@@ -27,12 +27,12 @@ service cloud.firestore {
     // Report Validation Blueprint
     function isValidReport(data) {
       return data.keys().hasAll(['userId', 'createdAt', 'level', 'mode', 'topic', 'reportText']) &&
-             data.keys().size() == 6 &&
              data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128 && data.userId == request.auth.uid &&
              data.level is string && data.level.size() <= 50 &&
              data.mode is string && data.mode.size() <= 50 &&
              data.topic is string && data.topic.size() <= 2000 &&
-             data.reportText is string && data.reportText.size() <= 20000;
+             data.reportText is string && data.reportText.size() <= 20000 &&
+             (!('transcript' in data.keys()) || data.transcript is list);
              // Note: data.createdAt is a timestamp and is validated explicitly in the create block.
     }
 
@@ -84,8 +84,14 @@ service cloud.firestore {
                    && isValidReport(incoming()) 
                    && incoming().createdAt == request.time;
                    
-      // Immortal records - no updates allowed
-      allow update: if false;
+      // Allow updating reportText (e.g. for generating it later if failed)
+      allow update: if isSignedIn() 
+                   && isValidId(reportId)
+                   && existing().userId == request.auth.uid
+                   && incoming().userId == existing().userId
+                   && incoming().diff(existing()).affectedKeys().hasOnly(['reportText', 'updatedAt'])
+                   && incoming().reportText is string
+                   && incoming().updatedAt == request.time;
       
       // User can delete their own reports
       allow delete: if isSignedIn() && isValidId(reportId) && existing().userId == request.auth.uid;

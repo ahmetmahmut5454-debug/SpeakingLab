@@ -318,57 +318,65 @@ export class EltBot {
     }
   }
 
-  async generateReport(context: BotContext): Promise<string> {
-    if (this.transcriptHistory.length === 0) {
+  get transcript() {
+    return [...this.transcriptHistory];
+  }
+
+  async generateReport(
+    context: BotContext,
+    externalTranscript?: string[],
+  ): Promise<string> {
+    const transcriptToUse = externalTranscript || this.transcriptHistory;
+
+    if (transcriptToUse.length === 0) {
       return "Sistem bağlantısı sağlandığını ancak görüşme sırasında metne dönüştürme özelliğinin (Speech Recognition) bu cihazda/tarayıcıda desteklenmemesi nedeniyle rapor oluşturulamadığını tespit ettik. Uygulamayı PWA (Ana Ekrana Ekle) olarak yüklerseniz veya Chrome tarayıcı kullanırsanız mikrofondan metne dönüştürme özelliği daha stabil çalışacaktır.";
     }
 
     let attempt = 0;
     const maxRetries = 3;
     const modelsToTry = [
-      "gemini-2.5-flash",
-      "gemini-2.0-flash",
       "gemini-1.5-flash",
+      "gemini-1.5-flash-8b",
+      "gemini-1.5-pro",
     ];
     let lastErr: any;
 
     while (attempt < maxRetries) {
       try {
         const ai = getAiClient();
-        const response = await ai.models.generateContent({
-          model: modelsToTry[attempt] || "gemini-2.0-flash",
-          contents: `
+        const modelName = modelsToTry[attempt] || "gemini-1.5-flash";
+        console.log(`Generating report with model: ${modelName}`);
+        
+        const model = ai.getGenerativeModel({ model: modelName });
+        const response = await model.generateContent(`
             The following transcript is a practice session between an English language student and an AI tutor.
-            Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them (e.g. if Tutor corrects a grammar mistake, infer the mistake. If Tutor says 'Great point!', infer good fluency).
+            Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them.
             
             Target CEFR Level: ${context.level}
             Topic: ${context.topic}
             Student's Goal: ${context.objective}
 
             --- CONVERSATION TRANSCRIPT ---
-            ${this.transcriptHistory.join("\n")}
+            ${transcriptToUse.join("\n")}
             -------------------------------
 
-            Analyze the student's performance based ONLY on the transcript above (and inferences from the Tutor's responses). 
-            Provide a highly structured, constructive feedback report strictly categorized as follows:
+            Provide a highly structured, constructive feedback report in English strictly categorized as follows:
 
             ### 1. Overall & CEFR Assessment
-            (Did they seem to meet the goal based on the tutor's reactions?)
+            (Meeting goal? General impression)
 
             ### 2. Pronunciation & Fluency
-            (Assess pacing and clarity based on how well the tutor understood them)
+            (Clarity and pacing)
 
             ### 3. Grammar & Vocabulary
-            (Point out inferred strong vocabulary or grammatical mistakes based on the tutor's corrections)
+            (Key corrections or strengths)
 
-            ### 4. Constructive Next Steps
-            (Exact exercises or topics focus)
+            ### 4. Next Steps
+            (Key focus areas)
+          `);
 
-            Write the entire report in English. Use a professional, encouraging tone.
-          `,
-        });
-
-        return response.text || "Failed to generate report.";
+        const result = await response.response;
+        return result.text() || "Failed to generate report text.";
       } catch (err: any) {
         lastErr = err;
         console.error(

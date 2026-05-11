@@ -54,35 +54,76 @@ export const Character = ({ type, expression, className = "" }: CharacterProps) 
                 <motion.circle 
                   cx="82" cy="100" r="3.5" fill="#2D3748" 
                   animate={{ 
-                    cy: [100, 94, 94, 100],
-                    cx: [82, 82, 85, 82]
+                    cy: [100, 92, 92, 100],
+                    cx: [82, 85, 79, 82]
                   }}
-                  transition={{ duration: 3, repeat: Infinity, times: [0, 0.4, 0.6, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.3, 0.7, 1] }}
                 />
                 <motion.circle 
                   cx="118" cy="100" r="3.5" fill="#2D3748" 
                   animate={{ 
-                    cy: [100, 94, 94, 100],
-                    cx: [118, 118, 121, 118]
+                    cy: [100, 92, 92, 100],
+                    cx: [118, 121, 115, 118]
                   }}
-                  transition={{ duration: 3, repeat: Infinity, times: [0, 0.4, 0.6, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.3, 0.7, 1] }}
                 />
                 {/* Heavy eyelids */}
-                <path d="M70,92 Q82,92 95,92" stroke="#FFDBAC" strokeWidth="6" fill="none" />
-                <path d="M105,92 Q118,92 130,92" stroke="#FFDBAC" strokeWidth="6" fill="none" />
+                <motion.path 
+                  d="M70,90 Q82,90 95,90" 
+                  stroke="#FFDBAC" 
+                  strokeWidth="8" 
+                  fill="none"
+                  animate={{ d: ["M70,90 Q82,90 95,90", "M70,95 Q82,95 95,95", "M70,90 Q82,90 95,90"] }}
+                  transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 3 }}
+                />
+                <motion.path 
+                  d="M105,90 Q118,90 130,90" 
+                  stroke="#FFDBAC" 
+                  strokeWidth="8" 
+                  fill="none"
+                  animate={{ d: ["M105,90 Q118,90 130,90", "M105,95 Q118,95 130,95", "M105,90 Q118,90 130,90"] }}
+                  transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 3 }}
+                />
               </g>
             ) : isHappy ? (
-              <>
-                <path d="M75,102 Q82,92 89,102" stroke="#2D3748" strokeWidth="4" fill="none" strokeLinecap="round" />
-                <path d="M111,102 Q118,92 125,102" stroke="#2D3748" strokeWidth="4" fill="none" strokeLinecap="round" />
-              </>
+              <g>
+                {/* Closing eyes with high cheeks effect */}
+                <path d="M72,105 Q82,92 92,105" stroke="#2D3748" strokeWidth="4" fill="none" strokeLinecap="round" />
+                <path d="M108,105 Q118,92 128,105" stroke="#2D3748" strokeWidth="4" fill="none" strokeLinecap="round" />
+              </g>
             ) : (
-              <>
+              <g>
                 <circle cx="82" cy="100" r="6" fill="white" />
                 <circle cx="118" cy="100" r="6" fill="white" />
-                <circle cx="82" cy="100" r="3" fill="#2D3748" />
-                <circle cx="118" cy="100" r="3" fill="#2D3748" />
-              </>
+                {/* Pupils with blinking */}
+                <motion.circle 
+                  cx="82" cy="100" r="3" fill="#2D3748"
+                  animate={{ scaleY: [1, 1, 0, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
+                />
+                <motion.circle 
+                  cx="118" cy="100" r="3" fill="#2D3748"
+                  animate={{ scaleY: [1, 1, 0, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
+                />
+                {/* Eyelids for blinking */}
+                <motion.path 
+                  d="M72,94 Q82,94 92,94" 
+                  stroke="#FFDBAC" 
+                  strokeWidth="0" 
+                  fill="none"
+                  animate={{ strokeWidth: [0, 0, 12, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
+                />
+                <motion.path 
+                  d="M108,94 Q118,94 128,94" 
+                  stroke="#FFDBAC" 
+                  strokeWidth="0" 
+                  fill="none"
+                  animate={{ strokeWidth: [0, 0, 12, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
+                />
+              </g>
             )}
           </g>
 

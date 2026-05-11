@@ -46,6 +46,7 @@ import {
   saveReportToDb,
   getUserReports,
   deleteReportFromDb,
+  updateReportInDb,
   SavedReport,
   getUserStats,
   UserStats,
@@ -392,6 +393,7 @@ export default function App() {
 
   const handleStopAndReport = async () => {
     if (!botRef.current) return;
+    const currentTranscript = botRef.current.transcript;
     setIsRunning(false);
     setGeneratingReport(true);
 
@@ -411,30 +413,93 @@ export default function App() {
       }
     }
 
-    // Save to Firebase if logged in, otherwise save to LocalStorage (Mac/Desktop fallback)
-    if (sessionReport && !sessionReport.includes("❌")) {
-      if (user) {
-        await saveReportToDb(context, sessionReport);
-      } else {
-        const localRep = {
-          id: Date.now().toString(),
-          createdAt: new Date(),
-          level: context.level,
-          mode: context.mode,
-          topic: context.topic,
-          reportText: sessionReport,
-        };
-        const existing = JSON.parse(
-          localStorage.getItem("local_reports") || "[]",
-        );
-        localStorage.setItem(
-          "local_reports",
-          JSON.stringify([localRep, ...existing]),
-        );
-      }
+    // Save to Firebase or LocalStorage
+    const hasReport = sessionReport && !sessionReport.includes("❌");
+    if (user) {
+      // Save even if report failed (so user can retry later if they have a transcript)
+      await saveReportToDb(
+        context,
+        hasReport ? sessionReport : "",
+        currentTranscript,
+      );
+    } else {
+      const localRep = {
+        id: Date.now().toString(),
+        createdAt: new Date(),
+        level: context.level,
+        mode: context.mode,
+        topic: context.topic,
+        reportText: hasReport ? sessionReport : "",
+        transcript: currentTranscript,
+      };
+      const existing = JSON.parse(
+        localStorage.getItem("local_reports") || "[]",
+      );
+      localStorage.setItem(
+        "local_reports",
+        JSON.stringify([localRep, ...existing]),
+      );
     }
 
     botRef.current.stop();
+  };
+
+  const retryReportGeneration = async (report: SavedReport) => {
+    if (!botRef.current) return;
+    if (!report.transcript || report.transcript.length === 0) {
+      alert("No transcript found for this session.");
+      return;
+    }
+
+    setLoadingHistory(true);
+    try {
+      const newReport = await botRef.current.generateReport(
+        {
+          level: report.level as ProficiencyLevel,
+          mode: report.mode as any,
+          topic: report.topic,
+          objective: report.topic,
+          taskDurationMinutes: 5,
+        },
+        report.transcript,
+      );
+
+      if (newReport && !newReport.includes("❌")) {
+        if (!report.isLocal) {
+          // It's a firebase report
+          const success = await updateReportInDb(report.id, newReport);
+          if (success) {
+            setPastReports((prev) =>
+              prev.map((r) =>
+                r.id === report.id ? { ...r, reportText: newReport } : r,
+              ),
+            );
+          }
+        } else {
+          // Local report
+          const existing = JSON.parse(
+            localStorage.getItem("local_reports") || "[]",
+          );
+          const updated = existing.map((r: any) =>
+            r.id === report.id ? { ...r, reportText: newReport } : r,
+          );
+          localStorage.setItem("local_reports", JSON.stringify(updated));
+          setPastReports((prev) =>
+            prev.map((r) =>
+              r.id === report.id ? { ...r, reportText: newReport } : r,
+            ),
+          );
+        }
+        alert("Report generated successfully!");
+      } else {
+        alert("AI server is still busy. Please try again later.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to retry report generation.");
+    } finally {
+      setLoadingHistory(false);
+    }
   };
 
   const loadLeaderboard = async () => {
@@ -456,13 +521,25 @@ export default function App() {
     const localReportsObj = JSON.parse(localStr || "[]").map((r: any) => ({
       ...r,
       createdAt: new Date(r.createdAt),
+      isLocal: true,
     }));
 
     // Merge and sort
     setPastReports(
-      [...fbReports, ...localReportsObj].sort(
-        (a, b) => b.createdAt.valueOf() - a.createdAt.valueOf(),
-      ),
+      [
+        ...fbReports.map((r) => ({ ...r, isLocal: false })),
+        ...localReportsObj,
+      ].sort((a, b) => {
+        const timeA =
+          a.createdAt instanceof Date
+            ? a.createdAt.getTime()
+            : (a.createdAt as any)?.seconds * 1000 || 0;
+        const timeB =
+          b.createdAt instanceof Date
+            ? b.createdAt.getTime()
+            : (b.createdAt as any)?.seconds * 1000 || 0;
+        return timeB - timeA;
+      }),
     );
     setLoadingHistory(false);
   };
@@ -1260,9 +1337,30 @@ export default function App() {
                           {r.topic}
                         </div>
                         <div className="prose prose-invert prose-sm text-slate-600/80 mt-2">
-                          {r.reportText.split("\n").map((line, i) => (
-                            <p key={i}>{line}</p>
-                          ))}
+                          {r.reportText ? (
+                            r.reportText.split("\n").map((line, i) => (
+                              <p key={i}>{line}</p>
+                            ))
+                          ) : (
+                            <div className="flex flex-col items-center gap-4 py-8 bg-slate-900/5 rounded-xl border border-dashed border-slate-900/20">
+                              <Sparkles className="w-8 h-8 text-indigo-400 animate-pulse" />
+                              <div className="text-center">
+                                <p className="text-sm font-bold text-slate-800">
+                                  Report pending...
+                                </p>
+                                <p className="text-xs text-slate-500 mt-1">
+                                  There was an issue generating this report
+                                  during the session.
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => retryReportGeneration(r)}
+                                className="px-6 py-2 bg-indigo-500 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-indigo-500/20"
+                              >
+                                Try Generating Again
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
