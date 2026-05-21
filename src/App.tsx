@@ -1851,7 +1851,8 @@ export default function App() {
                     }
                     className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50"
                   >
-                    <option value="A1-A2">A1-A2 (Beginner/Elementary)</option>
+                    <option value="A1">A1 (Absolute Beginner)</option>
+                    <option value="A2">A2 (Elementary)</option>
                     <option value="B1-B2">B1-B2 (Intermediate)</option>
                     <option value="C1">C1 (Advanced)</option>
                   </select>

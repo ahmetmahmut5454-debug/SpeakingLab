@@ -26,7 +26,7 @@ const getApiKey = () => {
 
 const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 
-export type ProficiencyLevel = "A1-A2" | "B1-B2" | "C1";
+export type ProficiencyLevel = "A1" | "A2" | "B1-B2" | "C1";
 
 export type VoiceType =
   | "Zephyr"
@@ -59,8 +59,10 @@ export interface BotContext {
 
 const getPromptTarget = (context: BotContext) => {
   const lang = context.targetLanguage || "English";
-  if (context.level === "A1-A2") {
-    return `You are an ${lang} teacher speaking to an A1/A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics. Be very encouraging. Provide gentle corrections.`;
+  if (context.level === "A1") {
+    return `You are an ${lang} teacher speaking to an absolute beginner (A1 level) student. Speak extremely slowly and clearly. Use only the most basic vocabulary: greetings, numbers, colors, names, countries, and jobs. Ask very simple, direct questions one at a time (e.g., 'What is your name?', 'How old are you?', 'Where are you from?', 'What is your job?'). Be extremely patient and encouraging.`;
+  } else if (context.level === "A2") {
+    return `You are an ${lang} teacher speaking to an A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics, habits, and past events. Be very encouraging. Provide gentle corrections.`;
   } else if (context.level === "B1-B2") {
     return `You are an ${lang} conversation partner for a B1-B2 level student. Speak at a natural pace. Use common idioms. Ask follow-up questions to encourage the student. Provide occasional corrections.`;
   } else {

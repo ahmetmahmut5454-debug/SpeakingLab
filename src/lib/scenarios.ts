@@ -1,7 +1,7 @@
 export interface Scenario {
   id: string;
   title: string;
-  level: 'A1-A2' | 'B1-B2' | 'C1';
+  level: 'A1' | 'A2' | 'B1-B2' | 'C1';
   topic: string;
   objective: string;
   role: 'station' | 'restaurant' | 'support' | 'roommate' | 'mayor' | 'investor' | 'default';
@@ -16,7 +16,7 @@ export const predefinedScenarios: Scenario[] = [
     id: "s1",
     imageUrl: "https://images.unsplash.com/photo-1471018259965-02b4bc9da464?w=500&q=80",
     title: "The Broken Ticket (Train Station)",
-    level: "A1-A2",
+    level: "A2",
     role: "station",
     topic: "You are an English language assessment agent. Your name is Ali. Target CEFR: A2 (Basic). Speak slowly, use very simple vocabulary, and short sentences.",
     icebreaker: "Hello! May I see your ticket please?",
@@ -36,7 +36,7 @@ export const predefinedScenarios: Scenario[] = [
     id: "s2",
     imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80",
     title: "Dinner Plans (Making Choices)",
-    level: "A1-A2",
+    level: "A2",
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: A2. Role: A close friend. Speak simply and casually. Your goal is to make the user justify their choices.",
     icebreaker: "Hey! I am so hungry. We need to decide where to eat.",
