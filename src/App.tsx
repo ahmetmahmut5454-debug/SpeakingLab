@@ -239,6 +239,15 @@ const EmojiBurst = ({
   );
 };
 
+const SUPPORTED_LANGUAGES = [
+  { name: "English", code: "en-US", flag: "🇬🇧" },
+  { name: "French", code: "fr-FR", flag: "🇫🇷" },
+  { name: "Spanish", code: "es-ES", flag: "🇪🇸" },
+  { name: "German", code: "de-DE", flag: "🇩🇪" },
+  { name: "Italian", code: "it-IT", flag: "🇮🇹" },
+  { name: "Turkish", code: "tr-TR", flag: "🇹🇷" },
+];
+
 export default function App() {
   const [context, setContext] = useState<BotContext>({
     level: "B1-B2",
@@ -246,6 +255,8 @@ export default function App() {
     taskDurationMinutes: 5,
     objective: "Practice travel-related vocabulary and speaking confidence.",
     topic: "Talking about daily routines and hobbies. Your name is Alex.",
+    targetLanguage: "English",
+    targetLanguageCode: "en-US",
   });
 
   const [isRunning, setIsRunning] = useState(false);
@@ -1716,6 +1727,34 @@ export default function App() {
               <div className="space-y-6 flex-1 overflow-y-auto custom-scrollbar pr-2">
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase opacity-50 tracking-widest">
+                    Target Language
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {SUPPORTED_LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() =>
+                          setContext({
+                            ...context,
+                            targetLanguage: lang.name,
+                            targetLanguageCode: lang.code,
+                          })
+                        }
+                        className={`py-2 px-1 text-[10px] font-bold uppercase tracking-widest rounded-lg flex flex-col items-center gap-1 border transition-all ${
+                          context.targetLanguage === lang.name
+                            ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-500"
+                            : "bg-slate-900/5 border-transparent text-slate-500 hover:bg-slate-900/10"
+                        }`}
+                      >
+                        <span className="text-xl">{lang.flag}</span>
+                        {lang.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase opacity-50 tracking-widest">
                     Pedagogical Mode
                   </label>
                   <div className="flex bg-slate-900/5 rounded-lg p-1 border border-slate-900/10">
@@ -1812,7 +1851,7 @@ export default function App() {
                     }
                     className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50"
                   >
-                    <option value="A2">A2 (Pre-Intermediate)</option>
+                    <option value="A1-A2">A1-A2 (Beginner/Elementary)</option>
                     <option value="B1-B2">B1-B2 (Intermediate)</option>
                     <option value="C1">C1 (Advanced)</option>
                   </select>

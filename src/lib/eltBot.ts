@@ -26,7 +26,7 @@ const getApiKey = () => {
 
 const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 
-export type ProficiencyLevel = "A2" | "B1-B2" | "C1";
+export type ProficiencyLevel = "A1-A2" | "B1-B2" | "C1";
 
 export type VoiceType =
   | "Zephyr"
@@ -53,13 +53,19 @@ export interface BotContext {
     | "default";
   voice?: VoiceType;
   icebreaker?: string;
+  targetLanguage?: string;
+  targetLanguageCode?: string;
 }
 
-const DEFAULT_PROMPTS: Record<ProficiencyLevel, string> = {
-  A2: "You are an English teacher speaking to an A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics. Be very encouraging. Provide gentle corrections.",
-  "B1-B2":
-    "You are an English conversation partner for a B1-B2 level student. Speak at a natural pace. Use common idioms. Ask follow-up questions to encourage the student. Provide occasional corrections.",
-  C1: "You are a sophisticated debate partner for a C1 level student. Speak at a fully natural pace. Use advanced vocabulary. Challenge the student's opinions and ask for justifications.",
+const getPromptTarget = (context: BotContext) => {
+  const lang = context.targetLanguage || "English";
+  if (context.level === "A1-A2") {
+    return `You are an ${lang} teacher speaking to an A1/A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics. Be very encouraging. Provide gentle corrections.`;
+  } else if (context.level === "B1-B2") {
+    return `You are an ${lang} conversation partner for a B1-B2 level student. Speak at a natural pace. Use common idioms. Ask follow-up questions to encourage the student. Provide occasional corrections.`;
+  } else {
+    return `You are a sophisticated debate partner for a C1 level student in ${lang}. Speak at a fully natural pace. Use advanced vocabulary. Challenge the student's opinions and ask for justifications.`;
+  }
 };
 
 export class EltBot {
@@ -97,7 +103,7 @@ export class EltBot {
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = true;
         this.recognition.interimResults = false;
-        this.recognition.lang = "en-US";
+        this.recognition.lang = context.targetLanguageCode || "en-US";
         this.recognition.onresult = (event: any) => {
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
@@ -122,7 +128,7 @@ export class EltBot {
       }
 
       const systemInstruction = `
-        ${DEFAULT_PROMPTS[context.level]}
+        ${getPromptTarget(context)}
         Topic: ${context.topic}
         Goals: ${context.objective}
         Mode: ${context.mode}
@@ -403,10 +409,11 @@ export class EltBot {
         const response = await ai.models.generateContent({
           model: modelName,
           contents: `
-            The following transcript is a practice session between an English language student and an AI tutor.
+            The following transcript is a practice session between a ${context.targetLanguage || 'English'} language student and an AI tutor.
             Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them.
             
             Target CEFR Level: ${context.level}
+            Target Language: ${context.targetLanguage || 'English'}
             Topic: ${context.topic}
             Student's Goal: ${context.objective}
 
@@ -414,7 +421,7 @@ export class EltBot {
             ${transcriptToUse.join("\n")}
             -------------------------------
 
-            Provide a highly structured, constructive feedback report in English strictly categorized as follows:
+            Provide a highly structured, constructive feedback report strictly categorized as follows:
 
             ### 1. Overall & CEFR Assessment
             (Meeting goal? General impression)
