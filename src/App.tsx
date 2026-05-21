@@ -54,6 +54,14 @@ import {
   updateGamificationStats,
   getLeaderboard,
 } from "./lib/firebase";
+import {
+  saveLocalReport,
+  getLocalReports,
+  deleteLocalReport,
+  updateLocalReportText,
+  markReportAsSynced,
+  LocalReport,
+} from "./lib/indexedDB";
 import { onAuthStateChanged, User } from "firebase/auth";
 
 const SHOP_ITEMS = [
@@ -262,7 +270,7 @@ export default function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<UserStats[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [pastReports, setPastReports] = useState<SavedReport[]>([]);
+  const [pastReports, setPastReports] = useState<LocalReport[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isStreakAnimating, setIsStreakAnimating] = useState(false);
@@ -413,38 +421,23 @@ export default function App() {
       }
     }
 
-    // Save to Firebase or LocalStorage
+    // Save to IndexedDB locally
     const hasReport = sessionReport && !sessionReport.includes("❌");
-    if (user) {
-      // Save even if report failed (so user can retry later if they have a transcript)
-      await saveReportToDb(
-        context,
-        hasReport ? sessionReport : "",
-        currentTranscript,
-      );
-    } else {
-      const localRep = {
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        level: context.level,
-        mode: context.mode,
-        topic: context.topic,
-        reportText: hasReport ? sessionReport : "",
-        transcript: currentTranscript,
-      };
-      const existing = JSON.parse(
-        localStorage.getItem("local_reports") || "[]",
-      );
-      localStorage.setItem(
-        "local_reports",
-        JSON.stringify([localRep, ...existing]),
-      );
-    }
+    await saveLocalReport({
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      createdAtTime: Date.now(),
+      level: context.level,
+      mode: context.mode,
+      topic: context.topic,
+      reportText: hasReport ? sessionReport : "",
+      transcript: currentTranscript,
+    });
 
     botRef.current.stop();
   };
 
-  const retryReportGeneration = async (report: SavedReport) => {
+  const retryReportGeneration = async (report: LocalReport) => {
     if (!botRef.current) return;
     if (!report.transcript || report.transcript.length === 0) {
       alert("No transcript found for this session.");
@@ -465,29 +458,10 @@ export default function App() {
       );
 
       if (newReport && !newReport.includes("❌")) {
-        if (!report.isLocal) {
-          // It's a firebase report
-          const success = await updateReportInDb(report.id, newReport);
-          if (success) {
-            setPastReports((prev) =>
-              prev.map((r) =>
-                r.id === report.id ? { ...r, reportText: newReport } : r,
-              ),
-            );
-          }
-        } else {
-          // Local report
-          const existing = JSON.parse(
-            localStorage.getItem("local_reports") || "[]",
-          );
-          const updated = existing.map((r: any) =>
-            r.id === report.id ? { ...r, reportText: newReport } : r,
-          );
-          localStorage.setItem("local_reports", JSON.stringify(updated));
+        const updated = await updateLocalReportText(report.id, newReport);
+        if (updated) {
           setPastReports((prev) =>
-            prev.map((r) =>
-              r.id === report.id ? { ...r, reportText: newReport } : r,
-            ),
+            prev.map((r) => (r.id === report.id ? updated : r))
           );
         }
         alert("Report generated successfully!");
@@ -502,6 +476,48 @@ export default function App() {
     }
   };
 
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncToCloud = async () => {
+    if (!user) {
+      alert("Please sign in to sync your reports to the cloud.");
+      return;
+    }
+    setSyncing(true);
+    try {
+      const unsynced = pastReports.filter((r) => !r.synced);
+      if (unsynced.length === 0) {
+        alert("All reports are already synced.");
+        setSyncing(false);
+        return;
+      }
+      
+      let syncCount = 0;
+      for (const rep of unsynced) {
+        if (!rep.reportText && !rep.transcript) continue;
+        const cloudId = await saveReportToDb(
+          { level: rep.level as any, mode: rep.mode as any, topic: rep.topic, objective: "", taskDurationMinutes: 5 },
+          rep.reportText,
+          rep.transcript
+        );
+        if (cloudId) {
+          await markReportAsSynced(rep.id, cloudId);
+          syncCount++;
+        }
+      }
+      
+      // Update local state
+      const updatedLocal = await getLocalReports();
+      setPastReports(updatedLocal);
+      alert(`Successfully synced ${syncCount} report(s) to the cloud.`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to sync some reports.");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const loadLeaderboard = async () => {
     setLoadingLeaderboard(true);
     const data = await getLeaderboard(20);
@@ -511,49 +527,14 @@ export default function App() {
 
   const loadReports = async () => {
     setLoadingHistory(true);
-    let fbReports: any[] = [];
-    if (user) {
-      fbReports = await getUserReports();
-    }
-
-    // Load local reports
-    const localStr = localStorage.getItem("local_reports");
-    const localReportsObj = JSON.parse(localStr || "[]").map((r: any) => ({
-      ...r,
-      createdAt: new Date(r.createdAt),
-      isLocal: true,
-    }));
-
-    // Merge and sort
-    setPastReports(
-      [
-        ...fbReports.map((r) => ({ ...r, isLocal: false })),
-        ...localReportsObj,
-      ].sort((a, b) => {
-        const timeA =
-          a.createdAt instanceof Date
-            ? a.createdAt.getTime()
-            : (a.createdAt as any)?.seconds * 1000 || 0;
-        const timeB =
-          b.createdAt instanceof Date
-            ? b.createdAt.getTime()
-            : (b.createdAt as any)?.seconds * 1000 || 0;
-        return timeB - timeA;
-      }),
-    );
+    // Load local reports from IndexedDB
+    const localReports = await getLocalReports();
+    setPastReports(localReports);
     setLoadingHistory(false);
   };
 
-  const handleDeleteReport = async (id: string, isLocal: boolean = false) => {
-    if (!isLocal && user) {
-      await deleteReportFromDb(id);
-    } else {
-      const existing = JSON.parse(
-        localStorage.getItem("local_reports") || "[]",
-      );
-      const filtered = existing.filter((r: any) => r.id !== id);
-      localStorage.setItem("local_reports", JSON.stringify(filtered));
-    }
+  const handleDeleteReport = async (id: string) => {
+    await deleteLocalReport(id);
     setPastReports((prev) => prev.filter((r) => r.id !== id));
   };
 
@@ -1231,19 +1212,28 @@ export default function App() {
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
               <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl">
-                <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-900/10">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-6 border-b border-slate-900/10 gap-4">
                   <div className="flex items-center gap-3">
                     <History className="w-6 h-6 text-indigo-400" />
                     <h2 className="text-xl font-bold uppercase tracking-tight">
                       Past Session Reports
                     </h2>
                   </div>
-                  <button
-                    onClick={() => setShowHistory(false)}
-                    className="px-4 py-2 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all text-xs"
-                  >
-                    Close
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleSyncToCloud}
+                      disabled={syncing}
+                      className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 font-bold uppercase tracking-widest transition-all text-xs flex items-center gap-2"
+                    >
+                      {syncing ? "Syncing..." : "Sync to Cloud"}
+                    </button>
+                    <button
+                      onClick={() => setShowHistory(false)}
+                      className="px-4 py-2 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all text-xs"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
 
                 {/* Stats Bar */}
@@ -1312,20 +1302,17 @@ export default function App() {
                               {r.mode}
                             </span>
                             <span className="text-[10px] uppercase tracking-widest text-slate-600/40 ml-2">
-                              {typeof r.createdAt !== "undefined" &&
-                              "seconds" in r.createdAt
-                                ? new Date(
-                                    r.createdAt.seconds * 1000,
-                                  ).toLocaleDateString()
-                                : "Recent"}
+                              {r.createdAtTime ? new Date(r.createdAtTime).toLocaleDateString() : "Recent"}
                             </span>
+                            {r.synced && (
+                              <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 text-[9px] uppercase tracking-widest rounded ml-2 font-bold" title="Synced to Cloud">
+                                Synced
+                              </span>
+                            )}
                           </div>
                           <button
                             onClick={() =>
-                              handleDeleteReport(
-                                r.id,
-                                !("seconds" in (r.createdAt || {})),
-                              )
+                              handleDeleteReport(r.id)
                             }
                             className="p-2 text-red-400/50 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                             title="Delete Record"
