@@ -397,15 +397,14 @@ export class EltBot {
     let attempt = 0;
     const maxRetries = 2;
     const modelsToTry = [
-      "gemini-1.5-flash",
-      "gemini-1.5-flash-8b",
+      "gemini-3.5-flash"
     ];
     let lastErr: any;
 
     while (attempt < maxRetries) {
       try {
         const ai = getAiClient();
-        const modelName = modelsToTry[attempt] || "gemini-1.5-flash";
+        const modelName = modelsToTry[attempt] || "gemini-3.5-flash";
         console.log(`Generating report with model: ${modelName}`);
         
         const response = await ai.models.generateContent({
