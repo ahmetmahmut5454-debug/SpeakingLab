@@ -118,6 +118,7 @@ const SHOP_ITEMS = [
 ];
 
 import { Mascot } from "./components/Mascot";
+import { RoamingPet } from "./components/RoamingPet";
 import { Guide } from "./components/Guide";
 
 const StatusBadge = ({ on }: { on: boolean }) => (
@@ -1922,6 +1923,7 @@ export default function App() {
            if (context.mode === "Task") setShowPreTask(true);
            else toggleBot();
         }} />
+        <RoamingPet outfit={userStats?.equippedOutfit} />
       </main>
     </div>
   );
