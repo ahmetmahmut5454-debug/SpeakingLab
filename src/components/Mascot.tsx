@@ -77,50 +77,50 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
           animate={isWalking ? { rotate: [10, -10, 10], transformOrigin: "30px 55px" } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
-          <path d="M 36 54 C 20 60, 20 72, 23 76 C 26 80, 32 75, 30 70 C 28 65, 30 58, 40 56 Z" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" />
+          <path d="M 30 55 Q 15 65 25 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round" />
           {/* Fingers */}
-          <circle cx="21" cy="74" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-          <circle cx="25" cy="77" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-          <circle cx="29" cy="75" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="23" cy="70" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="26" cy="72" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="28" cy="69" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
         </motion.g>
 
         {/* Right Arm */}
         <motion.g
           animate={
             isWalking ? { rotate: [-10, 10, -10], transformOrigin: "70px 55px" } : 
-            isGreeting ? { rotate: [0, -130, -100, -130, -100, -130, -130, 0], transformOrigin: "70px 55px" } : 
+            isGreeting ? { rotate: [0, -140, -110, -140, -110, -140, -80, -80, 0], transformOrigin: "70px 55px" } : 
             {}
           }
           transition={
             isWalking ? { duration: 0.4, repeat: Infinity } : 
-            isGreeting ? { duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] } : 
+            isGreeting ? { duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1] } : 
             {}
           }
         >
           {/* Default Hand */}
           <motion.g
-            animate={isGreeting ? { opacity: [1, 1, 1, 1, 1, 0, 0, 1] } : { opacity: 1 }}
-            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
+            animate={isGreeting ? { opacity: [1, 1, 1, 1, 1, 1, 0, 0, 1] } : { opacity: 1 }}
+            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1] }}
           >
-            <path d="M 64 54 C 80 60, 80 72, 77 76 C 74 80, 68 75, 70 70 C 72 65, 70 58, 60 56 Z" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" />
-            <circle cx="79" cy="74" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="75" cy="77" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="71" cy="75" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <path d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="77" cy="70" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="74" cy="73" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="71" cy="71" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
           </motion.g>
 
           {/* Thumbs Up Hand */}
           <motion.g
             initial={{ opacity: 0 }}
-            animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
-            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
+            animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
+            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1] }}
           >
-            <path d="M 64 54 C 80 60, 80 72, 77 76 C 74 80, 68 75, 70 70 C 72 65, 70 58, 60 56 Z" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" />
-            {/* Thumb */}
-            <path d="M 77 72 C 84 70, 85 75, 79 78 Z" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round" />
+            {/* Thumb sticking out (points right so when rotated -80 it points up) */}
+            <path d="M 74 66 L 82 64 A 2 2 0 0 1 83 68 L 76 71 Z" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
             {/* Folded Fingers */}
-            <circle cx="76" cy="77" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="73" cy="76" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="70" cy="74" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="75" cy="72" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="73" cy="71" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="70" cy="69" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
           </motion.g>
         </motion.g>
 
