@@ -78,18 +78,43 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
           transition={{ duration: 0.4, repeat: Infinity }}
         />
         <motion.g
-          animate={isWalking ? { rotate: [-10, 10, -10], transformOrigin: "70px 55px" } : isGreeting ? { rotate: [0, -100, -120, -100, -120, -100, -120, 0], transformOrigin: "70px 55px" } : {}}
-          transition={isWalking ? { duration: 0.4, repeat: Infinity } : isGreeting ? { duration: 2, repeat: Infinity, times: [0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1] } : {}}
+          animate={
+            isWalking ? { rotate: [-10, 10, -10], transformOrigin: "70px 55px" } : 
+            isGreeting ? { rotate: [0, -130, -100, -130, -100, -130, -130, 0], transformOrigin: "70px 55px" } : 
+            {}
+          }
+          transition={
+            isWalking ? { duration: 0.4, repeat: Infinity } : 
+            isGreeting ? { duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] } : 
+            {}
+          }
         >
-          <path
-            d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
-          />
-          {/* Thumbs up */}
+          {/* Default Hand */}
           <motion.path
-            d="M 75 70 Q 77 65 79 70" stroke="#5C3110" strokeWidth="2" fill="none" strokeLinecap="round"
+            d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
+            animate={isGreeting ? { opacity: [1, 1, 1, 1, 1, 0, 0, 1] } : { opacity: 1 }}
+            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
+          />
+          {/* Thumbs Up Hand Base */}
+          <motion.path
+            d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
             initial={{ opacity: 0 }}
-            animate={isGreeting ? { opacity: [0, 0, 1, 1, 1, 1, 1, 0] } : { opacity: 0 }}
-            transition={{ duration: 2, repeat: Infinity, times: [0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1] }}
+            animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
+            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
+          />
+          {/* Thumbs Up Thumb (Sticking out) */}
+          <motion.path
+            d="M 75 68 Q 81 66 82 62 Q 78 59 74 65" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" strokeLinecap="round"
+            initial={{ opacity: 0 }}
+            animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
+            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
+          />
+          {/* Thumbs Up Folded Fingers */}
+          <motion.path
+            d="M 73 69 Q 70 71 73 72 Q 71 73 73 74" fill="none" stroke="#5C3110" strokeWidth="1.5" strokeLinecap="round"
+            initial={{ opacity: 0 }}
+            animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
+            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
           />
         </motion.g>
 

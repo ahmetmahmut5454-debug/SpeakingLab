@@ -611,14 +611,14 @@ export default function App() {
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3 md:gap-5">
               <div 
-                className="relative group cursor-pointer"
+                className="relative group cursor-pointer z-50"
                 onMouseEnter={() => setIsMascotHovered(true)}
                 onMouseLeave={() => setIsMascotHovered(false)}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
-                <div className="relative bg-blue-950 p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-2xl group-hover:blur-xl group-hover:bg-blue-400/40 transition-all duration-500" />
+                <div className="relative bg-blue-950 p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl transition-colors duration-500 group-hover:bg-blue-900 group-hover:border-blue-400/50">
                   <Mascot
-                    className="w-12 h-12 md:w-16 md:h-16 group-hover:scale-125 group-hover:-translate-y-4 transition-transform duration-500 origin-bottom"
+                    className="w-12 h-12 md:w-16 md:h-16 group-hover:scale-[1.7] group-hover:-translate-y-5 group-hover:translate-x-2 transition-all duration-500 origin-bottom drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
                     outfit={userStats?.equippedOutfit}
                     isGreeting={isMascotHovered}
                   />
