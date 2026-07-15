@@ -1805,12 +1805,11 @@ export default function App() {
                   </div>
                 )}
 
-                {context.mode === "Task" && (
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase opacity-50 tracking-widest">
-                      Predefined TBLT Scenarios
-                    </label>
-                    <select
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase opacity-50 tracking-widest">
+                    Predefined Scenarios
+                  </label>
+                  <select
                       onChange={(e) => {
                         const scenario = predefinedScenarios.find(
                           (s) => s.id === e.target.value,
@@ -1829,14 +1828,19 @@ export default function App() {
                       className="w-full bg-white border border-emerald-500/30 text-emerald-400 p-3 rounded-lg text-sm focus:outline-none focus:border-green-500/50"
                     >
                       <option value="">-- Start with a Scenario --</option>
-                      {predefinedScenarios.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          [{s.level}] {s.title}
-                        </option>
+                      {Array.from(new Set(predefinedScenarios.map(s => s.category || "General"))).map(category => (
+                        <optgroup key={category} label={category}>
+                          {predefinedScenarios
+                            .filter(s => (s.category || "General") === category)
+                            .map((s) => (
+                              <option key={s.id} value={s.id}>
+                                [{s.level}] {s.title}
+                              </option>
+                            ))}
+                        </optgroup>
                       ))}
                     </select>
                   </div>
-                )}
 
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase opacity-50 tracking-widest">
