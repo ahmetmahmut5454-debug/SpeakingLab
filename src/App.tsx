@@ -120,6 +120,7 @@ const SHOP_ITEMS = [
 import { Mascot } from "./components/Mascot";
 import { RoamingPet } from "./components/RoamingPet";
 import { Guide } from "./components/Guide";
+import { ScenarioSelector } from "./components/ScenarioSelector";
 
 const StatusBadge = ({ on }: { on: boolean }) => (
   <div className="flex items-center gap-2 bg-slate-900/5 px-4 py-2 rounded-full border border-slate-900/10 backdrop-blur-md shadow-lg">
@@ -281,6 +282,7 @@ export default function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showScenarioSelector, setShowScenarioSelector] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<UserStats[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [pastReports, setPastReports] = useState<LocalReport[]>([]);
@@ -1039,41 +1041,15 @@ export default function App() {
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-700 mb-1 text-center">
                   Scenario
                 </label>
-                <select
-                  onChange={(e) => {
-                    const scenario = predefinedScenarios.find(
-                      (s) => s.id === e.target.value,
-                    );
-                    if (scenario) {
-                      setContext({
-                        ...context,
-                        mode: "Task",
-                        level: scenario.level,
-                        topic: scenario.topic,
-                        objective: scenario.objective,
-                        role: scenario.role,
-                        icebreaker: scenario.icebreaker,
-                      });
-                    } else if (e.target.value === "practice") {
-                      setContext({ ...context, mode: "Practice" });
-                    }
-                  }}
-                  className="bg-blue-900 border border-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg cursor-pointer hover:bg-blue-800 transition-colors"
+                <button
+                  onClick={() => setShowScenarioSelector(true)}
                   disabled={isRunning}
+                  className="bg-blue-900 border border-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg cursor-pointer hover:bg-blue-800 transition-colors truncate"
                 >
-                  <option value="practice">-- Free Practice Mode --</option>
-                  {Array.from(new Set(predefinedScenarios.map(s => s.category || "General"))).map(category => (
-                    <optgroup key={category} label={category} className="bg-slate-800 text-slate-300">
-                      {predefinedScenarios
-                        .filter(s => (s.category || "General") === category)
-                        .map((s) => (
-                          <option key={s.id} value={s.id} className="bg-white text-slate-900 font-medium">
-                            [{s.level}] {s.title}
-                          </option>
-                        ))}
-                    </optgroup>
-                  ))}
-                </select>
+                  {context.mode === "Practice" 
+                    ? "-- Free Practice Mode --" 
+                    : `[${context.level}] ${predefinedScenarios.find(s => s.role === context.role)?.title || "Custom Scenario"}`}
+                </button>
               </div>
 
               <div className="flex flex-col gap-1">
@@ -1919,6 +1895,31 @@ export default function App() {
           </div>
           <span>Built for ELT Professionals</span>
         </footer>
+
+        <ScenarioSelector
+          isOpen={showScenarioSelector}
+          onClose={() => setShowScenarioSelector(false)}
+          currentScenarioId={
+            context.mode === "Practice"
+              ? null
+              : predefinedScenarios.find((s) => s.role === context.role)?.id || null
+          }
+          onSelect={(scenario) => {
+            if (scenario) {
+              setContext({
+                ...context,
+                mode: "Task",
+                level: scenario.level,
+                topic: scenario.topic,
+                objective: scenario.objective,
+                role: scenario.role,
+                icebreaker: scenario.icebreaker,
+              });
+            } else {
+              setContext({ ...context, mode: "Practice" });
+            }
+          }}
+        />
 
         <Guide isRunning={isRunning} onStartPractice={() => {
            if (context.mode === "Task") setShowPreTask(true);
