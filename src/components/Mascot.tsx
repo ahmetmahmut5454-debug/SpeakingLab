@@ -72,11 +72,19 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
         <ellipse cx="48" cy="68" rx="20" ry="24" fill="url(#bellyGrad)" />
 
         {/* Arms */}
-        <motion.path
-          d="M 30 55 Q 15 65 25 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
+        {/* Left Arm */}
+        <motion.g
           animate={isWalking ? { rotate: [10, -10, 10], transformOrigin: "30px 55px" } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
-        />
+        >
+          <path d="M 36 54 C 20 60, 20 72, 23 76 C 26 80, 32 75, 30 70 C 28 65, 30 58, 40 56 Z" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" />
+          {/* Fingers */}
+          <circle cx="21" cy="74" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="25" cy="77" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="29" cy="75" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+        </motion.g>
+
+        {/* Right Arm */}
         <motion.g
           animate={
             isWalking ? { rotate: [-10, 10, -10], transformOrigin: "70px 55px" } : 
@@ -90,32 +98,30 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
           }
         >
           {/* Default Hand */}
-          <motion.path
-            d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
+          <motion.g
             animate={isGreeting ? { opacity: [1, 1, 1, 1, 1, 0, 0, 1] } : { opacity: 1 }}
             transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
-          />
-          {/* Thumbs Up Hand Base */}
-          <motion.path
-            d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
+          >
+            <path d="M 64 54 C 80 60, 80 72, 77 76 C 74 80, 68 75, 70 70 C 72 65, 70 58, 60 56 Z" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" />
+            <circle cx="79" cy="74" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="75" cy="77" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="71" cy="75" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          </motion.g>
+
+          {/* Thumbs Up Hand */}
+          <motion.g
             initial={{ opacity: 0 }}
             animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
             transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
-          />
-          {/* Thumbs Up Thumb (Sticking out) */}
-          <motion.path
-            d="M 75 68 Q 81 66 82 62 Q 78 59 74 65" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" strokeLinecap="round"
-            initial={{ opacity: 0 }}
-            animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
-            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
-          />
-          {/* Thumbs Up Folded Fingers */}
-          <motion.path
-            d="M 73 69 Q 70 71 73 72 Q 71 73 73 74" fill="none" stroke="#5C3110" strokeWidth="1.5" strokeLinecap="round"
-            initial={{ opacity: 0 }}
-            animate={isGreeting ? { opacity: [0, 0, 0, 0, 0, 1, 1, 0] } : { opacity: 0 }}
-            transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1] }}
-          />
+          >
+            <path d="M 64 54 C 80 60, 80 72, 77 76 C 74 80, 68 75, 70 70 C 72 65, 70 58, 60 56 Z" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="1.5" />
+            {/* Thumb */}
+            <path d="M 77 72 C 84 70, 85 75, 79 78 Z" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            {/* Folded Fingers */}
+            <circle cx="76" cy="77" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="73" cy="76" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="70" cy="74" r="2" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          </motion.g>
         </motion.g>
 
         {/* Head */}
