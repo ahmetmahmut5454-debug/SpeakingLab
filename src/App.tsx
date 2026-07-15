@@ -336,7 +336,7 @@ export default function App() {
       );
       if (newStats) setUserStats(newStats);
     } else {
-      alert("Not enough XP!");
+      alert("Not enough Points!");
     }
   };
 
@@ -475,13 +475,13 @@ export default function App() {
             prev.map((r) => (r.id === report.id ? updated : r))
           );
         }
-        alert("Report generated successfully!");
+        alert("Feedback generated successfully!");
       } else {
         alert("AI server is still busy. Please try again later.");
       }
     } catch (e) {
       console.error(e);
-      alert("Failed to retry report generation.");
+      alert("Failed to retry feedback generation.");
     } finally {
       setLoadingHistory(false);
     }
@@ -491,14 +491,14 @@ export default function App() {
 
   const handleSyncToCloud = async () => {
     if (!user) {
-      alert("Please sign in to sync your reports to the cloud.");
+      alert("Please sign in to sync your feedbacks to the cloud.");
       return;
     }
     setSyncing(true);
     try {
       const unsynced = pastReports.filter((r) => !r.synced);
       if (unsynced.length === 0) {
-        alert("All reports are already synced.");
+        alert("All feedbacks are already synced.");
         setSyncing(false);
         return;
       }
@@ -520,10 +520,10 @@ export default function App() {
       // Update local state
       const updatedLocal = await getLocalReports();
       setPastReports(updatedLocal);
-      alert(`Successfully synced ${syncCount} report(s) to the cloud.`);
+      alert(`Successfully synced ${syncCount} feedback(s) to the cloud.`);
     } catch (error) {
       console.error(error);
-      alert("Failed to sync some reports.");
+      alert("Failed to sync some feedbacks.");
     } finally {
       setSyncing(false);
     }
@@ -684,7 +684,7 @@ export default function App() {
                 <div className="h-4 w-[1px] bg-slate-900/10" />
                 <div
                   className="flex items-center gap-1.5 text-emerald-400 relative"
-                  title="XP"
+                  title="Points"
                 >
                   <motion.div
                     animate={
@@ -711,7 +711,7 @@ export default function App() {
                     transition={{ duration: 0.8, repeat: 3 }}
                     className="font-bold relative"
                   >
-                    {userStats.xp} XP
+                    {userStats.xp} Points
                     {isStreakAnimating && (
                       <motion.span
                         initial={{ opacity: 0, y: 0, scale: 0.5 }}
@@ -719,7 +719,7 @@ export default function App() {
                         transition={{ duration: 2, ease: "easeOut" }}
                         className="absolute left-0 -top-4 text-emerald-300 font-black text-sm pointer-events-none drop-shadow-lg"
                       >
-                        +XP\!
+                        +Points\!
                       </motion.span>
                     )}
                   </motion.span>
@@ -803,7 +803,7 @@ export default function App() {
                   }}
                   className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
                 >
-                  <History className="w-3 h-3" /> Local Reports
+                  <History className="w-3 h-3" /> Local Feedbacks
                 </button>
                 <div className="h-6 w-[1px] bg-slate-900/10 mx-1" />
               </>
@@ -829,7 +829,7 @@ export default function App() {
                   }}
                   className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/30 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                 >
-                  <History className="w-4 h-4" /> Reports
+                  <History className="w-4 h-4" /> Feedbacks
                 </button>
                 <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
                 <button
@@ -878,7 +878,7 @@ export default function App() {
                 }}
                 className="px-4 py-2 rounded-xl flex items-center gap-2 bg-slate-900/10 border border-slate-900/10 hover:bg-slate-900/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
               >
-                <LogIn className="w-4 h-4" /> Sign In to Save Reports
+                <LogIn className="w-4 h-4" /> Sign In to Save Feedbacks
               </button>
             )}
 
@@ -1127,7 +1127,7 @@ export default function App() {
                   onClick={() => setReport(null)}
                   className="w-full py-3 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all"
                 >
-                  Close Report
+                  Close Feedback
                 </button>
               </div>
             </motion.div>
@@ -1227,7 +1227,7 @@ export default function App() {
                   <div className="flex items-center gap-3">
                     <History className="w-6 h-6 text-indigo-400" />
                     <h2 className="text-xl font-bold uppercase tracking-tight">
-                      Past Session Reports
+                      Past Session Feedbacks
                     </h2>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1344,10 +1344,10 @@ export default function App() {
                               <Sparkles className="w-8 h-8 text-indigo-400 animate-pulse" />
                               <div className="text-center">
                                 <p className="text-sm font-bold text-slate-800">
-                                  Report pending...
+                                  Feedback pending...
                                 </p>
                                 <p className="text-xs text-slate-500 mt-1">
-                                  There was an issue generating this report
+                                  There was an issue generating this feedback
                                   during the session.
                                 </p>
                               </div>
@@ -1463,7 +1463,7 @@ export default function App() {
                         <div className="flex items-center gap-1.5 text-emerald-400">
                           <span className="font-black text-lg">{stat.xp}</span>
                           <span className="text-[10px] uppercase tracking-widest font-bold opacity-70">
-                            XP
+                            Points
                           </span>
                         </div>
                       </div>
@@ -1491,13 +1491,13 @@ export default function App() {
                       <Store className="w-6 h-6" /> Item Store
                     </h2>
                     <p className="text-slate-600/50 text-xs uppercase tracking-widest mt-1">
-                      Unlock badges and outfits with your XP
+                      Unlock badges and outfits with your Points
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl text-lg font-bold border border-emerald-500/20 shadow-lg">
                       <Sparkles className="w-5 h-5" />
-                      {userStats?.xp || 0} XP
+                      {userStats?.xp || 0} Points
                     </div>
                     <button
                       onClick={() => setShowShop(false)}
@@ -1687,7 +1687,7 @@ export default function App() {
                   <p className="text-slate-600/70 font-medium text-sm leading-relaxed mb-6">
                     Pick a scenario from the settings, review your briefing, and
                     start speaking. I'll track your English level and reward you
-                    with XP and cool new items!
+                    with Points and cool new items!
                   </p>
                   <button
                     onClick={() => setShowOnboarding(false)}
