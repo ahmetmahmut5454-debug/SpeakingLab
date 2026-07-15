@@ -124,7 +124,7 @@ import { Guide } from "./components/Guide";
 const StatusBadge = ({ on }: { on: boolean }) => (
   <div className="flex items-center gap-2 bg-slate-900/5 px-4 py-2 rounded-full border border-slate-900/10 backdrop-blur-md shadow-lg">
     <div
-      className={`w-2 h-2 rounded-full transition-all duration-300 ${on ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" : "bg-[#f0fdf4]/20"}`}
+      className={`w-2 h-2 rounded-full transition-all duration-300 ${on ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" : "bg-slate-50/20"}`}
     />
     <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-slate-600/70">
       {on ? "Neural Link Active" : "System Standby"}
@@ -589,7 +589,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0fdf4] text-slate-800 font-sans selection:bg-emerald-500/30 antialiased overflow-hidden relative">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500/30 antialiased overflow-hidden relative">
       {purchasedBadgeInfo && (
         <EmojiBurst
           icon={purchasedBadgeInfo.icon}
@@ -608,15 +608,15 @@ export default function App() {
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3 md:gap-5">
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
-                <div className="relative bg-white p-2 md:p-3.5 rounded-2xl border border-slate-900/10 shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
+                <div className="relative bg-blue-950 p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
                   <Mascot
                     className="w-6 h-6 md:w-8 md:h-8"
                     outfit={userStats?.equippedOutfit}
                   />
                 </div>
                 {userStats?.equippedBadge && (
-                  <div className="absolute -bottom-2 -right-2 bg-white border border-slate-900/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
+                  <div className="absolute -bottom-2 -right-2 bg-blue-900 border border-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
                     {
                       SHOP_ITEMS.find((i) => i.id === userStats.equippedBadge)
                         ?.icon
@@ -634,7 +634,7 @@ export default function App() {
           </div>
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
             {userStats && (
-              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-slate-900/5 py-1.5 px-3 md:px-4 rounded-xl border border-slate-900/10 text-xs md:text-sm">
+              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-blue-950 py-1.5 px-3 md:px-4 rounded-xl border border-white/10 text-xs md:text-sm text-slate-300">
                 <div
                   className="flex items-center gap-1.5 text-orange-400 relative"
                   title="Daily Streak"
@@ -776,7 +776,7 @@ export default function App() {
                 <div className="h-4 w-[1px] bg-slate-900/10" />
                 <button
                   onClick={() => setShowShop(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-500 hover:bg-pink-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-950 border border-pink-500/30 text-pink-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                   title="Item Store"
                 >
                   <Store className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -792,7 +792,7 @@ export default function App() {
                     loadLeaderboard();
                     setShowLeaderboard(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-500 hover:bg-orange-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-orange-500/30 text-orange-400 hover:bg-blue-900 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
                 >
                   <Trophy className="w-3 h-3" />
                 </button>
@@ -802,7 +802,7 @@ export default function App() {
                     loadReports();
                     setShowHistory(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 hover:bg-indigo-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-indigo-500/30 text-indigo-400 hover:bg-blue-900 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
                 >
                   <History className="w-3 h-3" /> Local Feedbacks
                 </button>
@@ -817,7 +817,7 @@ export default function App() {
                     loadLeaderboard();
                     setShowLeaderboard(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-500 hover:bg-orange-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-orange-500/30 text-orange-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                 >
                   <Trophy className="w-4 h-4" />{" "}
                   <span className="hidden sm:inline">Leaderboard</span>
@@ -828,14 +828,14 @@ export default function App() {
                     loadReports();
                     setShowHistory(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 hover:bg-indigo-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-indigo-500/30 text-indigo-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                 >
                   <History className="w-4 h-4" /> Feedbacks
                 </button>
                 <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
                 <button
                   onClick={logout}
-                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-red-500/30 text-red-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                 >
                   <img
                     src={user.photoURL || ""}
@@ -877,7 +877,7 @@ export default function App() {
                     }
                   });
                 }}
-                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 hover:bg-blue-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-blue-500/30 text-blue-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
               >
                 <LogIn className="w-4 h-4" /> Sign In to Save Feedbacks
               </button>
@@ -887,13 +887,13 @@ export default function App() {
 
             <button
               onClick={() => setShowSubtitles(!showSubtitles)}
-              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg ${showSubtitles ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-600 shadow-[0_0_15px_rgba(6,182,212,0.2)]" : "bg-cyan-500/5 border-cyan-500/10 text-cyan-600/50 hover:bg-cyan-500/10"}`}
+              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg ${showSubtitles ? "bg-blue-900 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]" : "bg-blue-950 border-cyan-500/20 text-cyan-500 hover:bg-blue-900"}`}
             >
               CC
             </button>
             <button
               onClick={() => setShowDev(!showDev)}
-              className={`p-3 rounded-xl border transition-all duration-500 shadow-lg ${showDev ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-emerald-500/5 border-emerald-500/10 text-emerald-600/60 hover:bg-emerald-500/10"}`}
+              className={`p-3 rounded-xl border transition-all duration-500 shadow-lg ${showDev ? "bg-blue-900 border-emerald-500/50 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-blue-950 border-emerald-500/20 text-emerald-500 hover:bg-blue-900"}`}
             >
               <Settings className="w-5 h-5" />
             </button>
@@ -905,12 +905,12 @@ export default function App() {
           className={`flex-1 flex flex-col items-center justify-center gap-16 transition-all duration-1000 ${showOnboarding && !isRunning ? "blur-sm pointer-events-none opacity-50" : "blur-0"}`}
         >
           {/* Main Visualizer Area */}
-          <div className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[21/9] bg-white border border-slate-900/[0.04] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
+          <div className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[21/9] bg-blue-900 border border-white/[0.04] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
             {/* Ambient Background Glow based on connection (Toned Down) */}
             <div
               className={`absolute inset-0 transition-opacity duration-1000 blur-3xl pointer-events-none ${isRunning ? "opacity-10" : "opacity-0"}`}
             >
-              <div className="absolute top-0 left-1/4 w-72 h-72 bg-emerald-500/10 rounded-full mix-blend-screen" />
+              <div className="absolute top-0 left-1/4 w-72 h-72 bg-yellow-400/10 rounded-full mix-blend-screen" />
               <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full mix-blend-screen" />
             </div>
 
@@ -953,10 +953,10 @@ export default function App() {
                     exit={{ opacity: 0, x: -20 }}
                     className={`absolute left-10 bottom-10 flex flex-col gap-1 transition-opacity duration-300 ${userLevel > botLevel + 5 ? "opacity-100" : "opacity-40"}`}
                   >
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-400">
                       Human
                     </span>
-                    <span className="text-xs uppercase tracking-widest text-slate-600/50 font-medium">
+                    <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
                       Transmitting
                     </span>
                   </motion.div>
@@ -967,10 +967,10 @@ export default function App() {
                     exit={{ opacity: 0, x: 20 }}
                     className={`absolute right-10 bottom-10 flex flex-col items-end gap-1 transition-opacity duration-300 ${botLevel > userLevel + 5 ? "opacity-100" : "opacity-40"}`}
                   >
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
                       AI Core
                     </span>
-                    <span className="text-xs uppercase tracking-widest text-slate-600/50 font-medium">
+                    <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
                       Processing
                     </span>
                   </motion.div>
@@ -1017,7 +1017,7 @@ export default function App() {
                   className="absolute bottom-6 left-0 right-0 px-24 pointer-events-none text-center"
                 >
                   <p
-                    className={`text-base md:text-lg font-medium leading-relaxed tracking-wide drop-shadow-md bg-white/80 border border-slate-200 inline-block px-4 py-1.5 rounded-lg border border-slate-900/5 backdrop-blur-sm ${currentSubtitle.isBot ? "text-blue-600" : "text-emerald-500"}`}
+                    className={`text-base md:text-lg font-medium leading-relaxed tracking-wide drop-shadow-md bg-blue-900/80 border border-slate-200 inline-block px-4 py-1.5 rounded-lg border border-white/5 backdrop-blur-sm ${currentSubtitle.isBot ? "text-blue-600" : "text-yellow-400"}`}
                   >
                     {currentSubtitle.text}
                   </p>
@@ -1030,7 +1030,7 @@ export default function App() {
           <div className="flex flex-col items-center gap-8 mt-4 z-10">
             <div className="flex flex-wrap items-center justify-center gap-4 w-full max-w-2xl">
               <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 mb-1 text-center">
+                <label className="text-xs uppercase tracking-wider font-bold text-blue-200 mb-1 text-center">
                   Scenario
                 </label>
                 <select
@@ -1052,7 +1052,7 @@ export default function App() {
                       setContext({ ...context, mode: "Practice" });
                     }
                   }}
-                  className="bg-white border border-emerald-500/30 text-emerald-500 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-emerald-500 shadow-sm"
+                  className="bg-blue-900 border border-yellow-400/30 text-yellow-400 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 shadow-sm"
                   disabled={isRunning}
                 >
                   <option value="practice">-- Free Practice Mode --</option>
@@ -1071,7 +1071,7 @@ export default function App() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 mb-1 text-center">
+                <label className="text-xs uppercase tracking-wider font-bold text-blue-200 mb-1 text-center">
                   Tutor Voice
                 </label>
                 <select
@@ -1082,7 +1082,7 @@ export default function App() {
                   onChange={(e) =>
                     setContext({ ...context, voice: e.target.value as VoiceType })
                   }
-                  className="bg-white border border-slate-900/10 rounded-lg px-4 py-2 text-sm text-slate-600/80 focus:outline-none focus:border-slate-900/30 h-[38px] shadow-sm mt-[2px]"
+                  className="bg-blue-900 border border-white/10 rounded-lg px-4 py-2 text-sm text-blue-200/80 focus:outline-none focus:border-white/30 h-[38px] shadow-sm mt-[2px]"
                   disabled={isRunning}
                 >
                   <option value="Aoede">Aoede (Female, Calm)</option>
@@ -1116,7 +1116,7 @@ export default function App() {
                     ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 cursor-not-allowed"
                     : isRunning
                       ? "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.1)]"
-                      : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:border-emerald-400/50 shadow-[0_0_30px_rgba(250,204,21,0.1)] hover:shadow-[0_0_60px_rgba(250,204,21,0.2)]"
+                      : "bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 hover:border-yellow-300/50 shadow-[0_0_30px_rgba(250,204,21,0.1)] hover:shadow-[0_0_60px_rgba(250,204,21,0.2)]"
                 }`}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1138,9 +1138,9 @@ export default function App() {
               <p className="text-[10px] text-slate-600/30 text-center uppercase tracking-widest font-medium">
                 Pulsar Audio Engine Active
               </p>
-              <div className="w-1 h-1 rounded-full bg-[#f0fdf4]/20" />
+              <div className="w-1 h-1 rounded-full bg-slate-400/20" />
               <div className="flex gap-2 items-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-60 shadow-[0_0_5px_#10b981]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 opacity-60 shadow-[0_0_5px_#facc15]" />
                 <span className="text-[9px] text-slate-600/30 uppercase tracking-widest">
                   End-to-End Encrypted
                 </span>
@@ -1529,7 +1529,7 @@ export default function App() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute inset-0 z-50 bg-[#f0fdf4]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
+              className="absolute inset-0 z-50 bg-slate-50/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
             >
               <div className="max-w-2xl w-full bg-white border border-slate-900/10 rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
                 <div className="flex justify-between items-center mb-8 border-b border-slate-900/10 pb-4">
