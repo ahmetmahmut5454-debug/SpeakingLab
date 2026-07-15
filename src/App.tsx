@@ -122,11 +122,11 @@ import { RoamingPet } from "./components/RoamingPet";
 import { Guide } from "./components/Guide";
 
 const StatusBadge = ({ on }: { on: boolean }) => (
-  <div className="flex items-center gap-2 bg-blue-950/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md shadow-lg">
+  <div className="flex items-center gap-2 bg-slate-900/5 px-4 py-2 rounded-full border border-slate-900/10 backdrop-blur-md shadow-lg">
     <div
-      className={`w-2 h-2 rounded-full transition-all duration-300 ${on ? "bg-yellow-300 shadow-[0_0_12px_rgba(52,211,153,0.8)]" : "bg-blue-950/20"}`}
+      className={`w-2 h-2 rounded-full transition-all duration-300 ${on ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" : "bg-[#f0fdf4]/20"}`}
     />
-    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-blue-200/70">
+    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-slate-600/70">
       {on ? "Neural Link Active" : "System Standby"}
     </span>
   </div>
@@ -190,7 +190,7 @@ const RoleAvatar = ({
           : "0 0 0px rgba(96, 165, 250, 0)",
         scale: isActive ? 1.05 : 1,
       }}
-      className={`relative rounded-full p-4 border flex items-center justify-center transition-colors duration-500 ${role ? "border-blue-500/30 bg-blue-500/10 text-blue-400" : "border-white/10 bg-blue-950/5 text-blue-200/40"}`}
+      className={`relative rounded-full p-4 border flex items-center justify-center transition-colors duration-500 ${role ? "border-blue-500/30 bg-blue-500/10 text-blue-400" : "border-slate-900/10 bg-slate-900/5 text-slate-600/40"}`}
     >
       <IconComponent />
     </motion.div>
@@ -589,7 +589,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-950 text-slate-100 font-sans selection:bg-yellow-400/30 antialiased overflow-hidden relative">
+    <div className="min-h-screen bg-[#f0fdf4] text-slate-800 font-sans selection:bg-emerald-500/30 antialiased overflow-hidden relative">
       {purchasedBadgeInfo && (
         <EmojiBurst
           icon={purchasedBadgeInfo.icon}
@@ -608,15 +608,15 @@ export default function App() {
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3 md:gap-5">
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
-                <div className="relative bg-blue-900 p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
+                <div className="relative bg-white p-2 md:p-3.5 rounded-2xl border border-slate-900/10 shadow-2xl">
                   <Mascot
                     className="w-6 h-6 md:w-8 md:h-8"
                     outfit={userStats?.equippedOutfit}
                   />
                 </div>
                 {userStats?.equippedBadge && (
-                  <div className="absolute -bottom-2 -right-2 bg-blue-900 border border-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
+                  <div className="absolute -bottom-2 -right-2 bg-white border border-slate-900/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
                     {
                       SHOP_ITEMS.find((i) => i.id === userStats.equippedBadge)
                         ?.icon
@@ -625,7 +625,7 @@ export default function App() {
                 )}
               </div>
               <div className="flex flex-col items-start gap-1">
-                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-teal-200 to-blue-400">
+                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-200 to-blue-400">
                   Speaking Buddy
                 </h1>
                 <StatusBadge on={isRunning} />
@@ -634,7 +634,7 @@ export default function App() {
           </div>
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
             {userStats && (
-              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-blue-950/5 py-1.5 px-3 md:px-4 rounded-xl border border-white/10 text-xs md:text-sm">
+              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-slate-900/5 py-1.5 px-3 md:px-4 rounded-xl border border-slate-900/10 text-xs md:text-sm">
                 <div
                   className="flex items-center gap-1.5 text-orange-400 relative"
                   title="Daily Streak"
@@ -682,9 +682,9 @@ export default function App() {
                     {userStats.streak}
                   </motion.span>
                 </div>
-                <div className="h-4 w-[1px] bg-blue-950/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <div
-                  className="flex items-center gap-1.5 text-yellow-300 relative"
+                  className="flex items-center gap-1.5 text-emerald-400 relative"
                   title="Points"
                 >
                   <motion.div
@@ -718,14 +718,14 @@ export default function App() {
                         initial={{ opacity: 0, y: 0, scale: 0.5 }}
                         animate={{ opacity: [0, 1, 0], y: -30, scale: 1.5 }}
                         transition={{ duration: 2, ease: "easeOut" }}
-                        className="absolute left-0 -top-4 text-yellow-200 font-black text-sm pointer-events-none drop-shadow-lg"
+                        className="absolute left-0 -top-4 text-emerald-300 font-black text-sm pointer-events-none drop-shadow-lg"
                       >
                         +Points\!
                       </motion.span>
                     )}
                   </motion.span>
                 </div>
-                <div className="h-4 w-[1px] bg-blue-950/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <motion.div
                   animate={
                     isQuestAnimating
@@ -740,7 +740,7 @@ export default function App() {
                       : {}
                   }
                   transition={{ duration: 0.8, repeat: 3 }}
-                  className={`flex items-center gap-1.5 ${userStats.todaySessions >= 3 ? "text-yellow-400" : "text-zinc-500"}`}
+                  className={`flex items-center gap-1.5 ${userStats.todaySessions >= 3 ? "text-emerald-500" : "text-zinc-500"}`}
                   title="3 Sessions (Daily)"
                 >
                   <Target className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -749,7 +749,7 @@ export default function App() {
                     {Math.min(3, userStats.todaySessions)}/3
                   </span>
                 </motion.div>
-                <div className="h-4 w-[1px] bg-blue-950/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <motion.div
                   animate={
                     isQuestAnimating
@@ -764,7 +764,7 @@ export default function App() {
                       : {}
                   }
                   transition={{ duration: 0.8, repeat: 3 }}
-                  className={`flex items-center gap-1.5 ${(userStats.todayTaskSessions || 0) >= 2 ? "text-yellow-400" : "text-zinc-500"}`}
+                  className={`flex items-center gap-1.5 ${(userStats.todayTaskSessions || 0) >= 2 ? "text-emerald-500" : "text-zinc-500"}`}
                   title="2 TBLT Sessions (Weekly)"
                 >
                   <Briefcase className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -773,10 +773,10 @@ export default function App() {
                     {Math.min(2, userStats.todayTaskSessions || 0)}/2
                   </span>
                 </motion.div>
-                <div className="h-4 w-[1px] bg-blue-950/10" />
+                <div className="h-4 w-[1px] bg-slate-900/10" />
                 <button
                   onClick={() => setShowShop(true)}
-                  className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-500 hover:bg-pink-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                   title="Item Store"
                 >
                   <Store className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -792,21 +792,21 @@ export default function App() {
                     loadLeaderboard();
                     setShowLeaderboard(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 hover:bg-yellow-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-500 hover:bg-orange-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
                 >
                   <Trophy className="w-3 h-3" />
                 </button>
-                <div className="h-6 w-[1px] bg-blue-950/10 mx-1" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-1" />
                 <button
                   onClick={() => {
                     loadReports();
                     setShowHistory(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 hover:bg-indigo-500/20 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
                 >
                   <History className="w-3 h-3" /> Local Feedbacks
                 </button>
-                <div className="h-6 w-[1px] bg-blue-950/10 mx-1" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-1" />
               </>
             )}
 
@@ -817,25 +817,25 @@ export default function App() {
                     loadLeaderboard();
                     setShowLeaderboard(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-500 hover:bg-orange-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                 >
                   <Trophy className="w-4 h-4" />{" "}
                   <span className="hidden sm:inline">Leaderboard</span>
                 </button>
-                <div className="h-6 w-[1px] bg-blue-950/10 mx-2" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
                 <button
                   onClick={() => {
                     loadReports();
                     setShowHistory(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/30 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 hover:bg-indigo-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                 >
                   <History className="w-4 h-4" /> Feedbacks
                 </button>
-                <div className="h-6 w-[1px] bg-blue-950/10 mx-2" />
+                <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
                 <button
                   onClick={logout}
-                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950/5 border border-white/5 text-blue-200/50 hover:bg-blue-950/10 hover:text-blue-200/80 transition-all text-xs font-bold uppercase tracking-widest"
+                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
                 >
                   <img
                     src={user.photoURL || ""}
@@ -877,23 +877,23 @@ export default function App() {
                     }
                   });
                 }}
-                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950/10 border border-white/10 hover:bg-blue-950/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 hover:bg-blue-500/20 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
               >
                 <LogIn className="w-4 h-4" /> Sign In to Save Feedbacks
               </button>
             )}
 
-            <div className="h-6 w-[1px] bg-blue-950/10 mx-2" />
+            <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
 
             <button
               onClick={() => setShowSubtitles(!showSubtitles)}
-              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg ${showSubtitles ? "bg-yellow-400/20 border-yellow-400/50 text-yellow-300 shadow-[0_0_15px_rgba(250,204,21,0.2)]" : "bg-blue-950/5 border-white/5 text-blue-200/40 hover:bg-blue-950/10"}`}
+              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg ${showSubtitles ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-600 shadow-[0_0_15px_rgba(6,182,212,0.2)]" : "bg-cyan-500/5 border-cyan-500/10 text-cyan-600/50 hover:bg-cyan-500/10"}`}
             >
               CC
             </button>
             <button
               onClick={() => setShowDev(!showDev)}
-              className={`p-3 rounded-xl border transition-all duration-500 shadow-lg ${showDev ? "bg-blue-950/10 border-white/20 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]" : "bg-blue-950/5 border-white/5 text-blue-200/40 hover:bg-blue-950/10 hover:text-blue-200/80"}`}
+              className={`p-3 rounded-xl border transition-all duration-500 shadow-lg ${showDev ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-emerald-500/5 border-emerald-500/10 text-emerald-600/60 hover:bg-emerald-500/10"}`}
             >
               <Settings className="w-5 h-5" />
             </button>
@@ -905,12 +905,12 @@ export default function App() {
           className={`flex-1 flex flex-col items-center justify-center gap-16 transition-all duration-1000 ${showOnboarding && !isRunning ? "blur-sm pointer-events-none opacity-50" : "blur-0"}`}
         >
           {/* Main Visualizer Area */}
-          <div className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[21/9] bg-blue-900 border border-white/[0.04] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
+          <div className="relative w-full max-w-2xl aspect-[4/3] md:aspect-[21/9] bg-white border border-slate-900/[0.04] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden">
             {/* Ambient Background Glow based on connection (Toned Down) */}
             <div
               className={`absolute inset-0 transition-opacity duration-1000 blur-3xl pointer-events-none ${isRunning ? "opacity-10" : "opacity-0"}`}
             >
-              <div className="absolute top-0 left-1/4 w-72 h-72 bg-yellow-400/10 rounded-full mix-blend-screen" />
+              <div className="absolute top-0 left-1/4 w-72 h-72 bg-emerald-500/10 rounded-full mix-blend-screen" />
               <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full mix-blend-screen" />
             </div>
 
@@ -953,10 +953,10 @@ export default function App() {
                     exit={{ opacity: 0, x: -20 }}
                     className={`absolute left-10 bottom-10 flex flex-col gap-1 transition-opacity duration-300 ${userLevel > botLevel + 5 ? "opacity-100" : "opacity-40"}`}
                   >
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-300">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
                       Human
                     </span>
-                    <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
+                    <span className="text-xs uppercase tracking-widest text-slate-600/50 font-medium">
                       Transmitting
                     </span>
                   </motion.div>
@@ -970,7 +970,7 @@ export default function App() {
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">
                       AI Core
                     </span>
-                    <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
+                    <span className="text-xs uppercase tracking-widest text-slate-600/50 font-medium">
                       Processing
                     </span>
                   </motion.div>
@@ -1017,7 +1017,7 @@ export default function App() {
                   className="absolute bottom-6 left-0 right-0 px-24 pointer-events-none text-center"
                 >
                   <p
-                    className={`text-base md:text-lg font-medium leading-relaxed tracking-wide drop-shadow-md bg-blue-900/80 border border-slate-200 inline-block px-4 py-1.5 rounded-lg border border-white/5 backdrop-blur-sm ${currentSubtitle.isBot ? "text-blue-600" : "text-yellow-400"}`}
+                    className={`text-base md:text-lg font-medium leading-relaxed tracking-wide drop-shadow-md bg-white/80 border border-slate-200 inline-block px-4 py-1.5 rounded-lg border border-slate-900/5 backdrop-blur-sm ${currentSubtitle.isBot ? "text-blue-600" : "text-emerald-500"}`}
                   >
                     {currentSubtitle.text}
                   </p>
@@ -1029,62 +1029,72 @@ export default function App() {
           {/* Controls */}
           <div className="flex flex-col items-center gap-8 mt-4 z-10">
             <div className="flex flex-wrap items-center justify-center gap-4 w-full max-w-2xl">
-              <select
-                onChange={(e) => {
-                  const scenario = predefinedScenarios.find(
-                    (s) => s.id === e.target.value,
-                  );
-                  if (scenario) {
-                    setContext({
-                      ...context,
-                      mode: "Task",
-                      level: scenario.level,
-                      topic: scenario.topic,
-                      objective: scenario.objective,
-                      role: scenario.role,
-                      icebreaker: scenario.icebreaker,
-                    });
-                  } else if (e.target.value === "practice") {
-                    setContext({ ...context, mode: "Practice" });
-                  }
-                }}
-                className="bg-blue-900 border border-yellow-400/30 text-yellow-400 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 flex-1 min-w-[200px]"
-                disabled={isRunning}
-              >
-                <option value="practice">-- Free Practice Mode --</option>
-                {Array.from(new Set(predefinedScenarios.map(s => s.category || "General"))).map(category => (
-                  <optgroup key={category} label={category}>
-                    {predefinedScenarios
-                      .filter(s => (s.category || "General") === category)
-                      .map((s) => (
-                        <option key={s.id} value={s.id}>
-                          [{s.level}] {s.title}
-                        </option>
-                      ))}
-                  </optgroup>
-                ))}
-              </select>
+              <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 mb-1 text-center">
+                  Scenario
+                </label>
+                <select
+                  onChange={(e) => {
+                    const scenario = predefinedScenarios.find(
+                      (s) => s.id === e.target.value,
+                    );
+                    if (scenario) {
+                      setContext({
+                        ...context,
+                        mode: "Task",
+                        level: scenario.level,
+                        topic: scenario.topic,
+                        objective: scenario.objective,
+                        role: scenario.role,
+                        icebreaker: scenario.icebreaker,
+                      });
+                    } else if (e.target.value === "practice") {
+                      setContext({ ...context, mode: "Practice" });
+                    }
+                  }}
+                  className="bg-white border border-emerald-500/30 text-emerald-500 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-emerald-500 shadow-sm"
+                  disabled={isRunning}
+                >
+                  <option value="practice">-- Free Practice Mode --</option>
+                  {Array.from(new Set(predefinedScenarios.map(s => s.category || "General"))).map(category => (
+                    <optgroup key={category} label={category}>
+                      {predefinedScenarios
+                        .filter(s => (s.category || "General") === category)
+                        .map((s) => (
+                          <option key={s.id} value={s.id}>
+                            [{s.level}] {s.title}
+                          </option>
+                        ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
 
-              <select
-                value={
-                  context.voice ||
-                  (context.level === "C1" ? "Charon" : "Zephyr")
-                }
-                onChange={(e) =>
-                  setContext({ ...context, voice: e.target.value as VoiceType })
-                }
-                className="bg-blue-900 border border-white/10 rounded-lg px-4 py-2 text-sm text-blue-200/80 focus:outline-none focus:border-white/30"
-                disabled={isRunning}
-              >
-                <option value="Aoede">Tutor: Aoede (Female, Calm)</option>
-                <option value="Zephyr">
-                  Tutor: Zephyr (Female, Energetic)
-                </option>
-                <option value="Kore">Tutor: Kore (Female, Precise)</option>
-                <option value="Charon">Tutor: Charon (Male, Deep)</option>
-                <option value="Puck">Tutor: Puck (Male, Friendly)</option>
-                <option value="Fenrir">Tutor: Fenrir (Male, Strict)</option>
-              </select>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 mb-1 text-center">
+                  Tutor Voice
+                </label>
+                <select
+                  value={
+                    context.voice ||
+                    (context.level === "C1" ? "Charon" : "Zephyr")
+                  }
+                  onChange={(e) =>
+                    setContext({ ...context, voice: e.target.value as VoiceType })
+                  }
+                  className="bg-white border border-slate-900/10 rounded-lg px-4 py-2 text-sm text-slate-600/80 focus:outline-none focus:border-slate-900/30 h-[38px] shadow-sm mt-[2px]"
+                  disabled={isRunning}
+                >
+                  <option value="Aoede">Aoede (Female, Calm)</option>
+                  <option value="Zephyr">
+                    Zephyr (Female, Energetic)
+                  </option>
+                  <option value="Kore">Kore (Female, Precise)</option>
+                  <option value="Charon">Charon (Male, Deep)</option>
+                  <option value="Puck">Puck (Male, Friendly)</option>
+                  <option value="Fenrir">Fenrir (Male, Strict)</option>
+                </select>
+              </div>
             </div>
 
             <motion.button
@@ -1106,7 +1116,7 @@ export default function App() {
                     ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 cursor-not-allowed"
                     : isRunning
                       ? "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.1)]"
-                      : "bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-200 border border-yellow-400/30 hover:border-yellow-300/50 shadow-[0_0_30px_rgba(250,204,21,0.1)] hover:shadow-[0_0_60px_rgba(250,204,21,0.2)]"
+                      : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:border-emerald-400/50 shadow-[0_0_30px_rgba(250,204,21,0.1)] hover:shadow-[0_0_60px_rgba(250,204,21,0.2)]"
                 }`}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1125,13 +1135,13 @@ export default function App() {
               )}
             </motion.button>
             <div className="flex gap-6 items-center">
-              <p className="text-[10px] text-blue-200/30 text-center uppercase tracking-widest font-medium">
+              <p className="text-[10px] text-slate-600/30 text-center uppercase tracking-widest font-medium">
                 Pulsar Audio Engine Active
               </p>
-              <div className="w-1 h-1 rounded-full bg-blue-950/20" />
+              <div className="w-1 h-1 rounded-full bg-[#f0fdf4]/20" />
               <div className="flex gap-2 items-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 opacity-60 shadow-[0_0_5px_#10b981]" />
-                <span className="text-[9px] text-blue-200/30 uppercase tracking-widest">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-60 shadow-[0_0_5px_#10b981]" />
+                <span className="text-[9px] text-slate-600/30 uppercase tracking-widest">
                   End-to-End Encrypted
                 </span>
               </div>
@@ -1148,9 +1158,9 @@ export default function App() {
               exit={{ opacity: 0, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-blue-900 border border-white/10 p-8 rounded-2xl max-w-lg w-full shadow-2xl">
+              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-lg w-full shadow-2xl">
                 <div className="flex items-center gap-3 mb-6">
-                  <LayoutDashboard className="w-6 h-6 text-yellow-400" />
+                  <LayoutDashboard className="w-6 h-6 text-emerald-500" />
                   <h2 className="text-xl font-bold uppercase tracking-tight">
                     Session Analysis
                   </h2>
@@ -1162,7 +1172,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => setReport(null)}
-                  className="w-full py-3 bg-blue-950/5 border border-white/10 rounded-lg hover:bg-blue-950/10 font-bold uppercase tracking-widest transition-all"
+                  className="w-full py-3 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all"
                 >
                   Close Feedback
                 </button>
@@ -1180,7 +1190,7 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-blue-900 border-4 border-slate-200 p-10 rounded-[2rem] max-w-lg w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+              <div className="bg-white border-4 border-slate-200 p-10 rounded-[2rem] max-w-lg w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
                 <div className="flex flex-col items-center gap-6 text-center">
                   {predefinedScenarios.find((s) => s.role === context.role)
                     ?.imageUrl ? (
@@ -1193,7 +1203,7 @@ export default function App() {
                       className="w-full h-40 object-cover rounded-2xl shadow-inner mb-2"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-yellow-400/10 flex items-center justify-center border border-yellow-400/20">
+                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                       <RoleAvatar role={context.role} isActive={false} />
                     </div>
                   )}
@@ -1201,14 +1211,14 @@ export default function App() {
                     <h2 className="text-2xl font-bold tracking-tight mb-2">
                       Scenario Briefing
                     </h2>
-                    <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-blue-900/80 p-4 rounded-xl border border-slate-200 shadow-inner">
+                    <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-white/80 p-4 rounded-xl border border-slate-200 shadow-inner">
                       {predefinedScenarios.find((s) => s.role === context.role)
                         ?.studentBriefing ||
                         "Get ready to solve the problem using your English skills!"}
                     </p>
                   </div>
 
-                  <div className="w-full bg-blue-900/50 rounded-2xl p-6 text-left border border-white/5">
+                  <div className="w-full bg-white/50 rounded-2xl p-6 text-left border border-slate-900/5">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">
                       Key Vocabulary
                     </h3>
@@ -1218,7 +1228,7 @@ export default function App() {
                         ?.vocabulary?.map((word, i) => (
                           <span
                             key={i}
-                            className="px-3 py-1 bg-blue-950/5 border border-white/10 rounded-lg text-sm text-blue-200/80"
+                            className="px-3 py-1 bg-slate-900/5 border border-slate-900/10 rounded-lg text-sm text-slate-600/80"
                           >
                             {word}
                           </span>
@@ -1229,7 +1239,7 @@ export default function App() {
                   <div className="flex gap-4 w-full mt-4">
                     <button
                       onClick={() => setShowPreTask(false)}
-                      className="flex-1 py-4 bg-blue-950/5 border border-white/10 rounded-xl hover:bg-blue-950/10 font-bold uppercase tracking-widest transition-all text-xs"
+                      className="flex-1 py-4 bg-slate-900/5 border border-slate-900/10 rounded-xl hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all text-xs"
                     >
                       Cancel
                     </button>
@@ -1238,7 +1248,7 @@ export default function App() {
                         setShowPreTask(false);
                         toggleBot();
                       }}
-                      className="flex-[2] py-4 bg-gradient-to-r from-yellow-400/20 to-blue-500/20 hover:from-yellow-400/30 hover:to-blue-500/30 border border-yellow-400/30 text-yellow-200 rounded-xl font-bold uppercase tracking-widest transition-all text-xs shadow-lg"
+                      className="flex-[2] py-4 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 hover:from-emerald-500/30 hover:to-blue-500/30 border border-emerald-500/30 text-emerald-300 rounded-xl font-bold uppercase tracking-widest transition-all text-xs shadow-lg"
                     >
                       <Phone className="w-4 h-4 inline-block mr-2 -mt-1" />{" "}
                       Ready, Connect
@@ -1259,8 +1269,8 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-blue-900 border border-white/10 p-8 rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-6 border-b border-white/10 gap-4">
+              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-6 border-b border-slate-900/10 gap-4">
                   <div className="flex items-center gap-3">
                     <History className="w-6 h-6 text-indigo-400" />
                     <h2 className="text-xl font-bold uppercase tracking-tight">
@@ -1271,13 +1281,13 @@ export default function App() {
                     <button
                       onClick={handleSyncToCloud}
                       disabled={syncing}
-                      className="px-4 py-2 bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 rounded-lg hover:bg-yellow-400/20 font-bold uppercase tracking-widest transition-all text-xs flex items-center gap-2"
+                      className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 font-bold uppercase tracking-widest transition-all text-xs flex items-center gap-2"
                     >
                       {syncing ? "Syncing..." : "Sync to Cloud"}
                     </button>
                     <button
                       onClick={() => setShowHistory(false)}
-                      className="px-4 py-2 bg-blue-950/5 border border-white/10 rounded-lg hover:bg-blue-950/10 font-bold uppercase tracking-widest transition-all text-xs"
+                      className="px-4 py-2 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all text-xs"
                     >
                       Close
                     </button>
@@ -1287,19 +1297,19 @@ export default function App() {
                 {/* Stats Bar */}
                 {!loadingHistory && pastReports.length > 0 && (
                   <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-blue-900 border border-white/5 p-5 rounded-2xl">
-                      <div className="text-[10px] text-blue-200/40 font-bold uppercase tracking-widest mb-1">
+                    <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
+                      <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Total Sessions
                       </div>
-                      <div className="text-3xl font-light text-white">
+                      <div className="text-3xl font-light text-slate-900">
                         {pastReports.length}
                       </div>
                     </div>
-                    <div className="bg-blue-900 border border-white/5 p-5 rounded-2xl">
-                      <div className="text-[10px] text-blue-200/40 font-bold uppercase tracking-widest mb-1">
+                    <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
+                      <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Most Frequent Level
                       </div>
-                      <div className="text-3xl font-light text-yellow-300">
+                      <div className="text-3xl font-light text-emerald-400">
                         {Object.entries(
                           pastReports.reduce(
                             (acc, r) => ({
@@ -1312,8 +1322,8 @@ export default function App() {
                           "N/A"}
                       </div>
                     </div>
-                    <div className="bg-blue-900 border border-white/5 p-5 rounded-2xl">
-                      <div className="text-[10px] text-blue-200/40 font-bold uppercase tracking-widest mb-1">
+                    <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
+                      <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Status
                       </div>
                       <div className="text-3xl font-light text-blue-400">
@@ -1325,11 +1335,11 @@ export default function App() {
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-4 pr-2">
                   {loadingHistory ? (
-                    <div className="flex-1 flex items-center justify-center text-blue-200/50 uppercase tracking-widest text-sm animate-pulse">
+                    <div className="flex-1 flex items-center justify-center text-slate-600/50 uppercase tracking-widest text-sm animate-pulse">
                       Loading Archives...
                     </div>
                   ) : pastReports.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-blue-200/30">
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-slate-600/30">
                       <Calendar className="w-12 h-12 opacity-50" />
                       <p className="uppercase tracking-widest text-xs">
                         No records found initialized.
@@ -1339,17 +1349,17 @@ export default function App() {
                     pastReports.map((r) => (
                       <div
                         key={r.id}
-                        className="bg-[#1a1b1e] border border-white/5 rounded-xl p-6 relative group flex flex-col gap-4"
+                        className="bg-[#1a1b1e] border border-slate-900/5 rounded-xl p-6 relative group flex flex-col gap-4"
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex gap-2 items-center">
-                            <span className="px-2 py-1 bg-blue-950/10 rounded text-[10px] font-bold uppercase tracking-widest text-blue-200/70">
+                            <span className="px-2 py-1 bg-slate-900/10 rounded text-[10px] font-bold uppercase tracking-widest text-slate-600/70">
                               {r.level}
                             </span>
-                            <span className="px-2 py-1 bg-blue-950/5 rounded text-[10px] uppercase tracking-widest text-blue-200/50">
+                            <span className="px-2 py-1 bg-slate-900/5 rounded text-[10px] uppercase tracking-widest text-slate-600/50">
                               {r.mode}
                             </span>
-                            <span className="text-[10px] uppercase tracking-widest text-blue-200/40 ml-2">
+                            <span className="text-[10px] uppercase tracking-widest text-slate-600/40 ml-2">
                               {r.createdAtTime ? new Date(r.createdAtTime).toLocaleDateString() : "Recent"}
                             </span>
                             {r.synced && (
@@ -1368,29 +1378,29 @@ export default function App() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <div className="text-xs uppercase tracking-widest text-blue-200/50 border-l-2 border-indigo-500/50 pl-3">
+                        <div className="text-xs uppercase tracking-widest text-slate-600/50 border-l-2 border-indigo-500/50 pl-3">
                           {r.topic}
                         </div>
-                        <div className="prose prose-invert prose-sm text-blue-200/80 mt-2">
+                        <div className="prose prose-invert prose-sm text-slate-600/80 mt-2">
                           {r.reportText ? (
                             r.reportText.split("\n").map((line, i) => (
                               <p key={i}>{line}</p>
                             ))
                           ) : (
-                            <div className="flex flex-col items-center gap-4 py-8 bg-blue-950/5 rounded-xl border border-dashed border-white/20">
+                            <div className="flex flex-col items-center gap-4 py-8 bg-slate-900/5 rounded-xl border border-dashed border-slate-900/20">
                               <Sparkles className="w-8 h-8 text-indigo-400 animate-pulse" />
                               <div className="text-center">
-                                <p className="text-sm font-bold text-slate-100">
+                                <p className="text-sm font-bold text-slate-800">
                                   Feedback pending...
                                 </p>
-                                <p className="text-xs text-blue-300 mt-1">
+                                <p className="text-xs text-slate-500 mt-1">
                                   There was an issue generating this feedback
                                   during the session.
                                 </p>
                               </div>
                               <button
                                 onClick={() => retryReportGeneration(r)}
-                                className="px-6 py-2 bg-indigo-500 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-indigo-500/20"
+                                className="px-6 py-2 bg-indigo-500 text-slate-900 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-indigo-500/20"
                               >
                                 Try Generating Again
                               </button>
@@ -1415,11 +1425,11 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="absolute inset-0 z-50 bg-[#f7fdfc]/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8"
             >
-              <div className="w-full max-w-lg bg-blue-900 border border-yellow-500/10 rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]">
+              <div className="w-full max-w-lg bg-white border border-yellow-500/10 rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]">
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
-                      <Trophy className="w-5 h-5 text-yellow-400" />
+                      <Trophy className="w-5 h-5 text-emerald-500" />
                     </div>
                     <div>
                       <h2 className="text-xl font-light text-yellow-50 tracking-tight">
@@ -1432,7 +1442,7 @@ export default function App() {
                   </div>
                   <button
                     onClick={() => setShowLeaderboard(false)}
-                    className="p-2 bg-blue-950/5 border border-white/5 rounded-full hover:bg-blue-950/10 transition-colors"
+                    className="p-2 bg-slate-900/5 border border-slate-900/5 rounded-full hover:bg-slate-900/10 transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1444,7 +1454,7 @@ export default function App() {
                       Loading Ranks...
                     </div>
                   ) : leaderboardData.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-blue-200/30">
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-slate-600/30">
                       <Trophy className="w-12 h-12 opacity-50" />
                       <p className="uppercase tracking-widest text-xs">
                         No records found.
@@ -1454,11 +1464,11 @@ export default function App() {
                     leaderboardData.map((stat, idx) => (
                       <div
                         key={stat.userId}
-                        className={`p-4 rounded-xl flex items-center justify-between border ${stat.userId === user?.uid ? "bg-yellow-500/10 border-yellow-500/20" : "bg-blue-900/50 border-white/5"} transition-all`}
+                        className={`p-4 rounded-xl flex items-center justify-between border ${stat.userId === user?.uid ? "bg-yellow-500/10 border-yellow-500/20" : "bg-white/50 border-slate-900/5"} transition-all`}
                       >
                         <div className="flex items-center gap-4">
                           <div
-                            className={`text-sm font-bold w-6 text-center ${idx === 0 ? "text-yellow-400 text-lg" : idx === 1 ? "text-blue-200" : idx === 2 ? "text-amber-600" : "text-blue-200/30"}`}
+                            className={`text-sm font-bold w-6 text-center ${idx === 0 ? "text-emerald-500 text-lg" : idx === 1 ? "text-slate-600" : idx === 2 ? "text-amber-600" : "text-slate-600/30"}`}
                           >
                             #{idx + 1}
                           </div>
@@ -1466,15 +1476,15 @@ export default function App() {
                             <img
                               src={stat.photoURL}
                               alt="Profile"
-                              className="w-10 h-10 rounded-full border border-white/10"
+                              className="w-10 h-10 rounded-full border border-slate-900/10"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-blue-950/5 flex items-center justify-center">
-                              <UserCircle className="w-6 h-6 text-blue-200/50" />
+                            <div className="w-10 h-10 rounded-full bg-slate-900/5 flex items-center justify-center">
+                              <UserCircle className="w-6 h-6 text-slate-600/50" />
                             </div>
                           )}
                           <div className="flex flex-col">
-                            <span className="font-semibold text-blue-200/90 text-sm">
+                            <span className="font-semibold text-slate-600/90 text-sm">
                               {stat.displayName || "Unknown Scholar"}
                               {stat.userId === user?.uid && (
                                 <span className="ml-2 text-[10px] uppercase text-yellow-500/70 border border-yellow-500/30 px-1.5 py-0.5 rounded-full">
@@ -1483,7 +1493,7 @@ export default function App() {
                               )}
                             </span>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-blue-200/40 flex items-center gap-1">
+                              <span className="text-xs text-slate-600/40 flex items-center gap-1">
                                 <Flame className="w-3 h-3 text-orange-400" />{" "}
                                 {stat.streak} Day Flow
                               </span>
@@ -1497,7 +1507,7 @@ export default function App() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-1.5 text-yellow-300">
+                        <div className="flex items-center gap-1.5 text-emerald-400">
                           <span className="font-black text-lg">{stat.xp}</span>
                           <span className="text-[10px] uppercase tracking-widest font-bold opacity-70">
                             Points
@@ -1519,26 +1529,26 @@ export default function App() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute inset-0 z-50 bg-blue-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
+              className="absolute inset-0 z-50 bg-[#f0fdf4]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
             >
-              <div className="max-w-2xl w-full bg-blue-900 border border-white/10 rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-                <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+              <div className="max-w-2xl w-full bg-white border border-slate-900/10 rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="flex justify-between items-center mb-8 border-b border-slate-900/10 pb-4">
                   <div>
                     <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2 text-blue-400">
                       <Store className="w-6 h-6" /> Item Store
                     </h2>
-                    <p className="text-blue-200/50 text-xs uppercase tracking-widest mt-1">
+                    <p className="text-slate-600/50 text-xs uppercase tracking-widest mt-1">
                       Unlock badges and outfits with your Points
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5 text-yellow-300 bg-yellow-400/10 px-4 py-2 rounded-xl text-lg font-bold border border-yellow-400/20 shadow-lg">
+                    <div className="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl text-lg font-bold border border-emerald-500/20 shadow-lg">
                       <Sparkles className="w-5 h-5" />
                       {userStats?.xp || 0} Points
                     </div>
                     <button
                       onClick={() => setShowShop(false)}
-                      className="p-3 bg-blue-950/5 hover:bg-blue-950/10 rounded-full transition-all border border-white/10 text-blue-200/50 hover:text-white"
+                      className="p-3 bg-slate-900/5 hover:bg-slate-900/10 rounded-full transition-all border border-slate-900/10 text-slate-600/50 hover:text-slate-900"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -1548,7 +1558,7 @@ export default function App() {
                 {userStats ? (
                   <div className="space-y-8">
                     <div>
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-blue-200/40 mb-4 flex items-center gap-2">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600/40 mb-4 flex items-center gap-2">
                         <Lock className="w-4 h-4" /> Badges
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -1569,10 +1579,10 @@ export default function App() {
                                   isEquipped
                                     ? "bg-blue-500/20 border-blue-500/50 shadow-lg"
                                     : isUnlocked
-                                      ? "bg-blue-950/5 border-white/10 hover:bg-blue-950/10"
+                                      ? "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                                       : userStats.xp >= item.price
-                                        ? "bg-blue-950/5 border-yellow-400/30 hover:border-yellow-400/80 cursor-pointer"
-                                        : "bg-black/50 border-white/5 opacity-50 cursor-not-allowed"
+                                        ? "bg-slate-900/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
+                                        : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
                                 }`}
                               >
                                 <span className="text-4xl mb-2 drop-shadow-md">
@@ -1587,11 +1597,11 @@ export default function App() {
                                       <Check className="w-3 h-3" /> Equipped
                                     </span>
                                   ) : isUnlocked ? (
-                                    <span className="text-blue-200/70 uppercase tracking-widest">
+                                    <span className="text-slate-600/70 uppercase tracking-widest">
                                       Equip
                                     </span>
                                   ) : (
-                                    <span className="text-yellow-300 flex items-center gap-1">
+                                    <span className="text-emerald-400 flex items-center gap-1">
                                       <Sparkles className="w-3 h-3" />{" "}
                                       {item.price}
                                     </span>
@@ -1605,7 +1615,7 @@ export default function App() {
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-blue-200/40 mb-4 flex items-center gap-2">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600/40 mb-4 flex items-center gap-2">
                         <UserCircle className="w-4 h-4" /> Avatar Outfits
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -1623,7 +1633,7 @@ export default function App() {
                             userStats.equippedOutfit === "outfit_default" ||
                             !userStats.equippedOutfit
                               ? "bg-blue-500/20 border-blue-500/50"
-                              : "bg-blue-950/5 border-white/10 hover:bg-blue-950/10"
+                              : "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                           }`}
                         >
                           <Mascot className="w-12 h-12 mb-3 drop-shadow-lg" />
@@ -1649,10 +1659,10 @@ export default function App() {
                                   isEquipped
                                     ? "bg-blue-500/20 border-blue-500/50 shadow-lg"
                                     : isUnlocked
-                                      ? "bg-blue-950/5 border-white/10 hover:bg-blue-950/10"
+                                      ? "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                                       : userStats.xp >= item.price
-                                        ? "bg-blue-950/5 border-yellow-400/30 hover:border-yellow-400/80 cursor-pointer"
-                                        : "bg-black/50 border-white/5 opacity-50 cursor-not-allowed"
+                                        ? "bg-slate-900/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
+                                        : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
                                 }`}
                               >
                                 <Mascot
@@ -1668,11 +1678,11 @@ export default function App() {
                                       <Check className="w-3 h-3" /> Equipped
                                     </span>
                                   ) : isUnlocked ? (
-                                    <span className="text-blue-200/70 uppercase tracking-widest">
+                                    <span className="text-slate-600/70 uppercase tracking-widest">
                                       Equip
                                     </span>
                                   ) : (
-                                    <span className="text-yellow-300 flex items-center gap-1">
+                                    <span className="text-emerald-400 flex items-center gap-1">
                                       <Sparkles className="w-3 h-3" />{" "}
                                       {item.price}
                                     </span>
@@ -1687,8 +1697,8 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Lock className="w-12 h-12 text-blue-200/20 mx-auto mb-4" />
-                    <p className="text-blue-200/50 text-sm uppercase tracking-widest">
+                    <Lock className="w-12 h-12 text-slate-600/20 mx-auto mb-4" />
+                    <p className="text-slate-600/50 text-sm uppercase tracking-widest">
                       Please sign in to access the store
                     </p>
                   </div>
@@ -1712,8 +1722,8 @@ export default function App() {
                 transition={{ delay: 0.5, duration: 0.4 }}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 max-w-sm w-full"
               >
-                <div className="bg-blue-900 border border-white/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 blur-3xl rounded-full" />
+                <div className="bg-white border border-slate-900/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
                   <Mascot
                     className="w-16 h-16 mx-auto mb-6 drop-shadow-lg"
                     outfit={userStats?.equippedOutfit}
@@ -1721,14 +1731,14 @@ export default function App() {
                   <h2 className="text-xl font-bold tracking-tight mb-2">
                     Let's do practice together!
                   </h2>
-                  <p className="text-blue-200/70 font-medium text-sm leading-relaxed mb-6">
+                  <p className="text-slate-600/70 font-medium text-sm leading-relaxed mb-6">
                     Pick a scenario from the selector below, review your briefing, and
                     start speaking. I'll track your English level and reward you
                     with Points and cool new items!
                   </p>
                   <button
                     onClick={() => setShowOnboarding(false)}
-                    className="w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-blue-950 font-bold uppercase tracking-widest text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(250,204,21,0.3)]"
+                    className="w-full py-3 bg-emerald-500 hover:bg-yellow-500 text-blue-950 font-bold uppercase tracking-widest text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(250,204,21,0.3)]"
                   >
                     Start Learning
                   </button>
@@ -1744,18 +1754,18 @@ export default function App() {
               initial={{ x: 400 }}
               animate={{ x: 0 }}
               exit={{ x: 400 }}
-              className="fixed right-0 top-0 bottom-0 w-80 bg-blue-900 border-l border-white/10 p-6 z-40 shadow-2xl flex flex-col"
+              className="fixed right-0 top-0 bottom-0 w-80 bg-white border-l border-slate-900/10 p-6 z-40 shadow-2xl flex flex-col"
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <Settings className="w-5 h-5 text-blue-300" />
+                  <Settings className="w-5 h-5 text-slate-500" />
                   <h2 className="font-bold uppercase tracking-widest text-sm">
                     Scenario Settings
                   </h2>
                 </div>
                 <button
                   onClick={() => setShowDev(false)}
-                  className="p-2 -mr-2 rounded-lg text-blue-200/50 hover:text-white hover:bg-blue-950/10 transition-colors"
+                  className="p-2 -mr-2 rounded-lg text-slate-600/50 hover:text-slate-900 hover:bg-slate-900/10 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1780,7 +1790,7 @@ export default function App() {
                         className={`py-2 px-1 text-[10px] font-bold uppercase tracking-widest rounded-lg flex flex-col items-center gap-1 border transition-all ${
                           context.targetLanguage === lang.name
                             ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-500"
-                            : "bg-blue-950/5 border-transparent text-blue-300 hover:bg-blue-950/10"
+                            : "bg-slate-900/5 border-transparent text-slate-500 hover:bg-slate-900/10"
                         }`}
                       >
                         <span className="text-xl">{lang.flag}</span>
@@ -1796,7 +1806,7 @@ export default function App() {
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase opacity-50 tracking-widest flex justify-between">
                       <span>Target Duration</span>
-                      <span className="text-yellow-400">
+                      <span className="text-emerald-500">
                         {context.taskDurationMinutes} mins
                       </span>
                     </label>
@@ -1812,7 +1822,7 @@ export default function App() {
                           taskDurationMinutes: parseInt(e.target.value),
                         })
                       }
-                      className="w-full accent-yellow-400"
+                      className="w-full accent-emerald-500"
                     />
                     <p className="text-[8px] opacity-40 uppercase">
                       AI will naturally try to close the conversation around
@@ -1835,7 +1845,7 @@ export default function App() {
                         level: e.target.value as ProficiencyLevel,
                       })
                     }
-                    className="w-full bg-blue-900 border border-white/10 p-3 rounded-lg text-sm focus:outline-none focus:border-yellow-400/50"
+                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-emerald-500/50"
                   >
                     <option value="A1">A1 (Absolute Beginner)</option>
                     <option value="A2">A2 (Elementary)</option>
@@ -1855,7 +1865,7 @@ export default function App() {
                     }
                     placeholder="e.g. You are a friendly barista. We are at a coffee shop."
                     rows={2}
-                    className="w-full bg-blue-900 border border-white/10 p-3 rounded-lg text-sm focus:outline-none focus:border-yellow-400/50 resize-none"
+                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-emerald-500/50 resize-none"
                   />
                 </div>
 
@@ -1876,12 +1886,12 @@ export default function App() {
                         : "e.g. Practice 'used to' and past tense verbs."
                     }
                     rows={3}
-                    className="w-full bg-blue-900 border border-white/10 p-3 rounded-lg text-sm focus:outline-none focus:border-yellow-400/50 resize-none"
+                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-emerald-500/50 resize-none"
                   />
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-white/10 text-[10px] uppercase tracking-widest opacity-30 flex flex-col gap-2">
+              <div className="pt-6 border-t border-slate-900/10 text-[10px] uppercase tracking-widest opacity-30 flex flex-col gap-2">
                 <div className="flex justify-between italic">
                   <span>Engine</span>
                   <span>Gemini 3.1 Flash Live</span>
@@ -1896,7 +1906,7 @@ export default function App() {
         </AnimatePresence>
 
         {/* Footer info */}
-        <footer className="mt-8 pt-4 border-t border-white/5 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-30">
+        <footer className="mt-8 pt-4 border-t border-slate-900/5 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-30">
           <div className="flex gap-4">
             <span>Lat: 37.7749</span>
             <span>Lng: -122.4194</span>
