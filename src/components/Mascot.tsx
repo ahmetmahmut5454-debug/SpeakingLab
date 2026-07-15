@@ -5,9 +5,10 @@ interface MascotProps {
   outfit?: string;
   className?: string;
   isWalking?: boolean;
+  isGreeting?: boolean;
 }
 
-export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = false }: MascotProps) => {
+export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = false, isGreeting = false }: MascotProps) => {
   return (
     <div className={`relative ${className}`}>
       <motion.svg
@@ -15,8 +16,8 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
         className="w-full h-full drop-shadow-2xl"
         style={{ overflow: 'visible' }}
         initial={isWalking ? { y: 0 } : { rotate: -2 }}
-        animate={isWalking ? { y: [-2, 2, -2] } : { rotate: 2 }}
-        transition={isWalking ? { duration: 0.3, repeat: Infinity, ease: "easeInOut" } : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        animate={isWalking ? { y: [-2, 2, -2] } : isGreeting ? { y: [0, -15, 0], scale: [1, 1.2, 1] } : { rotate: 2 }}
+        transition={isWalking ? { duration: 0.3, repeat: Infinity, ease: "easeInOut" } : isGreeting ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
         <defs>
           <radialGradient id="bodyGrad" cx="30%" cy="30%" r="70%">
@@ -76,11 +77,21 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
           animate={isWalking ? { rotate: [10, -10, 10], transformOrigin: "30px 55px" } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         />
-        <motion.path
-          d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
-          animate={isWalking ? { rotate: [-10, 10, -10], transformOrigin: "70px 55px" } : {}}
-          transition={{ duration: 0.4, repeat: Infinity }}
-        />
+        <motion.g
+          animate={isWalking ? { rotate: [-10, 10, -10], transformOrigin: "70px 55px" } : isGreeting ? { rotate: [0, -100, -120, -100, -120, -100, -120, 0], transformOrigin: "70px 55px" } : {}}
+          transition={isWalking ? { duration: 0.4, repeat: Infinity } : isGreeting ? { duration: 2, repeat: Infinity, times: [0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1] } : {}}
+        >
+          <path
+            d="M 70 55 Q 85 65 75 70" fill="url(#bodyGrad)" stroke="#5C3110" strokeWidth="2" strokeLinecap="round"
+          />
+          {/* Thumbs up */}
+          <motion.path
+            d="M 75 70 Q 77 65 79 70" stroke="#5C3110" strokeWidth="2" fill="none" strokeLinecap="round"
+            initial={{ opacity: 0 }}
+            animate={isGreeting ? { opacity: [0, 0, 1, 1, 1, 1, 1, 0] } : { opacity: 0 }}
+            transition={{ duration: 2, repeat: Infinity, times: [0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1] }}
+          />
+        </motion.g>
 
         {/* Head */}
         <circle cx="50" cy="35" r="24" fill="url(#bodyGrad)" filter="url(#shadow)" />

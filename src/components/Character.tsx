@@ -72,6 +72,12 @@ export const Character = ({ type, expression = "idle", className = "" }: Charact
               <stop offset="0%" stopColor="#FBBF24" />
               <stop offset="100%" stopColor="#B45309" />
             </linearGradient>
+            <clipPath id="boredEyeLeft">
+              <rect x="40" y="94" width="60" height="30" />
+            </clipPath>
+            <clipPath id="boredEyeRight">
+              <rect x="104" y="94" width="60" height="30" />
+            </clipPath>
           </defs>
 
           <g transform="translate(0, 10)">
@@ -127,34 +133,34 @@ export const Character = ({ type, expression = "idle", className = "" }: Charact
             <g transform="translate(0, -5)">
               {isBored ? (
                 <g>
-                  {/* Rolling Eyes */}
-                  <ellipse cx="68" cy="100" rx="16" ry="14" fill="url(#eyeWhiteGrad)" filter="url(#innerShadow)" />
-                  <ellipse cx="132" cy="100" rx="16" ry="14" fill="url(#eyeWhiteGrad)" filter="url(#innerShadow)" />
+                  {/* Half-closed Eyes */}
+                  <g clipPath="url(#boredEyeLeft)">
+                    <ellipse cx="68" cy="102" rx="17" ry="14" fill="url(#eyeWhiteGrad)" filter="url(#innerShadow)" />
+                    <motion.g 
+                      animate={{ x: [-3, 4, -3], y: [-2, -4, -2] }}
+                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <circle cx="68" cy="102" r="10" fill="url(#irisGrad)" />
+                      <circle cx="68" cy="102" r="5" fill="#0A192F" />
+                      <circle cx="64" cy="98" r="3" fill="white" opacity="0.9" />
+                    </motion.g>
+                  </g>
                   
-                  <motion.circle 
-                    cx="68" cy="95" r="7" fill="url(#irisGrad)" 
-                    animate={{ cy: [95, 97, 95], cx: [68, 70, 68] }}
-                    transition={{ duration: 4, repeat: Infinity, times: [0, 0.5, 1] }}
-                  />
-                  <motion.circle 
-                    cx="132" cy="95" r="7" fill="url(#irisGrad)" 
-                    animate={{ cy: [95, 97, 95], cx: [132, 134, 132] }}
-                    transition={{ duration: 4, repeat: Infinity, times: [0, 0.5, 1] }}
-                  />
-                  {/* Pupils */}
-                  <circle cx="68" cy="95" r="3.5" fill="#0A192F" />
-                  <circle cx="132" cy="95" r="3.5" fill="#0A192F" />
+                  <g clipPath="url(#boredEyeRight)">
+                    <ellipse cx="132" cy="102" rx="17" ry="14" fill="url(#eyeWhiteGrad)" filter="url(#innerShadow)" />
+                    <motion.g 
+                      animate={{ x: [-3, 4, -3], y: [-2, -4, -2] }}
+                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <circle cx="132" cy="102" r="10" fill="url(#irisGrad)" />
+                      <circle cx="132" cy="102" r="5" fill="#0A192F" />
+                      <circle cx="128" cy="98" r="3" fill="white" opacity="0.9" />
+                    </motion.g>
+                  </g>
                   
-                  {/* Eye reflection */}
-                  <circle cx="66" cy="93" r="2.5" fill="white" opacity="0.9" />
-                  <circle cx="130" cy="93" r="2.5" fill="white" opacity="0.9" />
-                  
-                  {/* Heavy eyelids */}
-                  <path d="M 48 95 Q 68 88 88 98" stroke="#875A46" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.8" />
-                  <path d="M 112 98 Q 132 88 152 95" stroke="#875A46" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.8" />
-                  {/* Lids shading */}
-                  <path d="M 48 95 Q 68 88 88 98 Q 68 105 48 95 Z" fill="#D5957C" opacity="0.95" />
-                  <path d="M 112 98 Q 132 88 152 95 Q 132 105 112 98 Z" fill="#D5957C" opacity="0.95" />
+                  {/* Heavy straight eyelids */}
+                  <path d="M 48 95 Q 68 93 88 95" stroke="#875A46" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.8" />
+                  <path d="M 112 95 Q 132 93 152 95" stroke="#875A46" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.8" />
                 </g>
               ) : isHappy ? (
                 <g>

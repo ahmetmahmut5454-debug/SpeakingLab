@@ -270,6 +270,7 @@ export default function App() {
 
   const [generatingReport, setGeneratingReport] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(false);
+  const [isMascotHovered, setIsMascotHovered] = useState(false);
   const [currentSubtitle, setCurrentSubtitle] = useState<{
     text: string;
     isBot: boolean;
@@ -607,12 +608,17 @@ export default function App() {
         <header className="flex flex-col md:flex-row justify-between items-center gap-6 pb-8 mb-6 md:mb-10 w-full">
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3 md:gap-5">
-              <div className="relative group">
+              <div 
+                className="relative group cursor-pointer"
+                onMouseEnter={() => setIsMascotHovered(true)}
+                onMouseLeave={() => setIsMascotHovered(false)}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-2xl group-hover:blur-xl transition-all duration-500" />
                 <div className="relative bg-blue-950 p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl">
                   <Mascot
-                    className="w-6 h-6 md:w-8 md:h-8"
+                    className="w-12 h-12 md:w-16 md:h-16 group-hover:scale-125 group-hover:-translate-y-4 transition-transform duration-500 origin-bottom"
                     outfit={userStats?.equippedOutfit}
+                    isGreeting={isMascotHovered}
                   />
                 </div>
                 {userStats?.equippedBadge && (
@@ -625,7 +631,7 @@ export default function App() {
                 )}
               </div>
               <div className="flex flex-col items-start gap-1">
-                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-200 to-blue-400">
+                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-indigo-700">
                   Speaking Buddy
                 </h1>
                 <StatusBadge on={isRunning} />
@@ -634,7 +640,7 @@ export default function App() {
           </div>
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full md:w-auto">
             {userStats && (
-              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-blue-950 py-1.5 px-3 md:px-4 rounded-xl border border-white/10 text-xs md:text-sm text-slate-300">
+              <div className="flex items-center gap-3 md:gap-4 md:mr-2 bg-white py-1.5 px-3 md:px-4 rounded-xl border border-slate-200 text-xs md:text-sm text-slate-700 shadow-sm">
                 <div
                   className="flex items-center gap-1.5 text-orange-400 relative"
                   title="Daily Streak"
@@ -776,7 +782,7 @@ export default function App() {
                 <div className="h-4 w-[1px] bg-slate-900/10" />
                 <button
                   onClick={() => setShowShop(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-950 border border-pink-500/30 text-pink-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-pink-200 text-pink-500 hover:bg-pink-50 transition-all text-xs font-bold uppercase tracking-widest shadow-sm"
                   title="Item Store"
                 >
                   <Store className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -792,7 +798,7 @@ export default function App() {
                     loadLeaderboard();
                     setShowLeaderboard(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-orange-500/30 text-orange-400 hover:bg-blue-900 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-orange-200 text-orange-500 hover:bg-orange-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm"
                 >
                   <Trophy className="w-3 h-3" />
                 </button>
@@ -802,7 +808,7 @@ export default function App() {
                     loadReports();
                     setShowHistory(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-indigo-500/30 text-indigo-400 hover:bg-blue-900 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-indigo-200 text-indigo-500 hover:bg-indigo-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm"
                 >
                   <History className="w-3 h-3" /> Local Feedbacks
                 </button>
@@ -817,7 +823,7 @@ export default function App() {
                     loadLeaderboard();
                     setShowLeaderboard(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-orange-500/30 text-orange-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-orange-200 text-orange-500 hover:bg-orange-50 transition-all text-xs font-bold uppercase tracking-widest shadow-sm"
                 >
                   <Trophy className="w-4 h-4" />{" "}
                   <span className="hidden sm:inline">Leaderboard</span>
@@ -828,14 +834,14 @@ export default function App() {
                     loadReports();
                     setShowHistory(true);
                   }}
-                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-indigo-500/30 text-indigo-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-indigo-200 text-indigo-500 hover:bg-indigo-50 transition-all text-xs font-bold uppercase tracking-widest shadow-sm"
                 >
                   <History className="w-4 h-4" /> Feedbacks
                 </button>
                 <div className="h-6 w-[1px] bg-slate-900/10 mx-2" />
                 <button
                   onClick={logout}
-                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-red-500/30 text-red-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                  className="pl-2 pr-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-red-200 text-red-500 hover:bg-red-50 transition-all text-xs font-bold uppercase tracking-widest shadow-sm"
                 >
                   <img
                     src={user.photoURL || ""}
@@ -877,7 +883,7 @@ export default function App() {
                     }
                   });
                 }}
-                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-blue-950 border border-blue-500/30 text-blue-400 hover:bg-blue-900 transition-all text-xs font-bold uppercase tracking-widest shadow-lg"
+                className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-blue-200 text-blue-500 hover:bg-blue-50 transition-all text-xs font-bold uppercase tracking-widest shadow-sm"
               >
                 <LogIn className="w-4 h-4" /> Sign In to Save Feedbacks
               </button>
@@ -887,13 +893,13 @@ export default function App() {
 
             <button
               onClick={() => setShowSubtitles(!showSubtitles)}
-              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-lg ${showSubtitles ? "bg-blue-900 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]" : "bg-blue-950 border-cyan-500/20 text-cyan-500 hover:bg-blue-900"}`}
+              className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-sm ${showSubtitles ? "bg-white border-cyan-300 text-cyan-600 shadow-[0_0_15px_rgba(6,182,212,0.2)]" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}
             >
               CC
             </button>
             <button
               onClick={() => setShowDev(!showDev)}
-              className={`p-3 rounded-xl border transition-all duration-500 shadow-lg ${showDev ? "bg-blue-900 border-emerald-500/50 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-blue-950 border-emerald-500/20 text-emerald-500 hover:bg-blue-900"}`}
+              className={`p-3 rounded-xl border transition-all duration-500 shadow-sm ${showDev ? "bg-white border-emerald-300 text-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}
             >
               <Settings className="w-5 h-5" />
             </button>
@@ -1030,7 +1036,7 @@ export default function App() {
           <div className="flex flex-col items-center gap-8 mt-4 z-10">
             <div className="flex flex-wrap items-center justify-center gap-4 w-full max-w-2xl">
               <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                <label className="text-xs uppercase tracking-wider font-bold text-blue-200 mb-1 text-center">
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-700 mb-1 text-center">
                   Scenario
                 </label>
                 <select
@@ -1052,16 +1058,16 @@ export default function App() {
                       setContext({ ...context, mode: "Practice" });
                     }
                   }}
-                  className="bg-blue-900 border border-yellow-400/30 text-yellow-400 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 shadow-sm"
+                  className="bg-blue-900 border border-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg cursor-pointer hover:bg-blue-800 transition-colors"
                   disabled={isRunning}
                 >
                   <option value="practice">-- Free Practice Mode --</option>
                   {Array.from(new Set(predefinedScenarios.map(s => s.category || "General"))).map(category => (
-                    <optgroup key={category} label={category}>
+                    <optgroup key={category} label={category} className="bg-slate-800 text-slate-300">
                       {predefinedScenarios
                         .filter(s => (s.category || "General") === category)
                         .map((s) => (
-                          <option key={s.id} value={s.id}>
+                          <option key={s.id} value={s.id} className="bg-white text-slate-900 font-medium">
                             [{s.level}] {s.title}
                           </option>
                         ))}
@@ -1071,7 +1077,7 @@ export default function App() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-wider font-bold text-blue-200 mb-1 text-center">
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-700 mb-1 text-center">
                   Tutor Voice
                 </label>
                 <select
@@ -1082,17 +1088,17 @@ export default function App() {
                   onChange={(e) =>
                     setContext({ ...context, voice: e.target.value as VoiceType })
                   }
-                  className="bg-blue-900 border border-white/10 rounded-lg px-4 py-2 text-sm text-blue-200/80 focus:outline-none focus:border-white/30 h-[38px] shadow-sm mt-[2px]"
+                  className="bg-blue-900 border border-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg cursor-pointer hover:bg-blue-800 transition-colors h-[42px] mt-[2px]"
                   disabled={isRunning}
                 >
-                  <option value="Aoede">Aoede (Female, Calm)</option>
-                  <option value="Zephyr">
+                  <option value="Aoede" className="bg-white text-slate-900 font-medium">Aoede (Female, Calm)</option>
+                  <option value="Zephyr" className="bg-white text-slate-900 font-medium">
                     Zephyr (Female, Energetic)
                   </option>
-                  <option value="Kore">Kore (Female, Precise)</option>
-                  <option value="Charon">Charon (Male, Deep)</option>
-                  <option value="Puck">Puck (Male, Friendly)</option>
-                  <option value="Fenrir">Fenrir (Male, Strict)</option>
+                  <option value="Kore" className="bg-white text-slate-900 font-medium">Kore (Female, Precise)</option>
+                  <option value="Charon" className="bg-white text-slate-900 font-medium">Charon (Male, Deep)</option>
+                  <option value="Puck" className="bg-white text-slate-900 font-medium">Puck (Male, Friendly)</option>
+                  <option value="Fenrir" className="bg-white text-slate-900 font-medium">Fenrir (Male, Strict)</option>
                 </select>
               </div>
             </div>
