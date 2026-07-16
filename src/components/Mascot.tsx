@@ -54,18 +54,24 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
         />
 
         {/* Back Leg */}
-        <motion.path
-          d="M 60 80 Q 65 95 75 95 Q 75 90 65 80" fill="url(#bodyGrad)"
-          animate={isWalking ? { rotate: [15, -15, 15], transformOrigin: "60px 80px" } : {}}
+        <motion.g
+          animate={isWalking ? { rotate: [15, -15, 15], transformOrigin: "65px 85px" } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
-        />
+        >
+          <path d="M 65 85 L 70 95" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
+          <path d="M 65 85 L 70 95" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
+          <ellipse cx="73" cy="95" rx="6" ry="4" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+        </motion.g>
 
         {/* Front Leg */}
-        <motion.path
-          d="M 35 80 Q 30 95 20 95 Q 30 90 40 80" fill="url(#bodyGrad)"
-          animate={isWalking ? { rotate: [-15, 15, -15], transformOrigin: "40px 80px" } : {}}
+        <motion.g
+          animate={isWalking ? { rotate: [-15, 15, -15], transformOrigin: "35px 85px" } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
-        />
+        >
+          <path d="M 35 85 L 30 95" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
+          <path d="M 35 85 L 30 95" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
+          <ellipse cx="27" cy="95" rx="6" ry="4" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+        </motion.g>
 
         {/* Body */}
         <ellipse cx="50" cy="65" rx="28" ry="32" fill="url(#bodyGrad)" filter="url(#shadow)" />
@@ -74,13 +80,13 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
         {/* Arms */}
         {/* Left Arm */}
         <motion.g
-          animate={isWalking ? { rotate: [10, -10, 10], transformOrigin: "35px 55px" } : {}}
+          animate={isWalking ? { rotate: [15, -15, 15], transformOrigin: "35px 55px" } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
           {/* Arm Base Outline */}
-          <path d="M 40 55 Q 20 65 25 75" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
+          <path d="M 35 55 Q 20 65 25 75" fill="none" stroke="#5C3110" strokeWidth="10" strokeLinecap="round" />
           {/* Arm Base Inner */}
-          <path d="M 40 55 Q 20 65 25 75" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
+          <path d="M 35 55 Q 20 65 25 75" fill="none" stroke="url(#bodyGrad)" strokeWidth="6" strokeLinecap="round" />
           
           {/* Fingers */}
           <circle cx="22" cy="74" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
@@ -91,7 +97,7 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
         {/* Right Arm */}
         <motion.g
           animate={
-            isWalking ? { rotate: [-10, 10, -10], transformOrigin: "65px 55px" } : 
+            isWalking ? { rotate: [-15, 15, -15], transformOrigin: "65px 55px" } : 
             isGreeting ? { rotate: [0, -100, -70, -100, -70, -100, 0, 0, 0], transformOrigin: "65px 55px" } : 
             {}
           }
@@ -102,9 +108,9 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
           }
         >
           {/* Arm Base Outline */}
-          <path d="M 60 55 Q 80 65 75 75" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
+          <path d="M 65 55 Q 80 65 75 75" fill="none" stroke="#5C3110" strokeWidth="10" strokeLinecap="round" />
           {/* Arm Base Inner */}
-          <path d="M 60 55 Q 80 65 75 75" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
+          <path d="M 65 55 Q 80 65 75 75" fill="none" stroke="url(#bodyGrad)" strokeWidth="6" strokeLinecap="round" />
 
           {/* Default Hand */}
           <motion.g
