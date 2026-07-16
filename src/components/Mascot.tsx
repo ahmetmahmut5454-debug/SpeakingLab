@@ -46,56 +46,65 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
         </defs>
 
         {/* Tail */}
-        <motion.ellipse
-          cx="80" cy="75" rx="20" ry="10" fill="url(#tailGrad)"
-          animate={isWalking ? { rotate: [-5, 5, -5], transformOrigin: "60px 75px" } : {}}
+        <motion.g
+          transform="translate(60, 75)"
+          style={{ transformOrigin: "0px 0px" }}
+          animate={isWalking ? { rotate: [-5, 5, -5] } : {}}
           transition={{ duration: 0.5, repeat: Infinity }}
-          filter="url(#shadow)"
-        />
+        >
+          <ellipse
+            cx="20" cy="0" rx="20" ry="10" fill="url(#tailGrad)"
+            filter="url(#shadow)"
+          />
+        </motion.g>
 
         {/* Back Leg */}
         <motion.g
-          style={{ transformOrigin: "65px 85px", transformBox: "view-box" }}
+          transform="translate(65, 85)"
+          style={{ transformOrigin: "0px 0px" }}
           animate={isWalking ? { rotate: [15, -15, 15] } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
-          <path d="M 65 85 L 70 95" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
-          <path d="M 65 85 L 70 95" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
-          <ellipse cx="73" cy="95" rx="6" ry="4" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <path d="M 0 0 L 5 10" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
+          <path d="M 0 0 L 5 10" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
+          <ellipse cx="8" cy="10" rx="6" ry="4" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
         </motion.g>
 
         {/* Front Leg */}
         <motion.g
-          style={{ transformOrigin: "35px 85px", transformBox: "view-box" }}
+          transform="translate(35, 85)"
+          style={{ transformOrigin: "0px 0px" }}
           animate={isWalking ? { rotate: [-15, 15, -15] } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
-          <path d="M 35 85 L 30 95" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
-          <path d="M 35 85 L 30 95" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
-          <ellipse cx="27" cy="95" rx="6" ry="4" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <path d="M 0 0 L -5 10" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
+          <path d="M 0 0 L -5 10" fill="none" stroke="url(#bodyGrad)" strokeWidth="8" strokeLinecap="round" />
+          <ellipse cx="-8" cy="10" rx="6" ry="4" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
         </motion.g>
 
         {/* Arms */}
         {/* Left Arm */}
         <motion.g
-          style={{ transformOrigin: "35px 55px", transformBox: "view-box" }}
+          transform="translate(35, 55)"
+          style={{ transformOrigin: "0px 0px" }}
           animate={isWalking ? { rotate: [15, -15, 15] } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
           {/* Arm Base Outline */}
-          <path d="M 35 55 Q 20 65 25 75" fill="none" stroke="#5C3110" strokeWidth="10" strokeLinecap="round" />
+          <path d="M 0 0 Q -15 10 -10 20" fill="none" stroke="#5C3110" strokeWidth="10" strokeLinecap="round" />
           {/* Arm Base Inner */}
-          <path d="M 35 55 Q 20 65 25 75" fill="none" stroke="url(#bodyGrad)" strokeWidth="6" strokeLinecap="round" />
+          <path d="M 0 0 Q -15 10 -10 20" fill="none" stroke="url(#bodyGrad)" strokeWidth="6" strokeLinecap="round" />
           
           {/* Fingers */}
-          <circle cx="22" cy="74" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-          <circle cx="25" cy="77" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-          <circle cx="28" cy="74" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="-13" cy="19" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="-10" cy="22" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+          <circle cx="-7" cy="19" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
         </motion.g>
 
         {/* Right Arm */}
         <motion.g
-          style={{ transformOrigin: "65px 55px", transformBox: "view-box" }}
+          transform="translate(65, 55)"
+          style={{ transformOrigin: "0px 0px" }}
           animate={
             isWalking ? { rotate: [-15, 15, -15] } : 
             isGreeting ? { rotate: [0, -100, -70, -100, -70, -100, 0, 0, 0] } : 
@@ -108,18 +117,18 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
           }
         >
           {/* Arm Base Outline */}
-          <path d="M 65 55 Q 80 65 75 75" fill="none" stroke="#5C3110" strokeWidth="10" strokeLinecap="round" />
+          <path d="M 0 0 Q 15 10 10 20" fill="none" stroke="#5C3110" strokeWidth="10" strokeLinecap="round" />
           {/* Arm Base Inner */}
-          <path d="M 65 55 Q 80 65 75 75" fill="none" stroke="url(#bodyGrad)" strokeWidth="6" strokeLinecap="round" />
+          <path d="M 0 0 Q 15 10 10 20" fill="none" stroke="url(#bodyGrad)" strokeWidth="6" strokeLinecap="round" />
 
           {/* Default Hand */}
           <motion.g
             animate={isGreeting ? { opacity: [1, 1, 1, 1, 1, 1, 0, 0, 1] } : { opacity: 1 }}
             transition={{ duration: 2.5, repeat: Infinity, times: [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 0.95, 1] }}
           >
-            <circle cx="78" cy="74" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="75" cy="77" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="72" cy="74" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="13" cy="19" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="10" cy="22" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="7" cy="19" r="3" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
           </motion.g>
 
           {/* Thumbs Up Hand */}
@@ -129,11 +138,11 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
             transition={{ duration: 2.5, repeat: Infinity, times: [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 0.95, 1] }}
           >
             {/* Thumb sticking out to the right */}
-            <path d="M 72 70 L 83 67 A 2 2 0 0 1 85 71 L 76 74 Z" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M 7 15 L 18 12 A 2 2 0 0 1 20 16 L 11 19 Z" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1.5" strokeLinejoin="round" />
             {/* Folded Fingers */}
-            <circle cx="76" cy="76" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="73" cy="75" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
-            <circle cx="70" cy="73" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="11" cy="21" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="8" cy="20" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
+            <circle cx="5" cy="18" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
           </motion.g>
         </motion.g>
 
