@@ -38,6 +38,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from "./lib/eltBot";
+import logoUrl from "./logo.png";
 import { predefinedScenarios } from "./lib/scenarios";
 import {
   auth,
@@ -611,7 +612,7 @@ export default function App() {
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3 md:gap-5">
               <div className="relative flex items-center justify-center bg-gradient-to-br from-white to-slate-200 p-1 md:p-1.5 rounded-full shadow-[inset_0_-4px_8px_rgba(0,0,0,0.2),_0_6px_12px_rgba(0,0,0,0.4)] border border-white/50">
-                <img src="/logo.png" alt="University Logo" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] object-contain" />
+                <img src={logoUrl} alt="University Logo" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] object-contain" />
               </div>
               <div 
                 className="relative group cursor-pointer z-50"
