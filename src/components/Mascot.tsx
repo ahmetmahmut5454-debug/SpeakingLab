@@ -75,10 +75,6 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
           <ellipse cx="27" cy="95" rx="6" ry="4" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
         </motion.g>
 
-        {/* Body */}
-        <ellipse cx="50" cy="65" rx="28" ry="32" fill="url(#bodyGrad)" filter="url(#shadow)" />
-        <ellipse cx="48" cy="68" rx="20" ry="24" fill="url(#bellyGrad)" />
-
         {/* Arms */}
         {/* Left Arm */}
         <motion.g
@@ -140,6 +136,10 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
             <circle cx="70" cy="73" r="2.5" fill="url(#bellyGrad)" stroke="#5C3110" strokeWidth="1" />
           </motion.g>
         </motion.g>
+
+        {/* Body */}
+        <ellipse cx="50" cy="65" rx="28" ry="32" fill="url(#bodyGrad)" filter="url(#shadow)" />
+        <ellipse cx="48" cy="68" rx="20" ry="24" fill="url(#bellyGrad)" />
 
         {/* Head */}
         <circle cx="50" cy="35" r="24" fill="url(#bodyGrad)" filter="url(#shadow)" />

@@ -43,6 +43,7 @@ export interface BotContext {
   mode: "Practice" | "Task";
   taskDurationMinutes: number; // For Practice mode closing
   customRules?: string;
+  scenarioId?: string;
   role?:
     | "station"
     | "restaurant"

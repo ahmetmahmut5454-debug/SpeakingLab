@@ -38,7 +38,6 @@ import {
   Trophy,
 } from "lucide-react";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from "./lib/eltBot";
-import logoUrl from "./logo.png";
 import { predefinedScenarios } from "./lib/scenarios";
 import {
   auth,
@@ -612,7 +611,7 @@ export default function App() {
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3 md:gap-5">
               <div className="relative flex items-center justify-center bg-gradient-to-br from-white to-slate-200 p-1 md:p-1.5 rounded-full shadow-[inset_0_-4px_8px_rgba(0,0,0,0.2),_0_6px_12px_rgba(0,0,0,0.4)] border border-white/50">
-                <img src={logoUrl} alt="University Logo" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] object-contain" />
+                <img src="/logo.png" alt="University Logo" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] object-contain" />
               </div>
               <div 
                 className="relative group cursor-pointer z-50"
@@ -1052,7 +1051,7 @@ export default function App() {
                 >
                   {context.mode === "Practice" 
                     ? "-- Free Practice Mode --" 
-                    : `[${context.level}] ${predefinedScenarios.find(s => s.role === context.role)?.title || "Custom Scenario"}`}
+                    : `[${context.level}] ${predefinedScenarios.find(s => s.id === context.scenarioId)?.title || "Custom Scenario"}`}
                 </button>
               </div>
 
@@ -1178,11 +1177,11 @@ export default function App() {
             >
               <div className="bg-white border-4 border-slate-200 p-10 rounded-[2rem] max-w-lg w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
                 <div className="flex flex-col items-center gap-6 text-center">
-                  {predefinedScenarios.find((s) => s.role === context.role)
+                  {predefinedScenarios.find((s) => s.id === context.scenarioId)
                     ?.imageUrl ? (
                     <img
                       src={
-                        predefinedScenarios.find((s) => s.role === context.role)
+                        predefinedScenarios.find((s) => s.id === context.scenarioId)
                           ?.imageUrl
                       }
                       alt="Scenario"
@@ -1198,7 +1197,7 @@ export default function App() {
                       Scenario Briefing
                     </h2>
                     <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-white/80 p-4 rounded-xl border border-slate-200 shadow-inner">
-                      {predefinedScenarios.find((s) => s.role === context.role)
+                      {predefinedScenarios.find((s) => s.id === context.scenarioId)
                         ?.studentBriefing ||
                         "Get ready to solve the problem using your English skills!"}
                     </p>
@@ -1210,7 +1209,7 @@ export default function App() {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {predefinedScenarios
-                        .find((s) => s.role === context.role)
+                        .find((s) => s.id === context.scenarioId)
                         ?.vocabulary?.map((word, i) => (
                           <span
                             key={i}
@@ -1906,7 +1905,7 @@ export default function App() {
           currentScenarioId={
             context.mode === "Practice"
               ? null
-              : predefinedScenarios.find((s) => s.role === context.role)?.id || null
+              : context.scenarioId || null
           }
           onSelect={(scenario) => {
             if (scenario) {
@@ -1918,9 +1917,10 @@ export default function App() {
                 objective: scenario.objective,
                 role: scenario.role,
                 icebreaker: scenario.icebreaker,
+                scenarioId: scenario.id,
               });
             } else {
-              setContext({ ...context, mode: "Practice" });
+              setContext({ ...context, mode: "Practice", scenarioId: undefined });
             }
           }}
         />
