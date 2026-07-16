@@ -55,7 +55,8 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
 
         {/* Back Leg */}
         <motion.g
-          animate={isWalking ? { rotate: [15, -15, 15], transformOrigin: "65px 85px" } : {}}
+          style={{ transformOrigin: "65px 85px", transformBox: "view-box" }}
+          animate={isWalking ? { rotate: [15, -15, 15] } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
           <path d="M 65 85 L 70 95" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
@@ -65,7 +66,8 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
 
         {/* Front Leg */}
         <motion.g
-          animate={isWalking ? { rotate: [-15, 15, -15], transformOrigin: "35px 85px" } : {}}
+          style={{ transformOrigin: "35px 85px", transformBox: "view-box" }}
+          animate={isWalking ? { rotate: [-15, 15, -15] } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
           <path d="M 35 85 L 30 95" fill="none" stroke="#5C3110" strokeWidth="12" strokeLinecap="round" />
@@ -80,7 +82,8 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
         {/* Arms */}
         {/* Left Arm */}
         <motion.g
-          animate={isWalking ? { rotate: [15, -15, 15], transformOrigin: "35px 55px" } : {}}
+          style={{ transformOrigin: "35px 55px", transformBox: "view-box" }}
+          animate={isWalking ? { rotate: [15, -15, 15] } : {}}
           transition={{ duration: 0.4, repeat: Infinity }}
         >
           {/* Arm Base Outline */}
@@ -96,9 +99,10 @@ export const Mascot = ({ outfit = "outfit_default", className = "", isWalking = 
 
         {/* Right Arm */}
         <motion.g
+          style={{ transformOrigin: "65px 55px", transformBox: "view-box" }}
           animate={
-            isWalking ? { rotate: [-15, 15, -15], transformOrigin: "65px 55px" } : 
-            isGreeting ? { rotate: [0, -100, -70, -100, -70, -100, 0, 0, 0], transformOrigin: "65px 55px" } : 
+            isWalking ? { rotate: [-15, 15, -15] } : 
+            isGreeting ? { rotate: [0, -100, -70, -100, -70, -100, 0, 0, 0] } : 
             {}
           }
           transition={

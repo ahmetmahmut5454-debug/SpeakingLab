@@ -9,14 +9,12 @@ export interface Scenario {
   icebreaker?: string;
   vocabulary?: string[];
   studentBriefing?: string;
-  imageUrl?: string;
 }
 
 export const predefinedScenarios: Scenario[] = [
   {
     id: "s1",
     category: "General",
-    imageUrl: "https://images.unsplash.com/photo-1471018259965-02b4bc9da464?w=500&q=80",
     title: "The Broken Ticket (Train Station)",
     level: "A2",
     role: "station",
@@ -37,7 +35,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "s2",
     category: "General",
-    imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80",
     title: "Dinner Plans (Making Choices)",
     level: "A2",
     role: "default",
@@ -56,7 +53,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "s3",
     category: "General",
-    imageUrl: "https://images.unsplash.com/photo-1628102491629-77858ab5721d?w=500&q=80",
     title: "The Empty Box Complaint",
     level: "B1-B2",
     role: "support",
@@ -76,7 +72,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "s4",
     category: "General",
-    imageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80",
     title: "Chore Negotiation & Boundaries",
     level: "B1-B2",
     role: "roommate",
@@ -96,7 +91,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "s5",
     category: "General",
-    imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80",
     title: "Pitching the Mayor",
     level: "C1",
     role: "mayor",
@@ -114,7 +108,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "s6",
     category: "General",
-    imageUrl: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=500&q=80",
     title: "Startup Pitch to Billionaire",
     level: "C1",
     role: "investor",
@@ -132,7 +125,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "acad1",
     category: "Academic English",
-    imageUrl: "https://images.unsplash.com/photo-1540317580384-e5d43616b9aa?w=500&q=80",
     title: "Conference Q&A: Defending Methodology",
     level: "C1",
     role: "default",
@@ -149,7 +141,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "acad2",
     category: "Academic English",
-    imageUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=500&q=80",
     title: "Conference Coffee Break",
     level: "B1-B2",
     role: "default",
@@ -167,7 +158,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "acad3",
     category: "Academic English",
-    imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&q=80",
     title: "Skeptical Discussant",
     level: "C1",
     role: "default",
@@ -185,7 +175,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "acad4",
     category: "Academic English",
-    imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=500&q=80",
     title: "Office Hours: Critical Feedback",
     level: "B1-B2",
     role: "default",
@@ -203,7 +192,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "acad5",
     category: "Academic English",
-    imageUrl: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=500&q=80",
     title: "Explaining Research to Journalist",
     level: "B1-B2",
     role: "default",
@@ -220,7 +208,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "acad6",
     category: "Academic English",
-    imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=500&q=80",
     title: "Job Talk: Tough Panel Question",
     level: "C1",
     role: "default",
@@ -237,7 +224,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "eras1",
     category: "Erasmus Preparation",
-    imageUrl: "https://images.unsplash.com/photo-1554774853-a50f7b12d4ca?w=500&q=80",
     title: "Enrollment Office: Missing Document",
     level: "A2",
     role: "default",
@@ -254,7 +240,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "eras2",
     category: "Erasmus Preparation",
-    imageUrl: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&q=80",
     title: "Apartment Viewing: Negotiating",
     level: "B1-B2",
     role: "default",
@@ -271,7 +256,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "eras3",
     category: "Erasmus Preparation",
-    imageUrl: "https://images.unsplash.com/photo-1584515933487-779824d29309?w=500&q=80",
     title: "Doctor's Visit",
     level: "A2",
     role: "default",
@@ -288,7 +272,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "eras4",
     category: "Erasmus Preparation",
-    imageUrl: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&q=80",
     title: "Meeting People: The Invitation",
     level: "A2",
     role: "default",
@@ -305,7 +288,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "eras5",
     category: "Erasmus Preparation",
-    imageUrl: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=500&q=80",
     title: "Unfamiliar Grading System",
     level: "B1-B2",
     role: "default",
@@ -322,7 +304,6 @@ export const predefinedScenarios: Scenario[] = [
   {
     id: "eras6",
     category: "Erasmus Preparation",
-    imageUrl: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=500&q=80",
     title: "Opening a Bank Account",
     level: "A2",
     role: "default",

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  .pivot {
+    transform-origin: 65px 55px;
+    transform-box: view-box;
+    animation: rotate 2s infinite;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+    100% { transform: rotate(0deg); }
+  }
+</style>
+</head>
+<body>
+  <svg width="200" height="200" viewBox="0 0 100 100">
+    <g class="pivot">
+      <path d="M 65 55 Q 80 65 75 75" fill="none" stroke="black" stroke-width="2" />
+    </g>
+    <circle cx="65" cy="55" r="2" fill="red" />
+  </svg>
+</body>
+</html>
