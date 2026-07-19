@@ -100,21 +100,6 @@ const SHOP_ITEMS = [
     type: "badge",
     icon: "🦅",
   },
-  {
-    id: "outfit_glasses",
-    name: "Cool Glasses",
-    price: 200,
-    type: "outfit",
-    icon: "🕶️",
-  },
-  { id: "outfit_cap", name: "Red Cap", price: 400, type: "outfit", icon: "🧢" },
-  {
-    id: "outfit_crown",
-    name: "Gold Crown",
-    price: 3000,
-    type: "outfit",
-    icon: "👑",
-  },
 ];
 
 import { Guide } from "./components/Guide";
@@ -1590,88 +1575,6 @@ export default function App() {
                                 <span className="text-4xl mb-2 drop-shadow-md">
                                   {item.icon}
                                 </span>
-                                <span className="font-bold text-[10px] uppercase tracking-wider text-center">
-                                  {item.name}
-                                </span>
-                                <div className="mt-2 text-[10px] font-bold">
-                                  {isEquipped ? (
-                                    <span className="text-blue-400 uppercase tracking-widest flex items-center gap-1">
-                                      <Check className="w-3 h-3" /> Equipped
-                                    </span>
-                                  ) : isUnlocked ? (
-                                    <span className="text-slate-600/70 uppercase tracking-widest">
-                                      Equip
-                                    </span>
-                                  ) : (
-                                    <span className="text-emerald-400 flex items-center gap-1">
-                                      <Sparkles className="w-3 h-3" />{" "}
-                                      {item.price}
-                                    </span>
-                                  )}
-                                </div>
-                              </button>
-                            );
-                          },
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600/40 mb-4 flex items-center gap-2">
-                        <UserCircle className="w-4 h-4" /> Avatar Outfits
-                      </h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <button
-                          onClick={() =>
-                            handlePurchase({
-                              id: "outfit_default",
-                              name: "Default",
-                              price: 0,
-                              type: "outfit",
-                              icon: "",
-                            })
-                          }
-                          className={`flex flex-col items-center p-4 rounded-2xl border transition-all ${
-                            userStats.equippedOutfit === "outfit_default" ||
-                            !userStats.equippedOutfit
-                              ? "bg-blue-500/20 border-blue-500/50"
-                              : "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
-                          }`}
-                        >
-                          <div className="w-12 h-12 mb-3 flex items-center justify-center bg-slate-900/5 rounded-full text-2xl shadow-inner border border-slate-900/5">
-                            👤
-                          </div>
-                          <span className="font-bold text-[10px] uppercase tracking-wider">
-                            Default
-                          </span>
-                        </button>
-
-                        {SHOP_ITEMS.filter((i) => i.type === "outfit").map(
-                          (item) => {
-                            const isUnlocked =
-                              userStats.unlockedItems?.includes(item.id);
-                            const isEquipped =
-                              userStats.equippedOutfit === item.id;
-                            return (
-                              <button
-                                key={item.id}
-                                onClick={() => handlePurchase(item)}
-                                disabled={
-                                  !isUnlocked && userStats.xp < item.price
-                                }
-                                className={`flex flex-col items-center p-4 rounded-2xl border transition-all relative overflow-hidden ${
-                                  isEquipped
-                                    ? "bg-blue-500/20 border-blue-500/50 shadow-lg"
-                                    : isUnlocked
-                                      ? "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
-                                      : userStats.xp >= item.price
-                                        ? "bg-slate-900/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
-                                        : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
-                                }`}
-                              >
-                                <div className="w-12 h-12 mb-3 flex items-center justify-center bg-slate-900/5 rounded-full text-2xl shadow-inner border border-slate-900/5">
-                                  {item.icon}
-                                </div>
                                 <span className="font-bold text-[10px] uppercase tracking-wider text-center">
                                   {item.name}
                                 </span>
