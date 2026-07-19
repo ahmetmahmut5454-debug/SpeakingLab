@@ -38,7 +38,6 @@ import {
   Trophy,
 } from "lucide-react";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from "./lib/eltBot";
-import logoUrl from "./logo.png";
 import { predefinedScenarios } from "./lib/scenarios";
 import {
   auth,
@@ -118,8 +117,6 @@ const SHOP_ITEMS = [
   },
 ];
 
-import { Mascot } from "./components/Mascot";
-import { RoamingPet } from "./components/RoamingPet";
 import { Guide } from "./components/Guide";
 import { ScenarioSelector } from "./components/ScenarioSelector";
 
@@ -256,8 +253,8 @@ export default function App() {
     level: "B1-B2",
     mode: "Practice",
     taskDurationMinutes: 5,
-    objective: "Practice travel-related vocabulary and speaking confidence.",
-    topic: "Talking about daily routines and hobbies. Your name is Alex.",
+    objective: "Speak whatever you like and practice natural conversation.",
+    topic: "Friendly conversation on any topic you like.",
     targetLanguage: "English",
     targetLanguageCode: "en-US",
   });
@@ -611,24 +608,24 @@ export default function App() {
         <header className="flex flex-col md:flex-row justify-between items-center gap-6 pb-8 mb-6 md:mb-10 w-full">
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3 md:gap-5">
-              <div className="relative flex items-center justify-center bg-gradient-to-br from-white to-slate-200 p-1 md:p-1.5 rounded-full shadow-[inset_0_-4px_8px_rgba(0,0,0,0.2),_0_6px_12px_rgba(0,0,0,0.4)] border border-white/50">
-                <img src={logoUrl} alt="University Logo" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] object-contain" />
-              </div>
               <div 
                 className="relative group cursor-pointer z-50"
-                onMouseEnter={() => setIsMascotHovered(true)}
-                onMouseLeave={() => setIsMascotHovered(false)}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-2xl group-hover:blur-xl group-hover:bg-blue-400/40 transition-all duration-500" />
-                <div className="relative bg-blue-950 p-2 md:p-3.5 rounded-2xl border border-white/10 shadow-2xl transition-colors duration-500 group-hover:bg-blue-900 group-hover:border-blue-400/50">
-                  <Mascot
-                    className="w-12 h-12 md:w-16 md:h-16 group-hover:scale-[1.7] group-hover:-translate-y-5 group-hover:translate-x-2 transition-all duration-500 origin-bottom drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
-                    outfit={userStats?.equippedOutfit}
-                    isGreeting={isMascotHovered}
-                  />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-full group-hover:blur-xl group-hover:bg-blue-400/40 transition-all duration-500" />
+                <div className="relative bg-blue-950 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/10 shadow-2xl transition-all duration-500 group-hover:bg-blue-900 group-hover:border-blue-400/50 overflow-hidden flex items-center justify-center">
+                  {user?.photoURL ? (
+                    <img 
+                      src={user.photoURL} 
+                      alt="User Profile" 
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                    />
+                  ) : (
+                    <UserCircle className="w-8 h-8 md:w-10 md:h-10 text-slate-300 transition-transform duration-500 group-hover:scale-110 group-hover:text-white" />
+                  )}
                 </div>
                 {userStats?.equippedBadge && (
-                  <div className="absolute -bottom-2 -right-2 bg-blue-900 border border-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg">
+                  <div className="absolute -bottom-1 -right-1 bg-blue-900 border border-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg z-10">
                     {
                       SHOP_ITEMS.find((i) => i.id === userStats.equippedBadge)
                         ?.icon
@@ -852,6 +849,7 @@ export default function App() {
                   <img
                     src={user.photoURL || ""}
                     alt="Profile"
+                    referrerPolicy="no-referrer"
                     className="w-5 h-5 rounded-full"
                   />
                   Sign Out
@@ -1039,8 +1037,25 @@ export default function App() {
           </div>
 
           {/* Controls */}
-          <div className="flex flex-col items-center gap-8 mt-4 z-10">
-            <div className="flex flex-wrap items-center justify-center gap-4 w-full max-w-2xl">
+          <div className="flex flex-col items-center gap-6 mt-4 z-10 w-full max-w-2xl">
+            {isRunning && context.mode === "Task" && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/80 backdrop-blur-md border border-slate-200/50 rounded-2xl p-4 w-full text-center shadow-lg"
+              >
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600 mb-2 font-extrabold">Key Vocabulary to Practice</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {predefinedScenarios.find(s => s.id === context.scenarioId)?.vocabulary?.map((word, idx) => (
+                    <span key={idx} className="px-3 py-1.5 bg-indigo-50/50 border border-indigo-100 rounded-lg text-xs font-bold text-indigo-700 shadow-sm transition-transform duration-200">
+                      {word}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-center gap-4 w-full">
               <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-700 mb-1 text-center">
                   Scenario
@@ -1462,6 +1477,7 @@ export default function App() {
                             <img
                               src={stat.photoURL}
                               alt="Profile"
+                              referrerPolicy="no-referrer"
                               className="w-10 h-10 rounded-full border border-slate-900/10"
                             />
                           ) : (
@@ -1622,7 +1638,9 @@ export default function App() {
                               : "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
                           }`}
                         >
-                          <Mascot className="w-12 h-12 mb-3 drop-shadow-lg" />
+                          <div className="w-12 h-12 mb-3 flex items-center justify-center bg-slate-900/5 rounded-full text-2xl shadow-inner border border-slate-900/5">
+                            👤
+                          </div>
                           <span className="font-bold text-[10px] uppercase tracking-wider">
                             Default
                           </span>
@@ -1651,10 +1669,9 @@ export default function App() {
                                         : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
                                 }`}
                               >
-                                <Mascot
-                                  className="w-12 h-12 mb-3 drop-shadow-md opacity-80"
-                                  outfit={item.id}
-                                />
+                                <div className="w-12 h-12 mb-3 flex items-center justify-center bg-slate-900/5 rounded-full text-2xl shadow-inner border border-slate-900/5">
+                                  {item.icon}
+                                </div>
                                 <span className="font-bold text-[10px] uppercase tracking-wider text-center">
                                   {item.name}
                                 </span>
@@ -1710,10 +1727,9 @@ export default function App() {
               >
                 <div className="bg-white border border-slate-900/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
-                  <Mascot
-                    className="w-16 h-16 mx-auto mb-6 drop-shadow-lg"
-                    outfit={userStats?.equippedOutfit}
-                  />
+                  <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-emerald-500/10">
+                    🎓
+                  </div>
                   <h2 className="text-xl font-bold tracking-tight mb-2">
                     Let's do practice together!
                   </h2>
@@ -1921,7 +1937,13 @@ export default function App() {
                 scenarioId: scenario.id,
               });
             } else {
-              setContext({ ...context, mode: "Practice", scenarioId: undefined });
+              setContext({ 
+                ...context, 
+                mode: "Practice", 
+                scenarioId: undefined,
+                topic: "Friendly conversation on any topic you like.",
+                objective: "Speak whatever you like and practice natural conversation."
+              });
             }
           }}
         />
@@ -1930,7 +1952,6 @@ export default function App() {
            if (context.mode === "Task") setShowPreTask(true);
            else toggleBot();
         }} />
-        <RoamingPet outfit={userStats?.equippedOutfit} />
       </main>
     </div>
   );

@@ -9,6 +9,7 @@ export interface Scenario {
   icebreaker?: string;
   vocabulary?: string[];
   studentBriefing?: string;
+  imageUrl?: string;
 }
 
 export const predefinedScenarios: Scenario[] = [
@@ -20,7 +21,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "station",
     topic: "You are an English language assessment agent. Target CEFR: A2. Role: A strict train station worker. Speak simply. Never break character.",
     icebreaker: "Next please! Your ticket is giving a red light. What is the problem?",
-    vocabulary: ["Ticket", "Broken", "Gate", "Problem", "Help"],
+    vocabulary: ["Ticket", "Broken", "Gate", "Problem", "Help", "Platform"],
     studentBriefing: "You are at the Ankara train station. You want to go to Istanbul, but the security gate gives a red light. Your ticket barcode is not working. Go to the worker at the ticket desk, explain the problem, and find a way to go to Istanbul today.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Wait for the student to explain the problem (e.g., "My ticket is not working", "The gate is red").
@@ -40,7 +41,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: A2. Role: A close friend. Speak simply and casually. Your goal is to make the user justify their choices.",
     icebreaker: "Hey! I am so hungry. We need to decide where to eat.",
-    vocabulary: ["Prefer", "Because", "Expensive", "Walk", "Taxi"],
+    vocabulary: ["Prefer", "Because", "Expensive", "Walk", "Taxi", "Cuisine"],
     studentBriefing: "You are planning to go out for dinner with a friend. Your friend will offer you some choices. You must decide what you prefer and naturally explain WHY (justify your choices).",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - CHOICE 1 (Food): "Do you want to eat at the fast-food Burger place, or the quiet Vegan cafe? Which one do you prefer and why?"
@@ -58,7 +59,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "support",
     topic: "You are an English language assessment agent. Your name is Burak. Target CEFR: B1/B2. Use moderate vocabulary. Speak strictly.",
     icebreaker: "Cargo Customer Service, how can I help you?",
-    vocabulary: ["Refund", "Empty", "Prove", "Package", "Weight"],
+    vocabulary: ["Refund", "Empty", "Prove", "Package", "Weight", "Compensation"],
     studentBriefing: "You bought a very expensive phone online, but when you opened the box, it was completely empty! Talk to the customer service agent, explain the problem, and demand a refund.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Wait for them to explain the empty phone box.
@@ -77,7 +78,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "roommate",
     topic: "You are an English language assessment agent. Your name is Zeynep. Target CEFR: B1/B2. Use language for expressing opinions, agreeing, disagreeing.",
     icebreaker: "We need to talk about cleaning and chores.",
-    vocabulary: ["Fair", "Split", "Chores", "Grocery", "Guest"],
+    vocabulary: ["Fair", "Split", "Chores", "Grocery", "Guest", "Responsibility"],
     studentBriefing: "You and a roommate are moving into a student apartment. You need to agree on who cleans the house, who cooks, and who buys the groceries. Negotiate fairly and properly distribute the chores.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Wait for their proposal on dividing the chores.
@@ -96,7 +97,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "mayor",
     topic: "You are an English language assessment agent. Your name is Mayor Yılmaz. Target CEFR: C1. Use formal, diplomatic, bureaucratic language.",
     icebreaker: "Welcome to my office. Let's hear your proposal.",
-    vocabulary: ["Proposal", "Infrastructure", "Consequence", "Compromise", "Budget"],
+    vocabulary: ["Proposal", "Infrastructure", "Consequence", "Compromise", "Budget", "Feasible"],
     studentBriefing: "You requested a meeting with the Mayor of your city. You have a major proposal (like building a park, a new factory, or a university). Pitch your idea, explain its benefits, and defend it against potential criticism.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Listen to their specific project proposal.
@@ -113,7 +114,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "investor",
     topic: "You are an English language assessment agent. Your name is Mr. Demir. Target CEFR: C1. Use sophisticated business vocabulary and sharp language.",
     icebreaker: "You have two minutes. Convince me.",
-    vocabulary: ["Revenue", "Vulnerable", "Competitor", "Defensible", "Scalable"],
+    vocabulary: ["Revenue", "Vulnerable", "Competitor", "Defensible", "Scalable", "Profitability"],
     studentBriefing: "You are an entrepreneur. You are pitching a new startup idea (like an app or a service) to a tough billionaire investor. Explain your business and convince them to invest.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Listen to their startup pitch.
@@ -130,7 +131,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: C1. Use formal academic register.",
     icebreaker: "Thank you for the presentation. I do have a question about your methodology...",
-    vocabulary: ["Limitation", "Sample size", "Address", "Future work", "Methodology"],
+    vocabulary: ["Limitation", "Sample size", "Address", "Future work", "Methodology", "Validity"],
     studentBriefing: "You've just given a conference talk. An audience member challenges your sample size or methodology. Justify your choice, concede real limitations, and propose how future work could address it without sounding defensive.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Play an audience member who challenges the sample size or methodology.
@@ -146,7 +147,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: B2. Use conversational academic register.",
     icebreaker: "Great venue, isn't it? Did you travel far to get here?",
-    vocabulary: ["Presentation", "Research", "Fascinating", "Focus", "Colleague"],
+    vocabulary: ["Presentation", "Research", "Fascinating", "Focus", "Colleague", "Networking"],
     studentBriefing: "Coffee break at a conference. You don't know anyone here. Someone makes small talk. Handle the small talk, then give a two-minute, jargon-light pitch of your research.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Open with small talk (the venue, the travel, the last session).
@@ -163,7 +164,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: C1. Use academic discussion register.",
     icebreaker: "I read your paper, but I have a fundamentally different interpretation of your data.",
-    vocabulary: ["Interpretation", "Evidence", "Contradict", "Variable", "Alternative"],
+    vocabulary: ["Interpretation", "Evidence", "Contradict", "Variable", "Alternative", "Hypothesis"],
     studentBriefing: "A reading group or workshop. A colleague disagrees with your interpretation of your own data. Take the counter-argument seriously, defend your interpretation, and try to reach an agreement.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Offer a competing reading of the data.
@@ -180,7 +181,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: B2/C1. Play a student who receives poor grades.",
     icebreaker: "Hi Professor, you wanted to see me about my essay?",
-    vocabulary: ["Rubric", "Constructive", "Revision", "Improve", "Feedback"],
+    vocabulary: ["Rubric", "Constructive", "Revision", "Improve", "Feedback", "Evaluation"],
     studentBriefing: "A student has submitted noticeably weak work. Deliver criticism constructively, keep the student motivated, and leave with a concrete revision plan.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Play the student.
@@ -197,7 +198,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: B2. Play a journalist.",
     icebreaker: "So, I'm doing a piece for the daily news. Can you explain what your research is actually about?",
-    vocabulary: ["Simply put", "Oversimplify", "Crucial", "Accurate", "Headline"],
+    vocabulary: ["Simply put", "Oversimplify", "Crucial", "Accurate", "Headline", "Perspective"],
     studentBriefing: "A journalist asks about your work for a general audience. Explain the research without jargon, and correct their oversimplification without sounding condescending.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Ask a naive but genuine question.
@@ -213,7 +214,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: C1. Play a skeptical hiring panel member.",
     icebreaker: "That was an interesting talk. However, why does this research direction deserve funding?",
-    vocabulary: ["Significance", "Direction", "Funding", "Impact", "Candidate"],
+    vocabulary: ["Significance", "Direction", "Funding", "Impact", "Candidate", "Contribution"],
     studentBriefing: "You're interviewing for a lectureship. A skeptical panel member asks why your research deserves funding or a permanent position. Make a persuasive case.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Play a skeptical panel member.
@@ -229,7 +230,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: B1/B2. Play a rule-bound admin officer.",
     icebreaker: "Next please. Let me see your enrollment forms.",
-    vocabulary: ["Form", "Missing", "Alternative", "Deadline", "Process"],
+    vocabulary: ["Form", "Missing", "Alternative", "Deadline", "Process", "Signature"],
     studentBriefing: "You're finishing enrollment, but a document is missing or incorrect. The admin officer is unhelpful. Explain the situation clearly and get the officer to tell you an alternative path.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Play a rule-bound admin officer. State the rule plainly (e.g., "You are missing the original stamp").
@@ -245,7 +246,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: B2. Play a landlord.",
     icebreaker: "So, this is the room. Very sunny, very close to the university. What do you think?",
-    vocabulary: ["Damp", "Noise", "Negotiate", "Fix", "Rent"],
+    vocabulary: ["Damp", "Noise", "Negotiate", "Fix", "Rent", "Utilities"],
     studentBriefing: "You like a room, but notice a damp patch or street noise. Raise the concern diplomatically and negotiate the price or a fix before agreeing.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Play a landlord who's mildly evasive about a problem in the room.
@@ -261,7 +262,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: B1. Play a local doctor or pharmacist.",
     icebreaker: "Hello. What seems to be the problem today?",
-    vocabulary: ["Symptom", "Dosage", "Prescription", "Pain", "Clarify"],
+    vocabulary: ["Symptom", "Dosage", "Prescription", "Pain", "Clarify", "Diagnosis"],
     studentBriefing: "You feel unwell. Describe your symptoms. The doctor will give instructions that include an unfamiliar term. Ask for clarification until you understand.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Ask follow-up questions about the symptoms.
@@ -277,7 +278,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: A2/B1. Play another exchange student.",
     icebreaker: "Hey, are you new here too? Where are you from?",
-    vocabulary: ["Invite", "Inconvenient", "Alternative", "Plan", "Join"],
+    vocabulary: ["Invite", "Inconvenient", "Alternative", "Plan", "Join", "Schedule"],
     studentBriefing: "Orientation week. Keep the small talk going, then respond to an invitation that has an inconvenient detail (like bad timing or high cost).",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Open with small talk.
@@ -293,7 +294,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: B2. Play a university professor.",
     icebreaker: "Hello, come in. You had questions about the assessment format?",
-    vocabulary: ["Assessment", "Format", "Resit", "Extension", "System"],
+    vocabulary: ["Assessment", "Format", "Resit", "Extension", "System", "Syllabus"],
     studentBriefing: "The assessment format is completely different from your home university. Ask clarifying questions to understand the system and edge cases.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Give a brief, fairly technical explanation of the local grading system.
@@ -309,7 +310,7 @@ export const predefinedScenarios: Scenario[] = [
     role: "default",
     topic: "You are an English language assessment agent. Target CEFR: A2/B1. Play a bank employee.",
     icebreaker: "Welcome to the branch. How can I help you?",
-    vocabulary: ["Account", "Requirement", "Deposit", "Fee", "Document"],
+    vocabulary: ["Account", "Requirement", "Deposit", "Fee", "Document", "Transaction"],
     studentBriefing: "You need a local account. Provide information, and navigate an unexpected extra requirement (like proof of address) mentioned halfway through.",
     objective: `STRICT SCENARIO INSTRUCTIONS:
 - Play a bank employee asking for info step-by-step.
