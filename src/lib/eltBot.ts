@@ -423,19 +423,28 @@ export class EltBot {
             ${transcriptToUse.join("\n")}
             -------------------------------
 
-            Provide a highly structured, constructive feedback report strictly categorized as follows:
+            Provide a highly structured, constructive feedback report using the following exact Markdown format:
 
-            ### 1. Overall & CEFR Assessment
-            (Meeting goal? General impression)
+            ### 🎯 Overall Assessment
+            * **Goal Achievement:** [Did they meet the goal?]
+            * **CEFR Level:** [Estimated level]
+            * **General Impression:** [Summary]
 
-            ### 2. Pronunciation & Fluency
-            (Clarity and pacing)
+            ### 🗣️ Pronunciation & Fluency
+            * **Clarity:** [Feedback]
+            * **Pacing:** [Feedback]
+            * **Intonation:** [Feedback]
 
-            ### 3. Grammar & Vocabulary
-            (Key corrections or strengths)
+            ### 📚 Grammar & Vocabulary
+            | Aspect | Feedback | Examples |
+            |--------|----------|----------|
+            | **Grammar** | [Strengths/Corrections] | [Example] |
+            | **Vocabulary** | [Strengths/Corrections] | [Example] |
 
-            ### 4. Next Steps
-            (Key focus areas)
+            ### 🚀 Next Steps
+            * [Actionable tip 1]
+            * [Actionable tip 2]
+            * [Actionable tip 3]
           `
         });
 

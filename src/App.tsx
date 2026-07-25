@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import Markdown from "react-markdown";
 import {
   Settings,
   Mic,
@@ -267,6 +268,7 @@ export default function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showScenarioSelector, setShowScenarioSelector] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<UserStats[]>([]);
+  const [leaderboardPeriod, setLeaderboardPeriod] = useState<"daily" | "monthly" | "allTime">("daily");
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [pastReports, setPastReports] = useState<LocalReport[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -516,12 +518,18 @@ export default function App() {
     }
   };
 
-  const loadLeaderboard = async () => {
+  const loadLeaderboard = async (period: "daily" | "monthly" | "allTime" = leaderboardPeriod) => {
     setLoadingLeaderboard(true);
-    const data = await getLeaderboard(20);
+    const data = await getLeaderboard(period, 20);
     setLeaderboardData(data);
     setLoadingLeaderboard(false);
   };
+
+  useEffect(() => {
+    if (showLeaderboard) {
+      loadLeaderboard(leaderboardPeriod);
+    }
+  }, [showLeaderboard, leaderboardPeriod]);
 
   const loadReports = async () => {
     setLoadingHistory(true);
@@ -1367,11 +1375,9 @@ export default function App() {
                         <div className="text-xs uppercase tracking-widest text-slate-600/50 border-l-2 border-indigo-500/50 pl-3">
                           {r.topic}
                         </div>
-                        <div className="prose prose-invert prose-sm text-slate-600/80 mt-2">
+                        <div className="markdown-body text-sm text-slate-300 mt-2">
                           {r.reportText ? (
-                            r.reportText.split("\n").map((line, i) => (
-                              <p key={i}>{line}</p>
-                            ))
+                            <Markdown>{r.reportText}</Markdown>
                           ) : (
                             <div className="flex flex-col items-center gap-4 py-8 bg-slate-900/5 rounded-xl border border-dashed border-slate-900/20">
                               <Sparkles className="w-8 h-8 text-indigo-400 animate-pulse" />
@@ -1412,16 +1418,16 @@ export default function App() {
               className="absolute inset-0 z-50 bg-[#f7fdfc]/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8"
             >
               <div className="w-full max-w-lg bg-white border border-yellow-500/10 rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
                       <Trophy className="w-5 h-5 text-emerald-500" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-light text-yellow-50 tracking-tight">
+                      <h2 className="text-xl font-light text-slate-800 tracking-tight">
                         Leaderboard
                       </h2>
-                      <p className="text-xs text-yellow-500/50 uppercase tracking-widest mt-1">
+                      <p className="text-xs text-slate-500 uppercase tracking-widest mt-1">
                         Global Rankings
                       </p>
                     </div>
@@ -1434,9 +1440,25 @@ export default function App() {
                   </button>
                 </div>
 
+                <div className="flex justify-center gap-2 mb-6 border-b border-slate-100 pb-4">
+                  {(["daily", "monthly", "allTime"] as const).map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => setLeaderboardPeriod(period)}
+                      className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
+                        leaderboardPeriod === period
+                          ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      {period === "allTime" ? "All Time" : period}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 pr-2">
                   {loadingLeaderboard ? (
-                    <div className="flex-1 flex items-center justify-center text-yellow-500/50 uppercase tracking-widest text-sm animate-pulse">
+                    <div className="flex-1 flex items-center justify-center text-emerald-500/50 uppercase tracking-widest text-sm animate-pulse">
                       Loading Ranks...
                     </div>
                   ) : leaderboardData.length === 0 ? (
@@ -1447,10 +1469,23 @@ export default function App() {
                       </p>
                     </div>
                   ) : (
-                    leaderboardData.map((stat, idx) => (
+                    leaderboardData.map((stat, idx) => {
+                      const today = new Date();
+                      today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+                      const todayStr = today.toISOString().split("T")[0];
+                      const currentMonthStr = todayStr.substring(0, 7);
+                      
+                      const displayScore =
+                        leaderboardPeriod === "daily"
+                          ? stat.daily?.[todayStr] || 0
+                          : leaderboardPeriod === "monthly"
+                          ? stat.monthly?.[currentMonthStr] || 0
+                          : stat.xp;
+
+                      return (
                       <div
                         key={stat.userId}
-                        className={`p-4 rounded-xl flex items-center justify-between border ${stat.userId === user?.uid ? "bg-yellow-500/10 border-yellow-500/20" : "bg-white/50 border-slate-900/5"} transition-all`}
+                        className={`p-4 rounded-xl flex items-center justify-between border ${stat.userId === user?.uid ? "bg-emerald-500/10 border-emerald-500/20" : "bg-white/50 border-slate-900/5"} transition-all`}
                       >
                         <div className="flex items-center gap-4">
                           <div
@@ -1474,7 +1509,7 @@ export default function App() {
                             <span className="font-semibold text-slate-600/90 text-sm">
                               {stat.displayName || "Unknown Scholar"}
                               {stat.userId === user?.uid && (
-                                <span className="ml-2 text-[10px] uppercase text-yellow-500/70 border border-yellow-500/30 px-1.5 py-0.5 rounded-full">
+                                <span className="ml-2 text-[10px] uppercase text-emerald-500/70 border border-emerald-500/30 px-1.5 py-0.5 rounded-full">
                                   You
                                 </span>
                               )}
@@ -1485,7 +1520,7 @@ export default function App() {
                                 {stat.streak} Day Flow
                               </span>
                               {stat.equippedBadge && (
-                                <span className="text-sm bg-black/20 rounded-full px-1">
+                                <span className="text-sm bg-black/5 rounded-full px-1">
                                   {SHOP_ITEMS.find(
                                     (i) => i.id === stat.equippedBadge,
                                   )?.icon || ""}
@@ -1494,14 +1529,15 @@ export default function App() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-1.5 text-emerald-400">
-                          <span className="font-black text-lg">{stat.xp}</span>
-                          <span className="text-[10px] uppercase tracking-widest font-bold opacity-70">
+                        <div className="flex flex-col items-end gap-0.5 text-emerald-500">
+                          <span className="font-black text-lg leading-none">{displayScore}</span>
+                          <span className="text-[9px] uppercase tracking-widest font-bold opacity-50">
                             Points
                           </span>
                         </div>
                       </div>
-                    ))
+                    );
+                    })
                   )}
                 </div>
               </div>

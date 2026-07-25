@@ -74,6 +74,8 @@ export interface UserStats {
   todaySessions: number;
   todayTaskSessions?: number;
   xp: number;
+  daily?: Record<string, number>;
+  monthly?: Record<string, number>;
   unlockedItems?: string[];
   equippedBadge?: string;
   equippedOutfit?: string;
@@ -86,12 +88,17 @@ const getLocalDateString = (): string => {
   return d.toISOString().split("T")[0];
 };
 
+const getLocalMonthString = (): string => {
+  return getLocalDateString().substring(0, 7);
+};
+
 export const getUserStats = async (): Promise<UserStats | null> => {
   if (!auth.currentUser) return null;
   try {
     const docRef = doc(db, "userStats", auth.currentUser.uid);
     const snap = await getDocFromServer(docRef);
     const today = getLocalDateString();
+    const currentMonth = getLocalMonthString();
 
     if (snap.exists()) {
       const data = snap.data() as UserStats;
@@ -119,10 +126,15 @@ export const getUserStats = async (): Promise<UserStats | null> => {
           data.streak = 0;
           needsUpdate = true;
         }
+      }
 
-        // Note: We deliberately DON'T update lastActiveDate to today here.
-        // It's updated only in updateGamificationStats when a session is completed.
-        // This avoids breaking the streak increment logic.
+      if (!data.daily) {
+        data.daily = {};
+        needsUpdate = true;
+      }
+      if (!data.monthly) {
+        data.monthly = {};
+        needsUpdate = true;
       }
 
       if (!data.unlockedItems) {
@@ -154,10 +166,12 @@ export const getUserStats = async (): Promise<UserStats | null> => {
       const defaultStats: UserStats = {
         userId: auth.currentUser.uid,
         streak: 0,
-        lastActiveDate: getLocalDateString(),
+        lastActiveDate: today,
         todaySessions: 0,
         todayTaskSessions: 0,
         xp: 0,
+        daily: { [today]: 0 },
+        monthly: { [currentMonth]: 0 },
         unlockedItems: ["outfit_default"],
         equippedBadge: "",
         equippedOutfit: "outfit_default",
@@ -209,6 +223,7 @@ export const updateGamificationStats = async (
   if (!auth.currentUser) return;
   const uid = auth.currentUser.uid;
   const today = getLocalDateString();
+  const currentMonth = getLocalMonthString();
   const docRef = doc(db, "userStats", uid);
 
   try {
@@ -221,7 +236,9 @@ export const updateGamificationStats = async (
       lastActiveDate: today,
       todaySessions: 1,
       todayTaskSessions: mode === "Task" ? 1 : 0,
-      xp: 50, // 50 XP per session
+      xp: 50,
+      daily: { [today]: 50 },
+      monthly: { [currentMonth]: 50 },
       unlockedItems: ["outfit_default"],
       equippedBadge: "",
       equippedOutfit: "outfit_default",
@@ -243,6 +260,10 @@ export const updateGamificationStats = async (
       let newTodaySessions = existing.todaySessions || 0;
       let newTodayTaskSessions = existing.todayTaskSessions || 0;
       let newXp = existing.xp || 0;
+      let newDaily = existing.daily || {};
+      let newMonthly = existing.monthly || {};
+      
+      let xpGained = 0;
 
       console.log(`Gamification Update - Last Active: ${lastDate}, Today: ${today}, Yesterday: ${yesterdayStr}`);
 
@@ -252,45 +273,48 @@ export const updateGamificationStats = async (
         if (mode === "Task") {
           newTodayTaskSessions += 1;
         }
-        newXp += 50; 
+        xpGained += 50; 
       } else if (lastDate === yesterdayStr) {
         console.log("Activity detected on consecutive day. Incrementing streak.");
         newStreak += 1;
         newTodaySessions = 1;
         newTodayTaskSessions = mode === "Task" ? 1 : 0;
-        newXp += 50;
+        xpGained += 50;
       } else {
         console.log("Streak broken or new user. Setting streak to 1.");
         newStreak = 1;
         newTodaySessions = 1;
         newTodayTaskSessions = mode === "Task" ? 1 : 0;
-        newXp += 50;
+        xpGained += 50;
       }
 
       // Bonus XP for new sessions
       if (lastDate === today) {
         // Daily quest 1: 3 total conversations
         if (newTodaySessions === 3) {
-          newXp += 200; // Bonus 200 XP!
+          xpGained += 200; // Bonus 200 XP!
           console.log("Daily quest completed! +200 XP");
         }
 
         // Daily quest 2: 2 TBLT (Task) conversations
         if (mode === "Task" && newTodayTaskSessions === 2) {
-          newXp += 300; // Bonus 300 XP
+          xpGained += 300; // Bonus 300 XP
           console.log("Task quest completed! +300 XP");
         }
       } else if (lastDate === yesterdayStr) {
         // Streak milestones
         if (newStreak === 3) {
-          newXp += 150;
+          xpGained += 150;
           console.log("Streak 3 days! +150 XP");
         }
         if (newStreak === 7) {
-          newXp += 500;
+          xpGained += 500;
           console.log("Streak 7 days! +500 XP");
         }
       }
+
+      newDaily[today] = (newDaily[today] || 0) + xpGained;
+      newMonthly[currentMonth] = (newMonthly[currentMonth] || 0) + xpGained;
 
       stats = {
         userId: uid,
@@ -303,7 +327,9 @@ export const updateGamificationStats = async (
         lastActiveDate: today,
         todaySessions: newTodaySessions,
         todayTaskSessions: newTodayTaskSessions,
-        xp: newXp,
+        xp: newXp + xpGained,
+        daily: newDaily,
+        monthly: newMonthly,
         unlockedItems: existing.unlockedItems || ["outfit_default"],
         equippedBadge: existing.equippedBadge || "",
         equippedOutfit: existing.equippedOutfit || "outfit_default",
@@ -321,14 +347,34 @@ export const updateGamificationStats = async (
 
 // Fetch Top Users
 export const getLeaderboard = async (
+  period: "daily" | "monthly" | "allTime" = "allTime",
   limitCount: number = 10,
 ): Promise<UserStats[]> => {
   try {
-    const q = query(
-      collection(db, "userStats"),
-      orderBy("xp", "desc"),
-      limit(limitCount), // Note: using 100 limit here locally in our codebase we can do more but 10 is standard
-    );
+    let q;
+    const today = getLocalDateString();
+    const currentMonth = getLocalMonthString();
+
+    if (period === "daily") {
+      q = query(
+        collection(db, "userStats"),
+        orderBy(`daily.${today}`, "desc"),
+        limit(limitCount),
+      );
+    } else if (period === "monthly") {
+      q = query(
+        collection(db, "userStats"),
+        orderBy(`monthly.${currentMonth}`, "desc"),
+        limit(limitCount),
+      );
+    } else {
+      q = query(
+        collection(db, "userStats"),
+        orderBy("xp", "desc"),
+        limit(limitCount),
+      );
+    }
+    
     const snap = await getDocs(q);
     return snap.docs.map((doc) => doc.data() as UserStats);
   } catch (error) {
