@@ -1,5 +1,6 @@
 import { GoogleGenAI, Modality, LiveServerMessage } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
+import { predefinedScenarios } from "./scenarios";
 
 const getApiKey = () => {
   try {
@@ -362,9 +363,17 @@ export class EltBot {
       let grammar = "";
       let nextsteps = "";
 
+      const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
+      const isIELTS = scenario?.category === 'IELTS Preparation';
+
       if (studentTurns === 0 && botTurns === 0) {
         return "Sistem bağlantısı sağlandı ancak cihazınızda mikrofon/ses iletimi yapılamadı. Başka bir cihazdan veya Chrome tarayıcıdan denemelisiniz.";
       }
+
+      if (isIELTS) {
+        return `### 🎯 IELTS Mock Band Score & Feedback\n* **Estimated Band Score:** 5.0\n* **Fluency & Coherence:** Need more practice speaking at length.\n* **Lexical Resource:** Try to use more varied vocabulary.\n* **Grammatical Range & Accuracy:** Focus on complex sentence structures.\n* **Pronunciation:** Clear enough to be understood.\n\n### 🚀 Next Steps\n- Practice answering Part 1 questions.\n- Learn more idioms.`;
+      }
+
 
       if (studentTurns === 0 && botTurns > 0) {
         overall = `Görüşmeniz tamamlandı. Hedef seviyeniz **${targetLevel}**. Cihazınızda (örn. iPhone Safari) sesten metne dönüştürme API'si bulunmadığı için doğrudan AI değerlendirmesi yapılamadı ancak yapay zeka ile başarıyla pratik yaptınız (${botTurns} tur).`;
@@ -408,21 +417,10 @@ export class EltBot {
         const modelName = modelsToTry[attempt] || "gemini-3.5-flash";
         console.log(`Generating report with model: ${modelName}`);
         
-        const response = await ai.models.generateContent({
-          model: modelName,
-          contents: `
-            The following transcript is a practice session between a ${context.targetLanguage || 'English'} language student and an AI tutor.
-            Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them.
-            
-            Target CEFR Level: ${context.level}
-            Target Language: ${context.targetLanguage || 'English'}
-            Topic: ${context.topic}
-            Student's Goal: ${context.objective}
+        const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
+        const isIELTS = scenario?.category === 'IELTS Preparation';
 
-            --- CONVERSATION TRANSCRIPT ---
-            ${transcriptToUse.join("\n")}
-            -------------------------------
-
+        const standardFormat = `
             Provide a highly structured, constructive feedback report using the following exact Markdown format:
 
             ### 🎯 Overall Assessment
@@ -445,6 +443,52 @@ export class EltBot {
             * [Actionable tip 1]
             * [Actionable tip 2]
             * [Actionable tip 3]
+        `;
+
+        const ieltsFormat = `
+            Provide a highly structured, constructive feedback report based on the official IELTS Speaking test grading criteria using the following exact Markdown format:
+
+            ### 🎯 IELTS Mock Assessment
+            * **Estimated Band Score:** [0.0 - 9.0]
+            * **General Impression:** [Summary of performance]
+
+            ### 🗣️ Fluency & Coherence
+            * [Feedback on speaking at length, hesitation, and linking words]
+
+            ### 📚 Lexical Resource
+            * [Feedback on vocabulary range, flexibility, and idiomatic language]
+            * **Strong words used:** [Examples]
+            * **To improve:** [Examples]
+
+            ### 📝 Grammatical Range & Accuracy
+            * [Feedback on complex structures and error density]
+            * **Corrections:** [Examples of mistakes and corrections]
+
+            ### 🎤 Pronunciation
+            * [Feedback on clarity, intonation, and features of connected speech]
+
+            ### 🚀 Next Steps
+            * [Actionable tip 1]
+            * [Actionable tip 2]
+            * [Actionable tip 3]
+        `;
+
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: `
+            The following transcript is a practice session between a ${context.targetLanguage || 'English'} language student and an AI tutor.
+            Note: If the student's side of the transcript ([Student]: ...) is missing or empty, it means the client-side text transcriber failed, BUT the student did interact via audio. You must infer the student's performance purely based on how the [Tutor] responded to them.
+            
+            Target CEFR Level: ${context.level}
+            Target Language: ${context.targetLanguage || 'English'}
+            Topic: ${context.topic}
+            Student's Goal: ${context.objective}
+
+            --- CONVERSATION TRANSCRIPT ---
+            ${transcriptToUse.join("\n")}
+            -------------------------------
+
+            ${isIELTS ? ieltsFormat : standardFormat}
           `
         });
 

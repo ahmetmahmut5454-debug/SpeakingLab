@@ -1482,6 +1482,15 @@ export default function App() {
                           ? stat.monthly?.[currentMonthStr] || 0
                           : stat.xp;
 
+                      const yesterday = new Date();
+                      yesterday.setDate(yesterday.getDate() - 1);
+                      yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
+                      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+                      const effectiveStreak = (stat.lastActiveDate === todayStr || stat.lastActiveDate === yesterdayStr) 
+                        ? (stat.streak || 0) 
+                        : 0;
+
                       return (
                       <div
                         key={stat.userId}
@@ -1516,8 +1525,8 @@ export default function App() {
                             </span>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="text-xs text-slate-600/40 flex items-center gap-1">
-                                <Flame className="w-3 h-3 text-orange-400" />{" "}
-                                {stat.streak} Day Flow
+                                <Flame className={`w-3 h-3 ${effectiveStreak > 0 ? "text-orange-400" : "text-slate-300"}`} />{" "}
+                                {effectiveStreak} Day Flow
                               </span>
                               {stat.equippedBadge && (
                                 <span className="text-sm bg-black/5 rounded-full px-1">
