@@ -421,23 +421,22 @@ export class EltBot {
         const isIELTS = scenario?.category === 'IELTS Preparation';
 
         const standardFormat = `
-            Provide a highly structured, constructive feedback report using the following exact Markdown format:
+            Provide a highly structured, constructive feedback report for a general language practice session using the following exact Markdown format:
 
-            ### 🎯 Overall Assessment
-            * **Goal Achievement:** [Did they meet the goal?]
-            * **CEFR Level:** [Estimated level]
-            * **General Impression:** [Summary]
+            ### 🎯 Session Assessment
+            * **Goal Achievement:** [Did they meet their goal for this session?]
+            * **Estimated Level:** [CEFR Level]
+            * **General Impression:** [Summary of performance]
 
-            ### 🗣️ Pronunciation & Fluency
-            * **Clarity:** [Feedback]
-            * **Pacing:** [Feedback]
-            * **Intonation:** [Feedback]
+            ### 🗣️ Fluency & Pronunciation
+            * [Feedback on clarity, pacing, and overall fluency]
+            * **Strengths:** [Examples]
+            * **To improve:** [Examples]
 
             ### 📚 Grammar & Vocabulary
-            | Aspect | Feedback | Examples |
-            |--------|----------|----------|
-            | **Grammar** | [Strengths/Corrections] | [Example] |
-            | **Vocabulary** | [Strengths/Corrections] | [Example] |
+            * [Feedback on range of vocabulary and grammatical accuracy]
+            * **Corrections:** [Examples of mistakes and how to fix them]
+            * **New words to learn:** [2-3 useful words/phrases for next time]
 
             ### 🚀 Next Steps
             * [Actionable tip 1]
@@ -447,6 +446,8 @@ export class EltBot {
 
         const ieltsFormat = `
             Provide a highly structured, constructive feedback report based on the official IELTS Speaking test grading criteria using the following exact Markdown format:
+            
+            IMPORTANT: If the Tutor mentioned a specific Band Score at the end of the conversation transcript, you MUST use that exact same score for the "Estimated Band Score". Do not invent a different score.
 
             ### 🎯 IELTS Mock Assessment
             * **Estimated Band Score:** [0.0 - 9.0]

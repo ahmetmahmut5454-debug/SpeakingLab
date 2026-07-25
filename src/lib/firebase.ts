@@ -10,7 +10,7 @@ import {
 import {
   getFirestore,
   doc,
-  getDocFromServer,
+  getDoc,
   collection,
   addDoc,
   query,
@@ -53,7 +53,7 @@ export const logout = async () => {
 // Test initial connection
 const testConnection = async () => {
   try {
-    await getDocFromServer(doc(db, "test", "connection"));
+    await getDoc(doc(db, "test", "connection"));
   } catch (error) {
     if (
       error instanceof Error &&
@@ -96,7 +96,7 @@ export const getUserStats = async (): Promise<UserStats | null> => {
   if (!auth.currentUser) return null;
   try {
     const docRef = doc(db, "userStats", auth.currentUser.uid);
-    const snap = await getDocFromServer(docRef);
+    const snap = await getDoc(docRef);
     const today = getLocalDateString();
     const currentMonth = getLocalMonthString();
 
@@ -196,7 +196,7 @@ export const updateUserPurchase = async (
   try {
     const uid = auth.currentUser.uid;
     const docRef = doc(db, "userStats", uid);
-    const snap = await getDocFromServer(docRef);
+    const snap = await getDoc(docRef);
     if (!snap.exists()) return null;
 
     const stats = snap.data() as UserStats;
@@ -227,7 +227,7 @@ export const updateGamificationStats = async (
   const docRef = doc(db, "userStats", uid);
 
   try {
-    const snap = await getDocFromServer(docRef);
+    const snap = await getDoc(docRef);
     let stats: UserStats = {
       userId: uid,
       displayName: auth.currentUser.displayName || "Unknown Scholar",

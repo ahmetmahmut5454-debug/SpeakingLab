@@ -411,13 +411,17 @@ export default function App() {
 
     // Always give XP for participating, even if report generation (LLM) fails
     if (user) {
-      const stats = await updateGamificationStats(context.mode);
-      if (stats) {
-        setUserStats(stats);
-        setIsStreakAnimating(true);
-        setIsQuestAnimating(true);
-        setTimeout(() => setIsStreakAnimating(false), 3000);
-        setTimeout(() => setIsQuestAnimating(false), 3000);
+      try {
+        const stats = await updateGamificationStats(context.mode);
+        if (stats) {
+          setUserStats(stats);
+          setIsStreakAnimating(true);
+          setIsQuestAnimating(true);
+          setTimeout(() => setIsStreakAnimating(false), 3000);
+          setTimeout(() => setIsQuestAnimating(false), 3000);
+        }
+      } catch (err) {
+        console.error("Failed to update gamification stats during session end:", err);
       }
     }
 
