@@ -345,7 +345,7 @@ export const predefinedScenarios: Scenario[] = [
     title: "IELTS Mock: Emails & hotel",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about emails. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Emails. Part 2: Describe a hotel that you know. Part 3: Staying in hotels & Working in a hotel.",
@@ -354,7 +354,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Emails): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a hotel that you know." Wait for the user's full response.
 - Part 3 (Staying in hotels & Working in a hotel): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_15_2",
@@ -362,7 +362,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Languages & website",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about languages. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Languages. Part 2: Describe a website that you bought something from. Part 3: Shopping online & The culture of consumerism.",
@@ -371,7 +371,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Languages): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a website that you bought something from." Wait for the user's full response.
 - Part 3 (Shopping online & The culture of consumerism): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_15_3",
@@ -379,7 +379,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Swimming & famous",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about swimming. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Swimming. Part 2: Describe a famous business person that you know about. Part 3: Famous people today & Advantages of being famous.",
@@ -388,7 +388,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Swimming): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a famous business person that you know about." Wait for the user's full response.
 - Part 3 (Famous people today & Advantages of being famous): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_15_4",
@@ -396,7 +396,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Jewellery & interesting",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about jewellery. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Jewellery. Part 2: Describe an interesting TV programme you watched about a science topic. Part 3: Science and the public & Scientific discoveries.",
@@ -405,7 +405,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Jewellery): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe an interesting TV programme you watched about a science topic." Wait for the user's full response.
 - Part 3 (Science and the public & Scientific discoveries): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_14_1",
@@ -413,7 +413,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Future & book",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about future. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Future. Part 2: Describe a book that you enjoyed reading because you had to think a lot. Part 3: Children and reading & Electronic books.",
@@ -422,7 +422,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Future): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a book that you enjoyed reading because you had to think a lot." Wait for the user's full response.
 - Part 3 (Children and reading & Electronic books): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_14_2",
@@ -430,7 +430,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Social media & you",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about social media. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Social media. Part 2: Describe something you liked very much which you bought for your home. Part 3: Creating a nice home & Different types of home.",
@@ -439,7 +439,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Social media): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe something you liked very much which you bought for your home." Wait for the user's full response.
 - Part 3 (Creating a nice home & Different types of home): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_14_3",
@@ -447,7 +447,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Neighbors & very",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about neighbors. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Neighbors. Part 2: Describe a very difficult task that you succeeded in doing as part of your work or studies. Part 3: Difficult jobs & Personal and career success.",
@@ -456,7 +456,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Neighbors): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a very difficult task that you succeeded in doing as part of your work or studies." Wait for the user's full response.
 - Part 3 (Difficult jobs & Personal and career success): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_14_4",
@@ -464,7 +464,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Your neighbourhood & website",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about your neighbourhood. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Your neighbourhood. Part 2: Describe a website you have bought something from. Part 3: Shopping online & Online retail businesses.",
@@ -473,7 +473,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Your neighbourhood): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a website you have bought something from." Wait for the user's full response.
 - Part 3 (Shopping online & Online retail businesses): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_13_1",
@@ -481,7 +481,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Television programmes & you",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about television programmes. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Television programmes. Part 2: Describe someone you know who has started a business. Part 3: Choosing work & Work-Life balance.",
@@ -490,7 +490,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Television programmes): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe someone you know who has started a business." Wait for the user's full response.
 - Part 3 (Choosing work & Work-Life balance): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_13_2",
@@ -498,7 +498,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Age & time",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about age. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Age. Part 2: Describe a time when you started using a new technological device. Part 3: Technology and education & Technology and society.",
@@ -507,7 +507,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Age): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a time when you started using a new technological device." Wait for the user's full response.
 - Part 3 (Technology and education & Technology and society): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_13_3",
@@ -515,7 +515,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Money & interesting",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about money. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Money. Part 2: Describe an interesting discussion you had as part of your work or studies. Part 3: Discussing problems with others & Communication skills at work.",
@@ -524,7 +524,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Money): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe an interesting discussion you had as part of your work or studies." Wait for the user's full response.
 - Part 3 (Discussing problems with others & Communication skills at work): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_13_4",
@@ -532,7 +532,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Animals & website",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about animals. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Animals. Part 2: Describe a website you use that helps you a lot in your work or studies. Part 3: The internet & Social media websites.",
@@ -541,7 +541,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Animals): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a website you use that helps you a lot in your work or studies." Wait for the user's full response.
 - Part 3 (The internet & Social media websites): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_12_1",
@@ -549,7 +549,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Health & occasion",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about health. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Health. Part 2: Describe an occasion when you had to wait a long time for someone or something to arrive. Part 3: Arriving early & Being patient.",
@@ -558,7 +558,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Health): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe an occasion when you had to wait a long time for someone or something to arrive." Wait for the user's full response.
 - Part 3 (Arriving early & Being patient): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_12_2",
@@ -566,7 +566,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Songs and singing & film/movie",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about songs and singing. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Songs and singing. Part 2: Describe a film/movie actor from your own county who is very popular. Part 3: Watching films/movies & Theatre.",
@@ -575,7 +575,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Songs and singing): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a film/movie actor from your own county who is very popular." Wait for the user's full response.
 - Part 3 (Watching films/movies & Theatre): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_12_3",
@@ -583,7 +583,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Clothes & interesting",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about clothes. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Clothes. Part 2: Describe an interesting discussion you had about how you spend your money. Part 3: Money and young people & Money and society.",
@@ -592,7 +592,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Clothes): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe an interesting discussion you had about how you spend your money." Wait for the user's full response.
 - Part 3 (Money and young people & Money and society): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_12_4",
@@ -600,7 +600,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Art & time",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about art. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Art. Part 2: Describe a time when you visited a friend or family member at their workplace. Part 3: Different kinds of workplaces & The importance of work.",
@@ -609,7 +609,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Art): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a time when you visited a friend or family member at their workplace." Wait for the user's full response.
 - Part 3 (Different kinds of workplaces & The importance of work): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_11_1",
@@ -617,7 +617,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Food and cooking & house/apartment",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about food and cooking. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Food and cooking. Part 2: Describe a house/apartment someone you know lives in. Part 3: Different types of home & Finding a place to live.",
@@ -626,7 +626,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Food and cooking): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a house/apartment someone you know lives in." Wait for the user's full response.
 - Part 3 (Different types of home & Finding a place to live): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_11_2",
@@ -634,7 +634,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Friends & writer",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about friends. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Friends. Part 2: Describe a writer you would like to meet. Part 3: Reading and children & Reading for different purposes.",
@@ -643,7 +643,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Friends): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a writer you would like to meet." Wait for the user's full response.
 - Part 3 (Reading and children & Reading for different purposes): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_11_3",
@@ -651,7 +651,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Photographs & day",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about photographs. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Photographs. Part 2: Describe a day when you thought the weather was perfect. Part 3: Types of weather & Weather forecast.",
@@ -660,7 +660,7 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Photographs): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a day when you thought the weather was perfect." Wait for the user's full response.
 - Part 3 (Types of weather & Weather forecast): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   },
   {
     id: "ielts_11_4",
@@ -668,7 +668,7 @@ Conduct a full IELTS Speaking test step-by-step.
     title: "IELTS Mock: Names & TV",
     level: "B1-B2",
     role: "default",
-    topic: "You are an official IELTS Speaking Examiner conducting a full mock test.",
+    topic: "You are an official, highly strict IELTS Speaking Examiner conducting a full mock test. Be highly critical and objective in your evaluation.",
     icebreaker: "Hello. Let's start with Part 1. Let's talk about names. What can you tell me about that?",
     vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
     studentBriefing: "Full IELTS Mock Test. Part 1: Names. Part 2: Describe a TV documentary you watched that was particularly interesting. Part 3: Different types of TV programs & TV advertising.",
@@ -677,6 +677,91 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Names): Ask 2-3 questions one by one. Wait for answers.
 - Part 2 (Cue Card): "Now I will give you a topic. Describe a TV documentary you watched that was particularly interesting." Wait for the user's full response.
 - Part 3 (Different types of TV programs & TV advertising): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give detailed feedback and an estimated band score.`
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+  },
+  {
+    id: "ielts_pdf_1",
+    category: "IELTS Preparation",
+    title: "IELTS Mock: Work, Study & Leisure Time",
+    level: "B1-B2",
+    role: "default",
+    topic: "You are an official, strict IELTS Speaking Examiner conducting a full mock test.",
+    icebreaker: "Hello. Let's start with Part 1. Let's talk about what you do. Do you work or are you a student?",
+    vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
+    studentBriefing: "Full IELTS Mock Test. Part 1: Work & Study. Part 2: Describe your favourite leisure activity. Part 3: Leisure time in your country.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+Conduct a full IELTS Speaking test step-by-step.
+- Part 1 (Work & Study): Ask 2-3 questions one by one (e.g., "What is your job/subject?", "Why did you choose it?"). Wait for answers.
+- Part 2 (Cue Card): "Now I will give you a topic. Describe your favourite leisure activity. You should say what it is, who you do it with, and explain why you enjoy it." Wait for the user's full response.
+- Part 3 (Leisure time): Ask 2-3 deep, abstract questions related to the topic (e.g., "Do most people get two days off a week?", "Is leisure time important?").
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+  },
+  {
+    id: "ielts_pdf_2",
+    category: "IELTS Preparation",
+    title: "IELTS Mock: Hometown, Neighbours & Transport",
+    level: "B1-B2",
+    role: "default",
+    topic: "You are an official, strict IELTS Speaking Examiner conducting a full mock test.",
+    icebreaker: "Hello. Let's start with Part 1. Let's talk about your hometown. Where is your hometown?",
+    vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
+    studentBriefing: "Full IELTS Mock Test. Part 1: Hometown. Part 2: Describe a good neighbour. Part 3: Transport & Neighbourhoods.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+Conduct a full IELTS Speaking test step-by-step.
+- Part 1 (Hometown): Ask 2-3 questions one by one (e.g., "What is it like?", "Has it changed much since you were a child?"). Wait for answers.
+- Part 2 (Cue Card): "Now I will give you a topic. Describe a good neighbour. You should say who they are, how you know them, and explain why they are a good neighbour." Wait for the user's full response.
+- Part 3 (Neighbourhoods & Transport): Ask 2-3 deep, abstract questions related to the topic (e.g., "Are neighbours close in your country?", "What is the transport system like in your country?").
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+  },
+  {
+    id: "ielts_pdf_3",
+    category: "IELTS Preparation",
+    title: "IELTS Mock: Family, Friends & Birthdays",
+    level: "B1-B2",
+    role: "default",
+    topic: "You are an official, strict IELTS Speaking Examiner conducting a full mock test.",
+    icebreaker: "Hello. Let's start with Part 1. Let's talk about your family and friends. Do you spend much time with your family?",
+    vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
+    studentBriefing: "Full IELTS Mock Test. Part 1: Family & Friends. Part 2: Describe a birthday you enjoyed as a child. Part 3: Celebrations and social gatherings.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+Conduct a full IELTS Speaking test step-by-step.
+- Part 1 (Family & Friends): Ask 2-3 questions one by one (e.g., "Who are you closest to?", "Who is your best friend?"). Wait for answers.
+- Part 2 (Cue Card): "Now I will give you a topic. Describe a birthday you enjoyed as a child. You should say what you did, who was there, and explain why you enjoyed it." Wait for the user's full response.
+- Part 3 (Birthdays & Celebrations): Ask 2-3 deep, abstract questions related to the topic (e.g., "Which birthdays are considered important in your country?", "Do most people celebrate with a party?").
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+  },
+  {
+    id: "ielts_pdf_4",
+    category: "IELTS Preparation",
+    title: "IELTS Mock: Hobbies, Internet & TV",
+    level: "B1-B2",
+    role: "default",
+    topic: "You are an official, strict IELTS Speaking Examiner conducting a full mock test.",
+    icebreaker: "Hello. Let's start with Part 1. Let's talk about hobbies. Do you have a hobby?",
+    vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
+    studentBriefing: "Full IELTS Mock Test. Part 1: Hobbies. Part 2: Describe your favourite website. Part 3: The Internet and TV in modern society.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+Conduct a full IELTS Speaking test step-by-step.
+- Part 1 (Hobbies): Ask 2-3 questions one by one (e.g., "What equipment do you need?", "Did you have a hobby as a child?"). Wait for answers.
+- Part 2 (Cue Card): "Now I will give you a topic. Describe your favourite website. You should say what it is, what you use it for, and explain why you like it." Wait for the user's full response.
+- Part 3 (Internet & TV): Ask 2-3 deep, abstract questions related to the topic (e.g., "Do you think children should be allowed unsupervised access to the internet?", "What sorts of things do people watch on TV?").
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+  },
+  {
+    id: "ielts_pdf_5",
+    category: "IELTS Preparation",
+    title: "IELTS Mock: Food, Shopping & Daily Routine",
+    level: "B1-B2",
+    role: "default",
+    topic: "You are an official, strict IELTS Speaking Examiner conducting a full mock test.",
+    icebreaker: "Hello. Let's start with Part 1. Let's talk about food. What's your favourite food?",
+    vocabulary: ["IELTS", "Speaking", "Fluency", "Vocabulary", "Grammar"],
+    studentBriefing: "Full IELTS Mock Test. Part 1: Food. Part 2: Describe your favourite shop. Part 3: Shopping habits and daily routines.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+Conduct a full IELTS Speaking test step-by-step.
+- Part 1 (Food): Ask 2-3 questions one by one (e.g., "Is there any food you dislike?", "What do you think of fast food?"). Wait for answers.
+- Part 2 (Cue Card): "Now I will give you a topic. Describe your favourite shop. You should say where it is, what they sell, and explain why you like it." Wait for the user's full response.
+- Part 3 (Shopping & Daily Routine): Ask 2-3 deep, abstract questions related to the topic (e.g., "Do men and women have different opinions about shopping?", "Is it important to have a daily routine?").
+- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   }
 ];
