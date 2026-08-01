@@ -1,5 +1,5 @@
 {
-  "name": "ELT Speaking Bot",
+  "name": "Speaking Buddy",
   "description": "An AI-powered English speaking practice bot for students (A2-C1 levels) with high-quality voice interactions and a retro hardware-inspired interface.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": []

@@ -1862,12 +1862,15 @@ export default function App() {
         </AnimatePresence>
 
         {/* Footer info */}
-        <footer className="mt-8 pt-4 border-t border-slate-900/5 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-30">
-          <div className="flex gap-4">
-            <span>Lat: 37.7749</span>
-            <span>Lng: -122.4194</span>
+        <footer className="mt-12 pt-6 pb-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-800">Speaking Buddy</span>
+            <span className="text-slate-300">•</span>
+            <span>© {new Date().getFullYear()} Ahmet M. Oturak</span>
           </div>
-          <span>Built for ELT Professionals</span>
+          <div className="text-[11px] text-slate-500 text-center sm:text-right">
+            Developed by <span className="font-semibold text-slate-700">Ahmet M. Oturak</span>. All Rights Reserved.
+          </div>
         </footer>
 
         <ScenarioSelector

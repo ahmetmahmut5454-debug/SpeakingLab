@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.speakinglab.app",
-    "productName": "Speaking Lab",
+    "productName": "Speaking Buddy",
     "directories": {
       "output": "dist-electron"
     },
