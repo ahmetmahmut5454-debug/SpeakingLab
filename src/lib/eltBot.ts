@@ -420,6 +420,20 @@ export class EltBot {
         const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
         const isIELTS = scenario?.category === 'IELTS Preparation';
 
+        let explicitScoreSnippet = "";
+        if (isIELTS) {
+           const fullTranscript = transcriptToUse.join("\n");
+           const scoreRegex = /(?:band|score)(?:\s+is|\s+of|\s*:)?\s*([1-9](?:\.[05])?)/gi;
+           let match;
+           let lastScore = null;
+           while ((match = scoreRegex.exec(fullTranscript)) !== null) {
+              lastScore = match[1];
+           }
+           if (lastScore) {
+              explicitScoreSnippet = `\n\n>>> CRITICAL REQUIREMENT: The Tutor assigned an Estimated Band Score of ${lastScore} in the conversation. You MUST set the Estimated Band Score in your report to EXACTLY ${lastScore}. Do NOT change it or recalculate it. <<<\n\n`;
+           }
+        }
+
         const standardFormat = `
             Provide a highly structured, strict, and completely objective feedback report for a general language practice session. 
             Do NOT inflate the student's level or give unearned praise. Be highly critical and identify specific mistakes, awkward phrasing, and areas of improvement.
@@ -450,13 +464,17 @@ export class EltBot {
         const ieltsFormat = `
             Provide a highly structured, strictly objective, and critical feedback report based on the official IELTS Speaking test grading criteria.
             Do NOT inflate the Band Score. Give a realistic, strict score reflecting true IELTS standards. Do not give "free" points. If the student makes basic grammar errors or hesitates frequently, the score must be penalized accordingly (e.g. 5.0 or 5.5).
+            ${explicitScoreSnippet}
 
-            IMPORTANT: If the Tutor mentioned a specific Band Score at the end of the conversation transcript, you MUST use that exact same score for the "Estimated Band Score". Do not invent a different score.
+            >>> CRITICAL INSTRUCTION FOR BAND SCORE <<<
+            Read the last few messages of the transcript. The [Tutor] has likely given the student a specific Estimated Band Score (e.g., 4.5, 5.5, 6.0).
+            You MUST extract this exact number and use it as your Estimated Band Score. Do NOT recalculate or invent a different score. If the Tutor said 5.5, your score MUST be 5.5.
+            >>> END CRITICAL INSTRUCTION <<<
 
             Use the following exact Markdown format:
 
             ### 🎯 IELTS Mock Assessment
-            * **Estimated Band Score:** [0.0 - 9.0] (Be strict and realistic)
+            * **Estimated Band Score:** [Extract the exact score mentioned by the Tutor in the transcript. If not mentioned, estimate strictly 0.0 - 9.0]
             * **General Impression:** [Summary of performance, focusing on areas costing them points]
 
             ### 🗣️ Fluency & Coherence
