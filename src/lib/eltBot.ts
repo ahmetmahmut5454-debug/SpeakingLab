@@ -421,22 +421,25 @@ export class EltBot {
         const isIELTS = scenario?.category === 'IELTS Preparation';
 
         const standardFormat = `
-            Provide a highly structured, constructive feedback report for a general language practice session using the following exact Markdown format:
+            Provide a highly structured, strict, and completely objective feedback report for a general language practice session. 
+            Do NOT inflate the student's level or give unearned praise. Be highly critical and identify specific mistakes, awkward phrasing, and areas of improvement.
+
+            Use the following exact Markdown format:
 
             ### 🎯 Session Assessment
-            * **Goal Achievement:** [Did they meet their goal for this session?]
-            * **Estimated Level:** [CEFR Level]
-            * **General Impression:** [Summary of performance]
+            * **Goal Achievement:** [Did they meet their goal for this session? Be objective.]
+            * **Estimated Level:** [CEFR Level - Evaluate strictly based on actual grammar, vocabulary, and flow shown.]
+            * **General Impression:** [Summary of performance, highlighting main weaknesses]
 
             ### 🗣️ Fluency & Pronunciation
-            * [Feedback on clarity, pacing, and overall fluency]
+            * [Strict feedback on clarity, pacing, hesitations, and overall fluency]
             * **Strengths:** [Examples]
             * **To improve:** [Examples]
 
             ### 📚 Grammar & Vocabulary
-            * [Feedback on range of vocabulary and grammatical accuracy]
+            * [Strict feedback on range of vocabulary and grammatical accuracy. Point out basic errors if present.]
             * **Corrections:** [Examples of mistakes and how to fix them]
-            * **New words to learn:** [2-3 useful words/phrases for next time]
+            * **New words to learn:** [2-3 useful advanced words/phrases for next time]
 
             ### 🚀 Next Steps
             * [Actionable tip 1]
@@ -445,28 +448,31 @@ export class EltBot {
         `;
 
         const ieltsFormat = `
-            Provide a highly structured, constructive feedback report based on the official IELTS Speaking test grading criteria using the following exact Markdown format:
-            
+            Provide a highly structured, strictly objective, and critical feedback report based on the official IELTS Speaking test grading criteria.
+            Do NOT inflate the Band Score. Give a realistic, strict score reflecting true IELTS standards. Do not give "free" points. If the student makes basic grammar errors or hesitates frequently, the score must be penalized accordingly (e.g. 5.0 or 5.5).
+
             IMPORTANT: If the Tutor mentioned a specific Band Score at the end of the conversation transcript, you MUST use that exact same score for the "Estimated Band Score". Do not invent a different score.
 
+            Use the following exact Markdown format:
+
             ### 🎯 IELTS Mock Assessment
-            * **Estimated Band Score:** [0.0 - 9.0]
-            * **General Impression:** [Summary of performance]
+            * **Estimated Band Score:** [0.0 - 9.0] (Be strict and realistic)
+            * **General Impression:** [Summary of performance, focusing on areas costing them points]
 
             ### 🗣️ Fluency & Coherence
-            * [Feedback on speaking at length, hesitation, and linking words]
+            * [Strict feedback on speaking at length, hesitation, and linking words]
 
             ### 📚 Lexical Resource
-            * [Feedback on vocabulary range, flexibility, and idiomatic language]
+            * [Strict feedback on vocabulary range, flexibility, and idiomatic language]
             * **Strong words used:** [Examples]
-            * **To improve:** [Examples]
+            * **To improve:** [Examples of better vocabulary to use]
 
             ### 📝 Grammatical Range & Accuracy
-            * [Feedback on complex structures and error density]
+            * [Strict feedback on complex structures and error density]
             * **Corrections:** [Examples of mistakes and corrections]
 
             ### 🎤 Pronunciation
-            * [Feedback on clarity, intonation, and features of connected speech]
+            * [Strict feedback on clarity, intonation, and features of connected speech]
 
             ### 🚀 Next Steps
             * [Actionable tip 1]

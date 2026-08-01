@@ -404,13 +404,13 @@ export default function App() {
     const currentTranscript = botRef.current.transcript;
     setIsRunning(false);
     setGeneratingReport(true);
+    botRef.current.stop(); // Stop audio/mic first
 
-    const sessionReport = await botRef.current.generateReport(context);
-    setReport(sessionReport);
-    setGeneratingReport(false);
-
-    // Always give XP for participating, even if report generation (LLM) fails
-    if (user) {
+    // Always give XP for participating, but only if they actually interacted
+    const studentTurns = currentTranscript.filter((line) => line.startsWith("[Student]:")).length;
+    const botTurns = currentTranscript.filter((line) => line.startsWith("[Tutor]:")).length;
+    
+    if (user && (studentTurns > 0 || botTurns > 0)) {
       try {
         const stats = await updateGamificationStats(context.mode);
         if (stats) {
@@ -425,6 +425,10 @@ export default function App() {
       }
     }
 
+    const sessionReport = await botRef.current.generateReport(context, currentTranscript);
+    setReport(sessionReport);
+    setGeneratingReport(false);
+
     // Save to IndexedDB locally
     const hasReport = sessionReport && !sessionReport.includes("❌");
     await saveLocalReport({
@@ -437,8 +441,6 @@ export default function App() {
       reportText: hasReport ? sessionReport : "",
       transcript: currentTranscript,
     });
-
-    botRef.current.stop();
   };
 
   const retryReportGeneration = async (report: LocalReport) => {
