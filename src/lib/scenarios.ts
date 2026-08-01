@@ -1,3 +1,4 @@
+import { generatedIeltsScenarios } from "./generated_scenarios";
 export interface Scenario {
   id: string;
   category?: 'General' | 'Academic English' | 'Erasmus Preparation' | 'IELTS Preparation';
@@ -12,7 +13,7 @@ export interface Scenario {
   imageUrl?: string;
 }
 
-export const predefinedScenarios: Scenario[] = [
+const originalScenarios: Scenario[] = [
   {
     id: "s1",
     category: "General",
@@ -764,4 +765,5 @@ Conduct a full IELTS Speaking test step-by-step.
 - Part 3 (Shopping & Daily Routine): Ask 2-3 deep, abstract questions related to the topic (e.g., "Do men and women have different opinions about shopping?", "Is it important to have a daily routine?").
 - Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
   }
-];
+] as Scenario[];
+export const predefinedScenarios = originalScenarios.concat(generatedIeltsScenarios);
