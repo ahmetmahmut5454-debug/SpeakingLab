@@ -63,6 +63,7 @@ import {
   markReportAsSynced,
   LocalReport,
 } from "./lib/indexedDB";
+import { checkMasteryUnlocks } from "./lib/mastery";
 import { onAuthStateChanged, User } from "firebase/auth";
 
 const SHOP_ITEMS = [
@@ -101,6 +102,33 @@ const SHOP_ITEMS = [
     type: "badge",
     icon: "🦅",
   },
+  {
+    id: "badge_fluency_master",
+    name: "Fluency Master",
+    price: 0,
+    type: "badge",
+    icon: "🌊",
+    isMastery: true,
+    description: "Improve Fluency over 5 sessions."
+  },
+  {
+    id: "badge_grammar_master",
+    name: "Grammar Master",
+    price: 0,
+    type: "badge",
+    icon: "📐",
+    isMastery: true,
+    description: "Improve Grammar over 5 sessions."
+  },
+  {
+    id: "badge_vocabulary_master",
+    name: "Vocab Master",
+    price: 0,
+    type: "badge",
+    icon: "📚",
+    isMastery: true,
+    description: "Improve Vocabulary over 5 sessions."
+  }
 ];
 
 import { Guide } from "./components/Guide";
@@ -540,6 +568,33 @@ export default function App() {
       loadLeaderboard(leaderboardPeriod);
     }
   }, [showLeaderboard, leaderboardPeriod]);
+
+  useEffect(() => {
+    if (userStats && pastReports.length > 0) {
+      const unlockedBadges = checkMasteryUnlocks(pastReports);
+      const currentUnlocked = userStats.unlockedItems || [];
+      const newUnlocks = unlockedBadges.filter(id => !currentUnlocked.includes(id));
+      
+      if (newUnlocks.length > 0) {
+        const handleUnlocks = async () => {
+          const newStats = await updateUserPurchase(
+            userStats.xp,
+            [...currentUnlocked, ...newUnlocks],
+            userStats.equippedBadge || "",
+            userStats.equippedOutfit || "outfit_default"
+          );
+          if (newStats) {
+             setUserStats(newStats);
+             const firstBadge = SHOP_ITEMS.find(i => i.id === newUnlocks[0]);
+             if (firstBadge) {
+               setPurchasedBadgeInfo({ id: firstBadge.id, icon: firstBadge.icon });
+             }
+          }
+        };
+        handleUnlocks();
+      }
+    }
+  }, [pastReports, userStats]);
 
   const loadReports = async () => {
     setLoadingHistory(true);
@@ -1680,19 +1735,23 @@ export default function App() {
                               userStats.unlockedItems?.includes(item.id);
                             const isEquipped =
                               userStats.equippedBadge === item.id;
+                            const isMastery = (item as any).isMastery;
+                            
+                            const isDisabled = !isUnlocked && (isMastery || userStats.xp < item.price);
+                            const canBuy = !isUnlocked && !isMastery && userStats.xp >= item.price;
+
                             return (
                               <button
                                 key={item.id}
                                 onClick={() => handlePurchase(item)}
-                                disabled={
-                                  !isUnlocked && userStats.xp < item.price
-                                }
+                                disabled={isDisabled}
+                                title={(item as any).description || ""}
                                 className={`flex flex-col items-center p-4 rounded-2xl border transition-all relative overflow-hidden ${
                                   isEquipped
                                     ? "bg-blue-500/20 border-blue-500/50 shadow-lg"
                                     : isUnlocked
                                       ? "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
-                                      : userStats.xp >= item.price
+                                      : canBuy
                                         ? "bg-slate-900/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
                                         : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
                                 }`}
@@ -1712,6 +1771,10 @@ export default function App() {
                                     <span className="text-slate-600/70 uppercase tracking-widest">
                                       Equip
                                     </span>
+                                  ) : isMastery ? (
+                                    <span className="text-amber-500/80 uppercase tracking-widest flex items-center gap-1">
+                                      <Lock className="w-3 h-3" /> Locked
+                                    </span>
                                   ) : (
                                     <span className="text-emerald-400 flex items-center gap-1">
                                       <Sparkles className="w-3 h-3" />{" "}
@@ -1719,6 +1782,11 @@ export default function App() {
                                     </span>
                                   )}
                                 </div>
+                                {isMastery && !isUnlocked && (
+                                   <div className="absolute inset-0 bg-slate-900/80 text-white opacity-0 hover:opacity-100 flex items-center justify-center p-2 text-center text-[10px] transition-opacity font-medium tracking-wide leading-relaxed">
+                                     {(item as any).description}
+                                   </div>
+                                )}
                               </button>
                             );
                           },
