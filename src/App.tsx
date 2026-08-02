@@ -1163,15 +1163,15 @@ export default function App() {
               exit={{ opacity: 0, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-white border-0 sm:border border-slate-900/10 p-4 sm:p-8 rounded-none sm:rounded-2xl max-w-lg w-full h-full sm:h-auto sm:max-h-[90vh] shadow-2xl flex flex-col">
-                <div className="flex items-center gap-3 mb-4 sm:mb-6 shrink-0 pt-2 sm:pt-0">
+              <div className="bg-white border-0 sm:border border-slate-900/10 rounded-none sm:rounded-2xl max-w-lg w-full h-full sm:h-auto sm:max-h-[90vh] shadow-2xl flex flex-col overflow-hidden">
+                <div className="flex items-center gap-3 shrink-0 p-4 sm:p-8 sm:pb-6 bg-white border-b border-slate-100 z-10">
                   <LayoutDashboard className="w-6 h-6 text-emerald-500" />
                   <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
                     Session Analysis
                   </h2>
                 </div>
                 
-                <div className="overflow-y-auto custom-scrollbar flex-1 min-h-0 sm:shrink pr-1 sm:pr-0">
+                <div className="overflow-y-auto custom-scrollbar flex-1 min-h-0 p-4 sm:p-8">
                   {(() => {
                     const match = report.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
                     const struggledText = match ? match[1] : null;
@@ -1199,12 +1199,14 @@ export default function App() {
                   })()}
                 </div>
                 
-                <button
-                  onClick={() => setReport(null)}
-                  className="w-full py-3 mt-4 shrink-0 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all"
-                >
-                  Close Feedback
-                </button>
+                <div className="shrink-0 p-4 sm:p-8 sm:pt-6 bg-white border-t border-slate-100 z-10">
+                  <button
+                    onClick={() => setReport(null)}
+                    className="w-full py-3 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all"
+                  >
+                    Close Feedback
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -1298,8 +1300,8 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-white border-0 sm:border border-slate-900/10 p-4 sm:p-8 rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-[85vh] flex flex-col shadow-2xl">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 sm:mb-8 pb-4 sm:pb-6 border-b border-slate-900/10 gap-4 shrink-0 pt-2 sm:pt-0">
+              <div className="bg-white border-0 sm:border border-slate-900/10 rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-100 gap-4 shrink-0 p-4 sm:p-8 sm:pb-6 bg-white z-10">
                   <div className="flex items-center gap-3">
                     <History className="w-6 h-6 text-indigo-400" />
                     <h2 className="text-xl font-bold uppercase tracking-tight">
@@ -1322,7 +1324,7 @@ export default function App() {
                     </button>
                   </div>
                 </div>
-
+                <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar p-4 sm:p-8">
                 {/* Stats Bar */}
                 {!loadingHistory && pastReports.length > 0 && (
                   <>
@@ -1464,6 +1466,7 @@ export default function App() {
                       </div>
                     ))
                   )}
+                </div>
                 </div>
               </div>
             </motion.div>

@@ -132,6 +132,9 @@ export class EltBot {
       }
 
       const systemInstruction = `
+        You are SpeakingBuddy, an intelligent speaking partner designed by Ahmet M. Oturak. All rights reserved.
+        You provide task-based speaking practices, IELTS scenarios, and free practice modes to help users improve their English speaking skills.
+        
         ${getPromptTarget(context)}
         Topic: ${context.topic}
         Goals: ${context.objective}
