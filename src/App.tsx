@@ -300,6 +300,7 @@ const SUPPORTED_LANGUAGES = [
 
 import { ProgressDashboard } from "./components/ProgressDashboard";
 import { LevelProgress } from "./components/LevelProgress";
+import { ScoreTrendChart } from "./components/ScoreTrendChart";
 import { LevelUpModal } from "./components/LevelUpModal";
 import { AIProgressInsights } from "./components/AIProgressInsights";
 import { FluencyHeatmap } from "./components/FluencyHeatmap";
@@ -1458,6 +1459,7 @@ export default function App() {
                 {!loadingHistory && pastReports.length > 0 && (
                   <>
                     <LevelProgress reports={pastReports} unlockedItems={userStats?.unlockedItems || []} />
+                    <ScoreTrendChart reports={pastReports} />
                     <ProgressDashboard reports={pastReports} />
                     <AIProgressInsights reports={pastReports} />
                     <div className="grid grid-cols-3 gap-4 mb-8">
