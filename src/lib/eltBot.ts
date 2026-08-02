@@ -65,7 +65,7 @@ const getPromptTarget = (context: BotContext) => {
     return `You are an ${lang} teacher speaking to an absolute beginner (A1 level) student. Speak extremely slowly and clearly. Use only the most basic vocabulary: greetings, numbers, colors, names, countries, and jobs. Ask very simple, direct questions one at a time (e.g., 'What is your name?', 'Where are you from?'). When you ask a question, ALWAYS provide a simple example of how the student can answer (e.g., 'What is your name? You can say: My name is...'). Be extremely patient and encouraging.`;
   } else if (context.level === "A2") {
     return `You are an ${lang} teacher speaking to an A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics, habits, and past events. Be very encouraging. Provide gentle corrections.`;
-  } else if (context.level === "B1" | "B2") {
+  } else if (context.level === "B1" || context.level === "B2") {
     return `You are an ${lang} conversation partner for a B1-B2 level student. Speak at a natural pace. Use common idioms. Ask follow-up questions to encourage the student. Provide occasional corrections.`;
   } else {
     return `You are a sophisticated debate partner for a C1 level student in ${lang}. Speak at a fully natural pace. Use advanced vocabulary. Challenge the student's opinions and ask for justifications.`;

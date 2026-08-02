@@ -39,7 +39,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from "./lib/eltBot";
-import { predefinedScenarios } from "./lib/scenarios";
+import { predefinedScenarios, Scenario } from "./lib/scenarios";
 import {
   auth,
   loginWithGoogle,
@@ -301,7 +301,9 @@ const SUPPORTED_LANGUAGES = [
 import { ProgressDashboard } from "./components/ProgressDashboard";
 import { LevelProgress } from "./components/LevelProgress";
 import { ScoreTrendChart } from "./components/ScoreTrendChart";
+import { LearningPath } from "./components/LearningPath";
 import { LevelUpModal } from "./components/LevelUpModal";
+import { DailyProgressBar } from "./components/DailyProgressBar";
 import { AIProgressInsights } from "./components/AIProgressInsights";
 import { FluencyHeatmap } from "./components/FluencyHeatmap";
 import { ProficiencyBadge } from "./components/ProficiencyBadge";
@@ -655,6 +657,20 @@ export default function App() {
     setPastReports((prev) => prev.filter((r) => r.id !== id));
   };
 
+  const handleSelectScenario = (scenario: Scenario) => {
+    setContext({
+      ...context,
+      mode: "Task",
+      level: scenario.level === "B1-B2" ? "B2" : scenario.level,
+      topic: scenario.topic,
+      objective: scenario.objective,
+      role: scenario.role,
+      icebreaker: scenario.icebreaker,
+      scenarioId: scenario.id,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const toggleBot = async () => {
     // 100% STRICT UI CHECK FOR LOCAL VITE USERS OR MAC APP USERS
     const localKey = localStorage.getItem("gemini_custom_key");
@@ -698,7 +714,16 @@ export default function App() {
     return pastReports.filter(r => new Date(r.createdAtTime).toDateString() === today).length;
   }, [pastReports]);
 
-  const showGoalBanner = sessionsToday < 3;
+  const [goalMetRecently, setGoalMetRecently] = useState(false);
+  useEffect(() => {
+    if (sessionsToday === 3) {
+      setGoalMetRecently(true);
+      const t = setTimeout(() => setGoalMetRecently(false), 7000);
+      return () => clearTimeout(t);
+    }
+  }, [sessionsToday]);
+
+  const showGoalBanner = sessionsToday < 3 || goalMetRecently;
 
   const userActualLevel = useMemo(() => {
     if (!userStats?.unlockedItems) return "A1";
@@ -729,10 +754,7 @@ export default function App() {
 
       <main className={`relative z-10 max-w-4xl mx-auto p-4 md:p-12 flex flex-col min-h-screen ${showGoalBanner ? "pt-16 sm:pt-20 md:pt-24" : ""}`}>
         {showGoalBanner && (
-          <div className="fixed top-0 left-0 right-0 bg-emerald-500 text-white px-4 py-2 text-center text-xs sm:text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-md z-50">
-            <Target className="w-4 h-4 text-emerald-100" />
-            <span>Daily Goal: {sessionsToday}/3 sessions. {3 - sessionsToday} more to go!</span>
-          </div>
+          <DailyProgressBar sessionsToday={sessionsToday} goal={3} />
         )}
 
         {/* Header */}
@@ -1459,6 +1481,7 @@ export default function App() {
                 {!loadingHistory && pastReports.length > 0 && (
                   <>
                     <LevelProgress reports={pastReports} unlockedItems={userStats?.unlockedItems || []} />
+                    <LearningPath reports={pastReports} userLevel={userActualLevel} onSelectScenario={handleSelectScenario} />
                     <ScoreTrendChart reports={pastReports} />
                     <ProgressDashboard reports={pastReports} />
                     <AIProgressInsights reports={pastReports} />
@@ -2092,7 +2115,7 @@ export default function App() {
               setContext({
                 ...context,
                 mode: "Task",
-                level: scenario.level,
+                level: scenario.level === "B1-B2" ? "B2" : scenario.level,
                 topic: scenario.topic,
                 objective: scenario.objective,
                 role: scenario.role,
