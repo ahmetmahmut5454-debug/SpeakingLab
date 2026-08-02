@@ -235,6 +235,7 @@ const SUPPORTED_LANGUAGES = [
 ];
 
 import { ProgressDashboard } from "./components/ProgressDashboard";
+import { FluencyHeatmap } from "./components/FluencyHeatmap";
 
 export default function App() {
   const [context, setContext] = useState<BotContext>({
@@ -1187,9 +1188,10 @@ export default function App() {
                             </p>
                           </div>
                         )}
-                        <div className="prose prose-slate prose-sm mb-6">
+                        <div className="prose prose-slate prose-sm mb-6 max-w-none">
                           <Markdown>{cleanReport}</Markdown>
                         </div>
+                        <FluencyHeatmap transcript={botRef.current?.transcript || []} />
                       </>
                     );
                   })()}
@@ -1432,6 +1434,7 @@ export default function App() {
                                   <div className="prose prose-slate prose-sm max-w-none">
                                     <Markdown>{cleanReport}</Markdown>
                                   </div>
+                                  <FluencyHeatmap transcript={r.transcript || []} />
                                 </>
                               );
                             })()
