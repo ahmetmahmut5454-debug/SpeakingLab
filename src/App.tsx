@@ -300,6 +300,7 @@ const SUPPORTED_LANGUAGES = [
 
 import { ProgressDashboard } from "./components/ProgressDashboard";
 import { LevelProgress } from "./components/LevelProgress";
+import { LevelUpModal } from "./components/LevelUpModal";
 import { AIProgressInsights } from "./components/AIProgressInsights";
 import { FluencyHeatmap } from "./components/FluencyHeatmap";
 import { ProficiencyBadge } from "./components/ProficiencyBadge";
@@ -345,6 +346,7 @@ export default function App() {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isStreakAnimating, setIsStreakAnimating] = useState(false);
   const [isQuestAnimating, setIsQuestAnimating] = useState(false);
+  const [levelUpBadgeId, setLevelUpBadgeId] = useState<string | null>(null);
   const [purchasedBadgeInfo, setPurchasedBadgeInfo] = useState<{
     id: string;
     icon: string;
@@ -623,9 +625,14 @@ export default function App() {
           );
           if (newStats) {
              setUserStats(newStats);
-             const firstBadge = SHOP_ITEMS.find(i => i.id === newUnlocks[0]);
-             if (firstBadge) {
-               setPurchasedBadgeInfo({ id: firstBadge.id, icon: firstBadge.icon });
+             const levelBadge = newUnlocks.find(id => id.startsWith("badge_level_"));
+             if (levelBadge) {
+               setLevelUpBadgeId(levelBadge);
+             } else {
+               const firstBadge = SHOP_ITEMS.find(i => i.id === newUnlocks[0]);
+               if (firstBadge) {
+                 setPurchasedBadgeInfo({ id: firstBadge.id, icon: firstBadge.icon });
+               }
              }
           }
         };
@@ -704,6 +711,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500/30 antialiased overflow-hidden relative">
+      {levelUpBadgeId && (
+        <LevelUpModal badgeId={levelUpBadgeId} onClose={() => setLevelUpBadgeId(null)} />
+      )}
       {purchasedBadgeInfo && (
         <EmojiBurst
           icon={purchasedBadgeInfo.icon}
