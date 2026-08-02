@@ -235,6 +235,7 @@ const SUPPORTED_LANGUAGES = [
 ];
 
 import { ProgressDashboard } from "./components/ProgressDashboard";
+import { AIProgressInsights } from "./components/AIProgressInsights";
 import { FluencyHeatmap } from "./components/FluencyHeatmap";
 
 export default function App() {
@@ -1342,6 +1343,7 @@ export default function App() {
                 {!loadingHistory && pastReports.length > 0 && (
                   <>
                     <ProgressDashboard reports={pastReports} />
+                    <AIProgressInsights reports={pastReports} />
                     <div className="grid grid-cols-3 gap-4 mb-8">
                     <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
                       <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
