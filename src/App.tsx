@@ -299,6 +299,7 @@ const SUPPORTED_LANGUAGES = [
 ];
 
 import { ProgressDashboard } from "./components/ProgressDashboard";
+import { LevelProgress } from "./components/LevelProgress";
 import { AIProgressInsights } from "./components/AIProgressInsights";
 import { FluencyHeatmap } from "./components/FluencyHeatmap";
 import { ProficiencyBadge } from "./components/ProficiencyBadge";
@@ -1446,6 +1447,7 @@ export default function App() {
                 {/* Stats Bar */}
                 {!loadingHistory && pastReports.length > 0 && (
                   <>
+                    <LevelProgress reports={pastReports} unlockedItems={userStats?.unlockedItems || []} />
                     <ProgressDashboard reports={pastReports} />
                     <AIProgressInsights reports={pastReports} />
                     <div className="grid grid-cols-3 gap-4 mb-8">
