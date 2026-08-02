@@ -1160,17 +1160,17 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-lg w-full shadow-2xl flex flex-col max-h-[90vh]">
-                <div className="flex items-center gap-3 mb-6 shrink-0">
+              <div className="bg-white border-0 sm:border border-slate-900/10 p-4 sm:p-8 rounded-none sm:rounded-2xl max-w-lg w-full h-full sm:h-auto sm:max-h-[90vh] shadow-2xl flex flex-col">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6 shrink-0 pt-2 sm:pt-0">
                   <LayoutDashboard className="w-6 h-6 text-emerald-500" />
-                  <h2 className="text-xl font-bold uppercase tracking-tight">
+                  <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
                     Session Analysis
                   </h2>
                 </div>
                 
-                <div className="overflow-y-auto custom-scrollbar shrink">
+                <div className="overflow-y-auto custom-scrollbar flex-1 min-h-0 sm:shrink pr-1 sm:pr-0">
                   {(() => {
                     const match = report.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
                     const struggledText = match ? match[1] : null;
@@ -1216,10 +1216,10 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-white border-4 border-slate-200 p-10 rounded-[2rem] max-w-lg w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
-                <div className="flex flex-col items-center gap-6 text-center">
+              <div className="bg-white border-0 sm:border-4 border-slate-200 p-4 sm:p-10 rounded-none sm:rounded-[2rem] max-w-lg w-full h-full sm:h-auto overflow-y-auto sm:overflow-visible shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col">
+                <div className="flex flex-col items-center gap-4 sm:gap-6 text-center pt-4 sm:pt-0">
                   {predefinedScenarios.find((s) => s.id === context.scenarioId)
                     ?.imageUrl ? (
                     <img
@@ -1295,10 +1295,10 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-6 border-b border-slate-900/10 gap-4">
+              <div className="bg-white border-0 sm:border border-slate-900/10 p-4 sm:p-8 rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-[85vh] flex flex-col shadow-2xl">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 sm:mb-8 pb-4 sm:pb-6 border-b border-slate-900/10 gap-4 shrink-0 pt-2 sm:pt-0">
                   <div className="flex items-center gap-3">
                     <History className="w-6 h-6 text-indigo-400" />
                     <h2 className="text-xl font-bold uppercase tracking-tight">
