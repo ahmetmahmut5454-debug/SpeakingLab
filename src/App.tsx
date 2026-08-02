@@ -1084,7 +1084,7 @@ export default function App() {
                 <select
                   value={
                     context.voice ||
-                    (context.level === "C1" ? "Charon" : "Zephyr")
+                    (context.level === "C1" ? "Charon" : "Aoede")
                   }
                   onChange={(e) =>
                     setContext({ ...context, voice: e.target.value as VoiceType })
@@ -1092,10 +1092,7 @@ export default function App() {
                   className="bg-blue-900 border border-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg cursor-pointer hover:bg-blue-800 transition-colors h-[42px] mt-[2px]"
                   disabled={isRunning}
                 >
-                  <option value="Aoede" className="bg-white text-slate-900 font-medium">Aoede (Female, Calm)</option>
-                  <option value="Zephyr" className="bg-white text-slate-900 font-medium">
-                    Zephyr (Female, Energetic)
-                  </option>
+                  <option value="Aoede" className="bg-white text-slate-900 font-medium">Aoede (Female, Energetic)</option>
                   <option value="Kore" className="bg-white text-slate-900 font-medium">Kore (Female, Precise)</option>
                   <option value="Charon" className="bg-white text-slate-900 font-medium">Charon (Male, Deep)</option>
                   <option value="Puck" className="bg-white text-slate-900 font-medium">Puck (Male, Friendly)</option>

@@ -30,7 +30,6 @@ const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 export type ProficiencyLevel = "A1" | "A2" | "B1-B2" | "C1";
 
 export type VoiceType =
-  | "Zephyr"
   | "Puck"
   | "Aoede"
   | "Charon"
@@ -293,7 +292,7 @@ export class EltBot {
                 prebuiltVoiceConfig: {
                   voiceName:
                     context.voice ||
-                    (context.level === "C1" ? "Charon" : "Zephyr"),
+                    (context.level === "C1" ? "Charon" : "Aoede"),
                 },
               },
             },
