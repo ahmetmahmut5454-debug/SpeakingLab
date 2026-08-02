@@ -265,6 +265,7 @@ const SUPPORTED_LANGUAGES = [
 import { ProgressDashboard } from "./components/ProgressDashboard";
 import { AIProgressInsights } from "./components/AIProgressInsights";
 import { FluencyHeatmap } from "./components/FluencyHeatmap";
+import { ProficiencyBadge } from "./components/ProficiencyBadge";
 
 export default function App() {
   const [context, setContext] = useState<BotContext>({
@@ -682,6 +683,7 @@ export default function App() {
               <div 
                 className="relative group cursor-pointer z-50"
               >
+                <ProficiencyBadge level={context.level} />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-full group-hover:blur-xl group-hover:bg-blue-400/40 transition-all duration-500" />
                 <div className="relative bg-blue-950 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/10 shadow-2xl transition-all duration-500 group-hover:bg-blue-900 group-hover:border-blue-400/50 overflow-hidden flex items-center justify-center">
                   {user?.photoURL ? (
