@@ -9,7 +9,8 @@ export const ProficiencyBadge: React.FC<Props> = ({ level }) => {
     switch (level) {
       case "A1": return "bg-emerald-500 text-white border-emerald-400 shadow-emerald-500/20";
       case "A2": return "bg-teal-500 text-white border-teal-400 shadow-teal-500/20";
-      case "B1-B2": return "bg-blue-500 text-white border-blue-400 shadow-blue-500/20";
+      case "B1": return "bg-blue-500 text-white border-blue-400 shadow-blue-500/20";
+      case "B2": return "bg-indigo-500 text-white border-indigo-400 shadow-indigo-500/20";
       case "C1": return "bg-purple-500 text-white border-purple-400 shadow-purple-500/20";
       default: return "bg-slate-500 text-white border-slate-400 shadow-slate-500/20";
     }

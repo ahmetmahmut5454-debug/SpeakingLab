@@ -103,6 +103,42 @@ const SHOP_ITEMS = [
     icon: "🦅",
   },
   {
+    id: "badge_level_a2",
+    name: "A2 Pioneer",
+    price: 0,
+    type: "badge",
+    icon: "🌱",
+    isMastery: true,
+    description: "Complete 10 valid A2 sessions."
+  },
+  {
+    id: "badge_level_b1",
+    name: "B1 Achiever",
+    price: 0,
+    type: "badge",
+    icon: "🚀",
+    isMastery: true,
+    description: "Complete 15 valid B1 sessions."
+  },
+  {
+    id: "badge_level_b2",
+    name: "B2 Specialist",
+    price: 0,
+    type: "badge",
+    icon: "🔥",
+    isMastery: true,
+    description: "Complete 20 valid B2 sessions."
+  },
+  {
+    id: "badge_level_c1",
+    name: "C1 Master",
+    price: 0,
+    type: "badge",
+    icon: "👑",
+    isMastery: true,
+    description: "Complete 30 valid C1 sessions."
+  },
+  {
     id: "badge_fluency_master",
     name: "Fluency Master",
     price: 0,
@@ -269,7 +305,7 @@ import { ProficiencyBadge } from "./components/ProficiencyBadge";
 
 export default function App() {
   const [context, setContext] = useState<BotContext>({
-    level: "B1-B2",
+    level: "B1",
     mode: "Practice",
     taskDurationMinutes: 5,
     objective: "Speak whatever you like and practice natural conversation.",
@@ -655,6 +691,16 @@ export default function App() {
 
   const showGoalBanner = sessionsToday < 3;
 
+  const userActualLevel = useMemo(() => {
+    if (!userStats?.unlockedItems) return "A1";
+    const unlocks = userStats.unlockedItems;
+    if (unlocks.includes("badge_level_c1")) return "C1";
+    if (unlocks.includes("badge_level_b2")) return "B2";
+    if (unlocks.includes("badge_level_b1")) return "B1";
+    if (unlocks.includes("badge_level_a2")) return "A2";
+    return "A1";
+  }, [userStats?.unlockedItems]);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500/30 antialiased overflow-hidden relative">
       {purchasedBadgeInfo && (
@@ -676,6 +722,7 @@ export default function App() {
             <span>Daily Goal: {sessionsToday}/3 sessions. {3 - sessionsToday} more to go!</span>
           </div>
         )}
+
         {/* Header */}
         <header className="flex flex-col md:flex-row justify-between items-center gap-6 pb-8 mb-6 md:mb-10 w-full">
           <div className="flex items-center justify-between w-full md:w-auto">
@@ -683,7 +730,7 @@ export default function App() {
               <div 
                 className="relative group cursor-pointer z-50"
               >
-                <ProficiencyBadge level={context.level} />
+                <ProficiencyBadge level={userActualLevel} />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-full group-hover:blur-xl group-hover:bg-blue-400/40 transition-all duration-500" />
                 <div className="relative bg-blue-950 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/10 shadow-2xl transition-all duration-500 group-hover:bg-blue-900 group-hover:border-blue-400/50 overflow-hidden flex items-center justify-center">
                   {user?.photoURL ? (
@@ -1949,7 +1996,8 @@ export default function App() {
                   >
                     <option value="A1">A1 (Absolute Beginner)</option>
                     <option value="A2">A2 (Elementary)</option>
-                    <option value="B1-B2">B1-B2 (Intermediate)</option>
+                    <option value="B1">B1 (Intermediate)</option>
+                    <option value="B2">B2 (Upper Intermediate)</option>
                     <option value="C1">C1 (Advanced)</option>
                   </select>
                 </div>
