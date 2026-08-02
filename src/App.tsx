@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Markdown from "react-markdown";
 import {
@@ -591,6 +591,13 @@ export default function App() {
     }
   };
 
+  const sessionsToday = useMemo(() => {
+    const today = new Date().toDateString();
+    return pastReports.filter(r => new Date(r.createdAtTime).toDateString() === today).length;
+  }, [pastReports]);
+
+  const showGoalBanner = sessionsToday < 3;
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500/30 antialiased overflow-hidden relative">
       {purchasedBadgeInfo && (
@@ -605,7 +612,13 @@ export default function App() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#4ade80_0%,_transparent_75%)]" />
       </div>
 
-      <main className="relative z-10 max-w-4xl mx-auto p-4 md:p-12 flex flex-col min-h-screen">
+      <main className={`relative z-10 max-w-4xl mx-auto p-4 md:p-12 flex flex-col min-h-screen ${showGoalBanner ? "pt-16 sm:pt-20 md:pt-24" : ""}`}>
+        {showGoalBanner && (
+          <div className="fixed top-0 left-0 right-0 bg-emerald-500 text-white px-4 py-2 text-center text-xs sm:text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-md z-50">
+            <Target className="w-4 h-4 text-emerald-100" />
+            <span>Daily Goal: {sessionsToday}/3 sessions. {3 - sessionsToday} more to go!</span>
+          </div>
+        )}
         {/* Header */}
         <header className="flex flex-col md:flex-row justify-between items-center gap-6 pb-8 mb-6 md:mb-10 w-full">
           <div className="flex items-center justify-between w-full md:w-auto">
