@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { LocalReport } from '../lib/indexedDB';
+import { TrendingUp, TrendingDown, Target, Zap } from 'lucide-react';
 
 interface Props {
   reports: LocalReport[];
@@ -47,6 +48,31 @@ export const ProgressDashboard: React.FC<Props> = ({ reports }) => {
 
   const hasData = chartData.some(d => d.Fluency !== null || d.Grammar !== null || d.Vocabulary !== null || d.Overall !== null);
 
+  const insights = useMemo(() => {
+    if (!hasData || chartData.length < 2) return null;
+
+    const metrics = ['Fluency', 'Grammar', 'Vocabulary'] as const;
+    
+    const changes = metrics.map(metric => {
+      const values = chartData.map(d => d[metric]).filter(v => v !== null) as number[];
+      if (values.length >= 2) {
+        const first = values[0];
+        const last = values[values.length - 1];
+        return { metric, delta: last - first };
+      }
+      return null;
+    }).filter(c => c !== null) as { metric: string, delta: number }[];
+
+    if (changes.length === 0) return null;
+
+    changes.sort((a, b) => b.delta - a.delta);
+    
+    const mostImproved = changes[0].delta > 0 ? changes[0].metric : null;
+    const needsFocus = changes[changes.length - 1].delta <= 0 ? changes[changes.length - 1].metric : null;
+
+    return { mostImproved, needsFocus };
+  }, [chartData, hasData]);
+
   if (!hasData) {
     return (
       <div className="bg-white border border-slate-900/5 rounded-2xl p-6 mb-8 text-center text-slate-500 text-sm">
@@ -58,9 +84,29 @@ export const ProgressDashboard: React.FC<Props> = ({ reports }) => {
 
   return (
     <div className="bg-white border border-slate-900/5 rounded-2xl p-6 mb-8">
-      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
-        Progress Trends (Last 5 Sessions)
-      </h3>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+          Progress Trends (Last 5 Sessions)
+        </h3>
+        
+        {insights && (
+          <div className="flex gap-3">
+            {insights.mostImproved && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-100 rounded-lg text-emerald-700">
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Most Improved: {insights.mostImproved}</span>
+              </div>
+            )}
+            {insights.needsFocus && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-100 rounded-lg text-amber-700">
+                <Target className="w-3.5 h-3.5" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Needs Focus: {insights.needsFocus}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
