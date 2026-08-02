@@ -99,7 +99,8 @@ export class EltBot {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       console.log("Microphone access granted.");
 
-      // Setup parallel Browser Speech Recognition to capture the user's side of the transcript reliably
+      // SpeechRecognition is disabled in favor of inputAudioTranscription from Gemini Live API
+      /*
       const SpeechRecognition =
         (window as any).SpeechRecognition ||
         (window as any).webkitSpeechRecognition;
@@ -126,10 +127,8 @@ export class EltBot {
             } catch (e) {}
           }
         };
-        try {
-          this.recognition.start();
-        } catch (e) {}
       }
+      */
 
       const systemInstruction = `
         You are SpeakingBuddy, an intelligent speaking partner designed by Ahmet M. Oturak. All rights reserved.
@@ -266,7 +265,7 @@ export class EltBot {
                   });
                 }
 
-                // Text (transcription)
+                // Text (transcription in parts fallback)
                 const text = part.text || part.thought;
                 if (text && typeof text === "string") {
                   this.transcriptHistory.push(`[Tutor]: ${text}`);
@@ -274,6 +273,25 @@ export class EltBot {
                     this.callbacks.onTranscription(text, true);
                   }
                 }
+              }
+            }
+            
+            // Handle formal output/input transcription from API
+            const outTrans = (message.serverContent as any)?.outputTranscription || (message.serverContent as any)?.outputAudioTranscription;
+            if (outTrans?.text) {
+              const text = outTrans.text;
+              this.transcriptHistory.push(`[Tutor]: ${text}`);
+              if (this.callbacks.onTranscription) {
+                this.callbacks.onTranscription(text, true);
+              }
+            }
+
+            const inTrans = (message.serverContent as any)?.inputTranscription || (message.serverContent as any)?.inputAudioTranscription;
+            if (inTrans?.text) {
+              const text = inTrans.text;
+              this.transcriptHistory.push(`[Student]: ${text}`);
+              if (this.callbacks.onTranscription) {
+                this.callbacks.onTranscription(text, false);
               }
             }
           },
@@ -290,6 +308,8 @@ export class EltBot {
         },
         config: {
           responseModalities: ["AUDIO"] as any,
+          outputAudioTranscription: {},
+          inputAudioTranscription: {},
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: {
