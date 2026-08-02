@@ -443,10 +443,14 @@ export class EltBot {
             ### 🎯 Session Assessment
             * **Goal Achievement:** [Did they meet their goal for this session? Be objective.]
             * **Estimated Level:** [CEFR Level - Evaluate strictly based on actual grammar, vocabulary, and flow shown.]
+            * **Fluency Score:** [Estimate score from 0 to 100]
+            * **Grammar Score:** [Estimate score from 0 to 100]
+            * **Vocabulary Score:** [Estimate score from 0 to 100]
             * **General Impression:** [Summary of performance, highlighting main weaknesses]
 
             ### 🗣️ Fluency & Pronunciation
             * [Strict feedback on clarity, pacing, hesitations, and overall fluency]
+            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes (e.g., /th/, /r/) or words the student struggled to pronounce]
             * **Strengths:** [Examples]
             * **To improve:** [Examples]
 
@@ -475,6 +479,9 @@ export class EltBot {
 
             ### 🎯 IELTS Mock Assessment
             * **Estimated Band Score:** [Extract the exact score mentioned by the Tutor in the transcript. If not mentioned, estimate strictly 0.0 - 9.0]
+            * **Fluency Score:** [Estimate sub-score strictly 0.0 - 9.0]
+            * **Grammar Score:** [Estimate sub-score strictly 0.0 - 9.0]
+            * **Vocabulary Score:** [Estimate sub-score strictly 0.0 - 9.0]
             * **General Impression:** [Summary of performance, focusing on areas costing them points]
 
             ### 🗣️ Fluency & Coherence
@@ -491,6 +498,7 @@ export class EltBot {
 
             ### 🎤 Pronunciation
             * [Strict feedback on clarity, intonation, and features of connected speech]
+            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes (e.g., /th/, /r/) or words the student struggled to pronounce]
 
             ### 🚀 Next Steps
             * [Actionable tip 1]

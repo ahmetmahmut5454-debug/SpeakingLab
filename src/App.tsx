@@ -234,6 +234,8 @@ const SUPPORTED_LANGUAGES = [
   { name: "Turkish", code: "tr-TR", flag: "🇹🇷" },
 ];
 
+import { ProgressDashboard } from "./components/ProgressDashboard";
+
 export default function App() {
   const [context, setContext] = useState<BotContext>({
     level: "B1-B2",
@@ -1158,21 +1160,44 @@ export default function App() {
               exit={{ opacity: 0, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             >
-              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-lg w-full shadow-2xl">
-                <div className="flex items-center gap-3 mb-6">
+              <div className="bg-white border border-slate-900/10 p-8 rounded-2xl max-w-lg w-full shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="flex items-center gap-3 mb-6 shrink-0">
                   <LayoutDashboard className="w-6 h-6 text-emerald-500" />
                   <h2 className="text-xl font-bold uppercase tracking-tight">
                     Session Analysis
                   </h2>
                 </div>
-                <div className="prose prose-invert prose-sm overflow-y-auto max-h-[60vh] mb-6 custom-scrollbar">
-                  {report.split("\n").map((line, i) => (
-                    <p key={i}>{line}</p>
-                  ))}
+                
+                <div className="overflow-y-auto custom-scrollbar shrink">
+                  {(() => {
+                    const match = report.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
+                    const struggledText = match ? match[1] : null;
+                    const cleanReport = report.replace(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)\n?/i, '');
+                    
+                    return (
+                      <>
+                        {struggledText && (
+                          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl shrink-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <AudioLines className="w-4 h-4 text-orange-500" />
+                              <span className="text-xs font-bold uppercase tracking-widest text-orange-600">Pronunciation Focus</span>
+                            </div>
+                            <p className="text-sm text-orange-800 font-medium">
+                              {struggledText}
+                            </p>
+                          </div>
+                        )}
+                        <div className="prose prose-slate prose-sm mb-6">
+                          <Markdown>{cleanReport}</Markdown>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
+                
                 <button
                   onClick={() => setReport(null)}
-                  className="w-full py-3 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all"
+                  className="w-full py-3 mt-4 shrink-0 bg-slate-900/5 border border-slate-900/10 rounded-lg hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all"
                 >
                   Close Feedback
                 </button>
@@ -1296,7 +1321,9 @@ export default function App() {
 
                 {/* Stats Bar */}
                 {!loadingHistory && pastReports.length > 0 && (
-                  <div className="grid grid-cols-3 gap-4 mb-8">
+                  <>
+                    <ProgressDashboard reports={pastReports} />
+                    <div className="grid grid-cols-3 gap-4 mb-8">
                     <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
                       <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Total Sessions
@@ -1331,6 +1358,7 @@ export default function App() {
                       </div>
                     </div>
                   </div>
+                  </>
                 )}
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-4 pr-2">
@@ -1383,7 +1411,30 @@ export default function App() {
                         </div>
                         <div className="markdown-body text-sm text-slate-300 mt-2">
                           {r.reportText ? (
-                            <Markdown>{r.reportText}</Markdown>
+                            (() => {
+                              const match = r.reportText.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
+                              const struggledText = match ? match[1] : null;
+                              const cleanReport = r.reportText.replace(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)\n?/i, '');
+                              
+                              return (
+                                <>
+                                  {struggledText && (
+                                    <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <AudioLines className="w-4 h-4 text-orange-500" />
+                                        <span className="text-xs font-bold uppercase tracking-widest text-orange-600">Pronunciation Focus</span>
+                                      </div>
+                                      <p className="text-sm text-orange-800 font-medium">
+                                        {struggledText}
+                                      </p>
+                                    </div>
+                                  )}
+                                  <div className="prose prose-slate prose-sm max-w-none">
+                                    <Markdown>{cleanReport}</Markdown>
+                                  </div>
+                                </>
+                              );
+                            })()
                           ) : (
                             <div className="flex flex-col items-center gap-4 py-8 bg-slate-900/5 rounded-xl border border-dashed border-slate-900/20">
                               <Sparkles className="w-8 h-8 text-indigo-400 animate-pulse" />

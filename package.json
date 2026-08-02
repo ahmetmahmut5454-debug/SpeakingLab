@@ -53,6 +53,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-markdown": "^10.1.0",
+    "recharts": "^3.10.1",
     "vite": "^8.0.10"
   },
   "devDependencies": {
