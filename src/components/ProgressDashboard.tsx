@@ -119,10 +119,10 @@ export const ProgressDashboard: React.FC<Props> = ({ reports }) => {
               labelStyle={{ fontWeight: 'bold', color: '#64748b', marginBottom: '8px' }}
             />
             <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-            <Line type="monotone" dataKey="Overall" stroke="#0f172a" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
-            <Line type="monotone" dataKey="Fluency" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} connectNulls />
-            <Line type="monotone" dataKey="Grammar" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} connectNulls />
-            <Line type="monotone" dataKey="Vocabulary" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} connectNulls />
+            <Line type="monotone" dataKey="Overall" stroke="#0f172a" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls isAnimationActive={true} animationDuration={1500} animationEasing="ease-out" />
+            <Line type="monotone" dataKey="Fluency" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} connectNulls isAnimationActive={true} animationDuration={1500} animationBegin={200} animationEasing="ease-out" />
+            <Line type="monotone" dataKey="Grammar" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} connectNulls isAnimationActive={true} animationDuration={1500} animationBegin={400} animationEasing="ease-out" />
+            <Line type="monotone" dataKey="Vocabulary" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} connectNulls isAnimationActive={true} animationDuration={1500} animationBegin={600} animationEasing="ease-out" />
           </LineChart>
         </ResponsiveContainer>
       </div>
