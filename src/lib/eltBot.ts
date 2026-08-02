@@ -30,8 +30,9 @@ const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 export type ProficiencyLevel = "A1" | "A2" | "B1-B2" | "C1";
 
 export type VoiceType =
-  | "Puck"
   | "Aoede"
+  | "Puck"
+  | "Zephyr"
   | "Charon"
   | "Kore"
   | "Fenrir";
@@ -285,15 +286,13 @@ export class EltBot {
           },
         },
         config: {
-          generationConfig: {
-            responseModalities: ["AUDIO"] as any,
-            speechConfig: {
-              voiceConfig: {
-                prebuiltVoiceConfig: {
-                  voiceName:
-                    context.voice ||
-                    (context.level === "C1" ? "Charon" : "Aoede"),
-                },
+          responseModalities: ["AUDIO"] as any,
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName:
+                  context.voice ||
+                  (context.level === "C1" ? "Charon" : "Zephyr"),
               },
             },
           },
