@@ -460,9 +460,20 @@ export class EltBot {
            }
         }
 
+        const accuracyRules = `
+            >>> CRITICAL DIRECTIVE: TRANSCRIPT ACCURACY & NO HALLUCINATIONS <<<
+            1. EXACT VERBATIM QUOTING: When quoting what the student said or listing corrections/mistakes, you MUST ONLY quote the exact words and phrases that appear verbatim in the [Student]: lines of the transcript.
+            2. NO HALLUCINATED OR MADE-UP WORDS: Absolute prohibition against inventing, fabricating, or misspelling words that the student did NOT actually say. Do not invent fake typos or imaginary words.
+            3. EXACT MATCH FORMATTING: Format corrections as: "Exact Student Quote" -> "Suggested Correction".
+            4. DO NOT INVENT ERRORS: If the student spoke correctly or the transcript is brief, do NOT fabricate imaginary grammar/vocabulary mistakes. Instead, offer advanced alternative phrasings or vocabulary enhancements.
+            >>> END CRITICAL DIRECTIVE <<<
+        `;
+
         const standardFormat = `
             Provide a highly structured, strict, and completely objective feedback report for a general language practice session. 
-            Do NOT inflate the student's level or give unearned praise. Be highly critical and identify specific mistakes, awkward phrasing, and areas of improvement.
+            Do NOT inflate the student's level or give unearned praise. Be highly critical and identify specific mistakes, awkward phrasing, and areas of improvement based STRICTLY on the actual transcript.
+
+            ${accuracyRules}
 
             Use the following exact Markdown format:
 
@@ -476,13 +487,13 @@ export class EltBot {
 
             ### 🗣️ Fluency & Pronunciation
             * [Strict feedback on clarity, pacing, hesitations, and overall fluency]
-            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes (e.g., /th/, /r/) or words the student struggled to pronounce]
-            * **Strengths:** [Examples]
+            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes or actual words from transcript the student struggled with]
+            * **Strengths:** [Examples from transcript]
             * **To improve:** [Examples]
 
             ### 📚 Grammar & Vocabulary
-            * [Strict feedback on range of vocabulary and grammatical accuracy. Point out basic errors if present.]
-            * **Corrections:** [Examples of mistakes and how to fix them]
+            * [Strict feedback on range of vocabulary and grammatical accuracy based strictly on transcript.]
+            * **Corrections:** [Exact student quote from transcript -> Corrected version]
             * **New words to learn:** [2-3 useful advanced words/phrases for next time]
 
             ### 🚀 Next Steps
@@ -495,6 +506,8 @@ export class EltBot {
             Provide a highly structured, strictly objective, and critical feedback report based on the official IELTS Speaking test grading criteria.
             Do NOT inflate the Band Score. Give a realistic, strict score reflecting true IELTS standards. Do not give "free" points. If the student makes basic grammar errors or hesitates frequently, the score must be penalized accordingly (e.g. 5.0 or 5.5).
             ${explicitScoreSnippet}
+
+            ${accuracyRules}
 
             >>> CRITICAL INSTRUCTION FOR BAND SCORE <<<
             Read the last few messages of the transcript. The [Tutor] has likely given the student a specific Estimated Band Score (e.g., 4.5, 5.5, 6.0).
@@ -515,16 +528,16 @@ export class EltBot {
 
             ### 📚 Lexical Resource
             * [Strict feedback on vocabulary range, flexibility, and idiomatic language]
-            * **Strong words used:** [Examples]
+            * **Strong words used:** [Exact words from transcript]
             * **To improve:** [Examples of better vocabulary to use]
 
             ### 📝 Grammatical Range & Accuracy
             * [Strict feedback on complex structures and error density]
-            * **Corrections:** [Examples of mistakes and corrections]
+            * **Corrections:** [Exact student quote from transcript -> Corrected version]
 
             ### 🎤 Pronunciation
             * [Strict feedback on clarity, intonation, and features of connected speech]
-            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes (e.g., /th/, /r/) or words the student struggled to pronounce]
+            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes or actual words from transcript the student struggled to pronounce]
 
             ### 🚀 Next Steps
             * [Actionable tip 1]

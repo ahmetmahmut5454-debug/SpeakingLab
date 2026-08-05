@@ -506,7 +506,7 @@ export default function App() {
 
     // Save to IndexedDB locally
     const hasReport = sessionReport && !sessionReport.includes("❌");
-    await saveLocalReport({
+    const newReport: LocalReport = {
       id: Date.now().toString(),
       createdAt: new Date(),
       createdAtTime: Date.now(),
@@ -515,7 +515,10 @@ export default function App() {
       topic: context.topic,
       reportText: hasReport ? sessionReport : "",
       transcript: currentTranscript,
-    });
+      synced: false,
+    };
+    await saveLocalReport(newReport);
+    setPastReports((prev) => [newReport, ...prev]);
   };
 
   const retryReportGeneration = async (report: LocalReport) => {
@@ -711,19 +714,34 @@ export default function App() {
 
   const sessionsToday = useMemo(() => {
     const today = new Date().toDateString();
-    return pastReports.filter(r => new Date(r.createdAtTime).toDateString() === today).length;
+    return pastReports.filter(r => {
+      let timeMs = r.createdAtTime;
+      if (!timeMs && r.createdAt) {
+        if (typeof (r.createdAt as any).seconds === 'number') {
+          timeMs = (r.createdAt as any).seconds * 1000;
+        } else if (r.createdAt instanceof Date) {
+          timeMs = r.createdAt.getTime();
+        } else {
+          timeMs = new Date(r.createdAt as any).getTime();
+        }
+      }
+      if (!timeMs) return false;
+      return new Date(timeMs).toDateString() === today;
+    }).length;
   }, [pastReports]);
 
+  const [isGoalDismissed, setIsGoalDismissed] = useState(false);
   const [goalMetRecently, setGoalMetRecently] = useState(false);
   useEffect(() => {
     if (sessionsToday === 3) {
       setGoalMetRecently(true);
+      setIsGoalDismissed(false); // Make sure celebration is shown when goal is reached
       const t = setTimeout(() => setGoalMetRecently(false), 7000);
       return () => clearTimeout(t);
     }
   }, [sessionsToday]);
 
-  const showGoalBanner = sessionsToday < 3 || goalMetRecently;
+  const showGoalBanner = !isRunning && (sessionsToday < 3 || goalMetRecently) && !isGoalDismissed;
 
   const userActualLevel = useMemo(() => {
     if (!userStats?.unlockedItems) return "A1";
@@ -754,7 +772,7 @@ export default function App() {
 
       <main className={`relative z-10 max-w-4xl mx-auto p-4 md:p-12 flex flex-col min-h-screen ${showGoalBanner ? "pt-16 sm:pt-20 md:pt-24" : ""}`}>
         {showGoalBanner && (
-          <DailyProgressBar sessionsToday={sessionsToday} goal={3} />
+          <DailyProgressBar sessionsToday={sessionsToday} goal={3} onClose={() => setIsGoalDismissed(true)} />
         )}
 
         {/* Header */}

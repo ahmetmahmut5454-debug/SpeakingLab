@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Target, CheckCircle2, Zap } from 'lucide-react';
+import { Target, CheckCircle2, Zap, X } from 'lucide-react';
 import ReactConfetti from 'react-confetti';
 
 interface Props {
   sessionsToday: number;
   goal: number;
+  onClose?: () => void;
 }
 
-export const DailyProgressBar: React.FC<Props> = ({ sessionsToday, goal }) => {
+export const DailyProgressBar: React.FC<Props> = ({ sessionsToday, goal, onClose }) => {
   const [animatedSessions, setAnimatedSessions] = useState(sessionsToday);
   const [showCelebration, setShowCelebration] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
@@ -39,7 +40,7 @@ export const DailyProgressBar: React.FC<Props> = ({ sessionsToday, goal }) => {
   const isGoalReached = animatedSessions >= goal;
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-slate-200/50 shadow-sm z-50 px-4 py-3">
+    <div className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-slate-200/50 shadow-sm z-50 px-4 py-2.5">
       {showCelebration && (
         <ReactConfetti
           width={window.innerWidth}
@@ -52,8 +53,8 @@ export const DailyProgressBar: React.FC<Props> = ({ sessionsToday, goal }) => {
         />
       )}
       
-      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
-        <div className="flex items-center gap-2 whitespace-nowrap">
+      <div className="max-w-4xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
+        <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
           {isGoalReached ? (
             <CheckCircle2 className="w-5 h-5 text-emerald-500" />
           ) : (
@@ -64,7 +65,7 @@ export const DailyProgressBar: React.FC<Props> = ({ sessionsToday, goal }) => {
           </span>
         </div>
         
-        <div className="flex-1 w-full flex items-center gap-3">
+        <div className="flex-1 w-full flex items-center gap-2 sm:gap-3">
           <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
             <motion.div
               initial={{ width: `${Math.min(100, (Math.max(0, animatedSessions - 1) / goal) * 100)}%` }}
@@ -76,9 +77,9 @@ export const DailyProgressBar: React.FC<Props> = ({ sessionsToday, goal }) => {
               <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-r from-transparent to-white/30 skew-x-[-20deg] transform translate-x-1/2" />
             </motion.div>
           </div>
-          <div className="flex items-center gap-1.5 min-w-[3.5rem] justify-end">
+          <div className="flex items-center gap-1 min-w-[3rem] justify-end shrink-0">
             <Zap className={`w-4 h-4 ${isGoalReached ? 'text-amber-500' : 'text-slate-400'}`} />
-            <span className={`text-sm font-black ${isGoalReached ? 'text-amber-500' : 'text-slate-500'}`}>
+            <span className={`text-xs sm:text-sm font-black ${isGoalReached ? 'text-amber-500' : 'text-slate-500'}`}>
               <motion.span>
                 {animatedSessions}
               </motion.span>
@@ -86,6 +87,17 @@ export const DailyProgressBar: React.FC<Props> = ({ sessionsToday, goal }) => {
             </span>
           </div>
         </div>
+
+        {onClose && (
+          <button
+            onClick={onClose}
+            aria-label="Kapat"
+            title="Kapat"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors shrink-0 -mr-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
     </div>
   );
