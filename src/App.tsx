@@ -39,8 +39,10 @@ import {
   Check,
   Lock,
   Trophy,
-  FileText
+  FileText,
+  WifiOff
 } from "lucide-react";
+import { AudioProcessor, AudioPlayer } from "./lib/audioManager";
 import { CueCardOverlay } from "./components/CueCardOverlay";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType, isIELTSSession } from "./lib/eltBot";
 import { predefinedScenarios, Scenario, extractCueCardFromScenario } from "./lib/scenarios";
@@ -174,6 +176,9 @@ const SHOP_ITEMS = [
 import { Guide } from "./components/Guide";
 import { ScenarioSelector } from "./components/ScenarioSelector";
 
+import { AudioStageVisualizer, RoleAvatar } from "./components/AudioStageVisualizer";
+import { audioLevelEmitter } from "./lib/audioLevelEmitter";
+
 const StatusBadge = ({ on }: { on: boolean }) => (
   <div className="flex items-center gap-2 bg-slate-900/5 px-4 py-2 rounded-full border border-slate-900/10 backdrop-blur-md shadow-lg">
     <div
@@ -184,92 +189,6 @@ const StatusBadge = ({ on }: { on: boolean }) => (
     </span>
   </div>
 );
-
-const VoiceBar = ({ level, color, isActive = false, delayOffset = 0 }: { level: number; color: string; isActive?: boolean; delayOffset?: number }) => {
-  const bars = Array.from({ length: 8 });
-  return (
-    <div className="flex flex-col gap-1 items-center justify-end h-32 w-4">
-      {bars.map((_, i) => {
-        const threshold = (i + 1) * 12;
-        const active = level > threshold;
-        // Hardware-inspired subtle breathing for the first two bars when active but silent
-        const isBreathing = isActive && level <= 12 && i < 2;
-
-        return (
-          <motion.div
-            key={i}
-            initial={false}
-            animate={
-              isBreathing
-                ? {
-                    backgroundColor: [color, "#1e1e1e", color],
-                    opacity: [0.5, 0.15, 0.5],
-                    boxShadow: [`0 0 8px ${color}40`, "none", `0 0 8px ${color}40`],
-                  }
-                : {
-                    backgroundColor: active ? color : "#1e1e1e",
-                    opacity: active ? 1 : 0.2,
-                    boxShadow: active ? `0 0 10px ${color}` : "none",
-                  }
-            }
-            transition={
-              isBreathing
-                ? {
-                    duration: 2.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: delayOffset + i * 0.3,
-                  }
-                : { type: "tween", duration: 0.1 }
-            }
-            className="w-full h-2 rounded-sm"
-          />
-        );
-      })}
-    </div>
-  );
-};
-
-const RoleAvatar = ({
-  role,
-  isActive,
-}: {
-  role?: string;
-  isActive: boolean;
-}) => {
-  const IconComponent = () => {
-    switch (role) {
-      case "station":
-        return <Ticket className="w-8 h-8" />;
-      case "restaurant":
-        return <Utensils className="w-8 h-8" />;
-      case "support":
-        return <Headset className="w-8 h-8" />;
-      case "roommate":
-        return <Home className="w-8 h-8" />;
-      case "mayor":
-        return <Landmark className="w-8 h-8" />;
-      case "investor":
-        return <Briefcase className="w-8 h-8" />;
-      default:
-        return <UserCircle className="w-8 h-8" />;
-    }
-  };
-
-  return (
-    <motion.div
-      animate={{
-        boxShadow: isActive
-          ? "0 0 40px rgba(96, 165, 250, 0.4)"
-          : "0 0 0px rgba(96, 165, 250, 0)",
-        scale: isActive ? 1.05 : 1,
-      }}
-      className={`relative rounded-full p-4 border flex items-center justify-center transition-colors duration-500 ${role ? "border-blue-500/30 bg-blue-500/10 text-blue-400" : "border-slate-900/10 bg-slate-900/5 text-slate-600/40"}`}
-    >
-      <IconComponent />
-    </motion.div>
-  );
-};
 
 const EmojiBurst = ({
   icon,
@@ -345,8 +264,6 @@ export default function App() {
   });
 
   const [isRunning, setIsRunning] = useState(false);
-    const [userLevel, setUserLevel] = useState(0);
-  const [botLevel, setBotLevel] = useState(0);
   const [report, setReport] = useState<LocalReport | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
 
@@ -383,6 +300,19 @@ export default function App() {
     id: string;
     icon: string;
   } | null>(null);
+
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handlePurchase = async (item: (typeof SHOP_ITEMS)[0]) => {
     if (!userStats) return;
@@ -457,8 +387,8 @@ export default function App() {
 
   useEffect(() => {
     botRef.current = new EltBot({
-      onUserLevel: (l) => setUserLevel(l),
-      onBotLevel: (l) => setBotLevel(l),
+      onUserLevel: (l) => audioLevelEmitter.emitUser(l),
+      onBotLevel: (l) => audioLevelEmitter.emitBot(l),
       onTranscription: (text, isModel) => {
         setCurrentSubtitle({ text, isBot: isModel });
         if (subtitleTimeout.current) clearTimeout(subtitleTimeout.current);
@@ -485,26 +415,40 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Determine if silence is happening
-    if (isRunning && userLevel < 3 && botLevel < 3) {
-      if (!silenceInterval.current) {
-        silenceInterval.current = setInterval(() => {
-          setSilenceTimer((prev) => prev + 1);
-        }, 1000);
-      }
-    } else {
+    if (!isRunning) {
       setSilenceTimer(0);
       setShowHintButton(false);
       if (silenceInterval.current) {
         clearInterval(silenceInterval.current);
         silenceInterval.current = null;
       }
+      return;
     }
 
-    if (silenceTimer > 10) {
-      setShowHintButton(true);
+    if (!silenceInterval.current) {
+      silenceInterval.current = setInterval(() => {
+        const isUserSilent = audioLevelEmitter.latestUserLevel < 3;
+        const isBotSilent = audioLevelEmitter.latestBotLevel < 3;
+        if (isUserSilent && isBotSilent) {
+          setSilenceTimer((prev) => {
+            const next = prev + 1;
+            if (next > 10) setShowHintButton(true);
+            return next;
+          });
+        } else {
+          setSilenceTimer(0);
+          setShowHintButton(false);
+        }
+      }, 1000);
     }
-  }, [isRunning, userLevel, botLevel, silenceTimer]);
+
+    return () => {
+      if (silenceInterval.current) {
+        clearInterval(silenceInterval.current);
+        silenceInterval.current = null;
+      }
+    };
+  }, [isRunning]);
 
   const handleStopAndReport = async () => {
     if (!botRef.current) return;
@@ -738,6 +682,10 @@ export default function App() {
       handleStopAndReport();
     } else {
       try {
+        // Synchronous unlock of AudioContexts for iOS Safari requirement
+        AudioProcessor.unlockGlobal();
+        AudioPlayer.unlockGlobal();
+
         setReport(null);
         setCueCardTopic(null);
         await botRef.current?.start(context);
@@ -796,6 +744,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500/30 antialiased overflow-hidden relative">
+      {isOffline && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-slate-950 font-bold px-4 py-2 text-center text-sm flex items-center justify-center gap-2 shadow-lg animate-bounce">
+          <WifiOff className="w-4 h-4" />
+          <span>İnternet Bağlantısı Kesildi — Lütfen bağlantınızı kontrol edin.</span>
+        </div>
+      )}
       {levelUpBadgeId && (
         <LevelUpModal badgeId={levelUpBadgeId} onClose={() => setLevelUpBadgeId(null)} />
       )}
@@ -1139,63 +1093,8 @@ export default function App() {
             {/* Topographic/Grid subtle texture (Sleek) */}
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay" />
 
-            {/* Central Unified Syngery Visualizer */}
-            <div className="relative z-10 flex items-end justify-center gap-12 h-40">
-              <div className="flex flex-col items-center gap-4">
-                <div className="flex gap-[6px]">
-                  <VoiceBar level={userLevel} color="#34d399" isActive={isRunning} delayOffset={0} />
-                  <VoiceBar level={userLevel * 0.9} color="#34d399" isActive={isRunning} delayOffset={0.2} />
-                  <VoiceBar level={userLevel * 1.1} color="#34d399" isActive={isRunning} delayOffset={0.4} />
-                </div>
-              </div>
-
-              <div className="mx-2 md:mx-6 self-center shrink-0">
-                <RoleAvatar
-                  role={context.mode === "Task" ? context.role : undefined}
-                  isActive={botLevel > 15}
-                />
-              </div>
-
-              <div className="flex flex-col items-center gap-4">
-                <div className="flex gap-[6px]">
-                  <VoiceBar level={botLevel * 1.1} color="#60a5fa" isActive={isRunning} delayOffset={0.4} />
-                  <VoiceBar level={botLevel} color="#60a5fa" isActive={isRunning} delayOffset={0} />
-                  <VoiceBar level={botLevel * 0.9} color="#60a5fa" isActive={isRunning} delayOffset={0.2} />
-                </div>
-              </div>
-            </div>
-
-            {/* Dynamic Status Labels */}
-            <AnimatePresence>
-              {isRunning && (
-                <>
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className={`absolute left-10 bottom-10 flex flex-col gap-1 transition-opacity duration-300 ${userLevel > botLevel + 5 ? "opacity-100" : "opacity-40"}`}
-                  >
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-400">
-                      Human
-                    </span>
-                    <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
-                      Transmitting
-                    </span>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className={`absolute right-10 bottom-10 flex flex-col items-end gap-1 transition-opacity duration-300 ${botLevel > userLevel + 5 ? "opacity-100" : "opacity-40"}`}
-                  >
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
-                      AI Core
-                    </span>
-                    <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
-                      Processing
-                    </span>
-                  </motion.div>
+            {/* Central Audio Stage Visualizer */}
+            <AudioStageVisualizer isRunning={isRunning} role={context.role} mode={context.mode} />
                   {/* Add Hint Button */}
                   <AnimatePresence>
                     {showHintButton && (
@@ -1225,9 +1124,6 @@ export default function App() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </>
-              )}
-            </AnimatePresence>
 
             {/* Live Subtitles Overlay */}
             <AnimatePresence>
