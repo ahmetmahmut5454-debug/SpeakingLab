@@ -324,8 +324,7 @@ export default function App() {
   });
 
   const [isRunning, setIsRunning] = useState(false);
-  const [showDev, setShowDev] = useState(false);
-  const [userLevel, setUserLevel] = useState(0);
+    const [userLevel, setUserLevel] = useState(0);
   const [botLevel, setBotLevel] = useState(0);
   const [report, setReport] = useState<string | null>(null);
 
@@ -1087,12 +1086,7 @@ export default function App() {
               >
                 CC
               </button>
-              <button
-                onClick={() => setShowDev(!showDev)}
-                className={`p-3 rounded-xl border transition-all duration-500 shadow-sm ${showDev ? "bg-white border-emerald-300 text-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}
-              >
-                <Settings className="w-5 h-5" />
-              </button>
+              
             </div>
           </div>
         </header>
@@ -1993,165 +1987,6 @@ export default function App() {
             )}
         </AnimatePresence>
 
-        {/* Developer / Context Sidepanel */}
-        <AnimatePresence>
-          {showDev && (
-            <motion.div
-              initial={{ x: 400 }}
-              animate={{ x: 0 }}
-              exit={{ x: 400 }}
-              className="fixed right-0 top-0 bottom-0 w-80 bg-white border-l border-slate-900/10 p-6 z-40 shadow-2xl flex flex-col"
-            >
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <Settings className="w-5 h-5 text-slate-500" />
-                  <h2 className="font-bold uppercase tracking-widest text-sm">
-                    Scenario Settings
-                  </h2>
-                </div>
-                <button
-                  onClick={() => setShowDev(false)}
-                  className="p-2 -mr-2 rounded-lg text-slate-600/50 hover:text-slate-900 hover:bg-slate-900/10 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="space-y-6 flex-1 overflow-y-auto custom-scrollbar pr-2">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase opacity-50 tracking-widest">
-                    Target Language
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {SUPPORTED_LANGUAGES.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() =>
-                          setContext({
-                            ...context,
-                            targetLanguage: lang.name,
-                            targetLanguageCode: lang.code,
-                          })
-                        }
-                        className={`py-2 px-1 text-[10px] font-bold uppercase tracking-widest rounded-lg flex flex-col items-center gap-1 border transition-all ${
-                          context.targetLanguage === lang.name
-                            ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-500"
-                            : "bg-slate-900/5 border-transparent text-slate-500 hover:bg-slate-900/10"
-                        }`}
-                      >
-                        <span className="text-xl">{lang.flag}</span>
-                        {lang.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-
-
-                {context.mode === "Practice" && (
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase opacity-50 tracking-widest flex justify-between">
-                      <span>Target Duration</span>
-                      <span className="text-emerald-500">
-                        {context.taskDurationMinutes} mins
-                      </span>
-                    </label>
-                    <input
-                      type="range"
-                      min="2"
-                      max="15"
-                      step="1"
-                      value={context.taskDurationMinutes}
-                      onChange={(e) =>
-                        setContext({
-                          ...context,
-                          taskDurationMinutes: parseInt(e.target.value),
-                        })
-                      }
-                      className="w-full accent-emerald-500"
-                    />
-                    <p className="text-[8px] opacity-40 uppercase">
-                      AI will naturally try to close the conversation around
-                      this mark.
-                    </p>
-                  </div>
-                )}
-
-
-
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase opacity-50 tracking-widest">
-                    Proficiency Level
-                  </label>
-                  <select
-                    value={context.level}
-                    onChange={(e) =>
-                      setContext({
-                        ...context,
-                        level: e.target.value as ProficiencyLevel,
-                      })
-                    }
-                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-emerald-500/50"
-                  >
-                    <option value="A1">A1 (Absolute Beginner)</option>
-                    <option value="A2">A2 (Elementary)</option>
-                    <option value="B1">B1 (Intermediate)</option>
-                    <option value="B2">B2 (Upper Intermediate)</option>
-                    <option value="C1">C1 (Advanced)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase opacity-50 tracking-widest">
-                    General Topic / Persona
-                  </label>
-                  <textarea
-                    value={context.topic}
-                    onChange={(e) =>
-                      setContext({ ...context, topic: e.target.value })
-                    }
-                    placeholder="e.g. You are a friendly barista. We are at a coffee shop."
-                    rows={2}
-                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-emerald-500/50 resize-none"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase opacity-50 tracking-widest">
-                    {context.mode === "Task"
-                      ? "Specific Task (TBLT)"
-                      : "Learning Objectives"}
-                  </label>
-                  <textarea
-                    value={context.objective}
-                    onChange={(e) =>
-                      setContext({ ...context, objective: e.target.value })
-                    }
-                    placeholder={
-                      context.mode === "Task"
-                        ? "e.g. Student must successfully complain about a cold soup and get a refund."
-                        : "e.g. Practice 'used to' and past tense verbs."
-                    }
-                    rows={3}
-                    className="w-full bg-white border border-slate-900/10 p-3 rounded-lg text-sm focus:outline-none focus:border-emerald-500/50 resize-none"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-slate-900/10 text-[10px] uppercase tracking-widest opacity-30 flex flex-col gap-2">
-                <div className="flex justify-between italic">
-                  <span>Engine</span>
-                  <span>Gemini 3.1 Flash Live</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Latency</span>
-                  <span>~200ms</span>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Footer info */}
         <footer className="mt-12 pt-6 pb-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-3">
           <div className="flex items-center gap-2">
@@ -2172,17 +2007,19 @@ export default function App() {
               ? null
               : context.scenarioId || null
           }
-          onSelect={(scenario) => {
+          onSelect={(scenario, language) => {
             if (scenario) {
               setContext({
                 ...context,
                 mode: "Task",
-                level: scenario.level === "B1-B2" ? "B2" : scenario.level,
+                level: scenario.level === "B1-B2" ? "B2" : (scenario.level as any),
                 topic: scenario.topic,
                 objective: scenario.objective,
                 role: scenario.role,
                 icebreaker: scenario.icebreaker,
                 scenarioId: scenario.id,
+                targetLanguage: language?.name || context.targetLanguage,
+                targetLanguageCode: language?.code || context.targetLanguageCode,
               });
             } else {
               setContext({ 
@@ -2190,7 +2027,9 @@ export default function App() {
                 mode: "Practice", 
                 scenarioId: undefined,
                 topic: "Friendly conversation on any topic you like.",
-                objective: "Speak whatever you like and practice natural conversation."
+                objective: "Speak whatever you like and practice natural conversation.",
+                targetLanguage: language?.name || context.targetLanguage,
+                targetLanguageCode: language?.code || context.targetLanguageCode,
               });
             }
           }}
