@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, X, Clock, Play, Mic, Maximize2 } from 'lucide-react';
 
@@ -11,17 +11,59 @@ export function CueCardOverlay({ topic, onClose }: CueCardOverlayProps) {
   const [timeLeft, setTimeLeft] = useState(60);
   const [phase, setPhase] = useState<'preparation' | 'speaking'>('preparation');
   const [isMinimized, setIsMinimized] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const playBeep = (isLast: boolean = false) => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const audioCtx = audioCtxRef.current;
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(isLast ? 1046.50 : 880, audioCtx.currentTime); 
+      
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (isLast ? 0.4 : 0.1));
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + (isLast ? 0.4 : 0.1));
+    } catch (e) {
+      console.warn("AudioContext not supported or couldn't play beep", e);
+    }
+  };
 
   useEffect(() => {
     if (phase === 'preparation' && timeLeft > 0) {
       const timerId = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
+      
+      if (timeLeft <= 5 && timeLeft > 0) {
+        playBeep(timeLeft === 1);
+      }
+      
       return () => clearInterval(timerId);
     } else if (phase === 'preparation' && timeLeft === 0) {
       setPhase('speaking');
     }
   }, [phase, timeLeft]);
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+         audioCtxRef.current.close().catch(() => {});
+      }
+    };
+  }, []);
 
   return (
     <>
