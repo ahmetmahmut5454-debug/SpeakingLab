@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { BotContext } from '../lib/eltBot';
-import { LocalReport } from '../lib/db';
+import { LocalReport } from '../lib/indexedDB';
 
 interface SessionState {
   isRunning: boolean;
@@ -44,7 +44,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   setIsErrorBankOpen: (open) => set({ isErrorBankOpen: open }),
   context: {
     level: "A2",
-    mode: "Free Practice",
+    mode: "Practice",
     topic: "Tell me about your daily routine.",
     objective: "Practice basic vocabulary and simple present tense.",
     targetLanguage: "English",

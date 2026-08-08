@@ -199,8 +199,15 @@ export class EltBot {
           }
         }
       };
+      let hasError = false;
+      this.recognition.onerror = (event: any) => {
+        console.error("Speech recognition error:", event.error);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          hasError = true;
+        }
+      };
       this.recognition.onend = () => {
-        if (this.isConnected && this.isUserActiveSession) {
+        if (this.isConnected && this.isUserActiveSession && !hasError) {
           try {
             this.recognition.start();
           } catch (e) {}

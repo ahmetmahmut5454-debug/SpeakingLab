@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { UserStats } from '../lib/gamification';
+import { UserStats } from '../lib/firebase';
 
 interface UserState {
   userStats: UserStats | null;
