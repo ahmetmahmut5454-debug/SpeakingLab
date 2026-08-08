@@ -27,6 +27,31 @@ const getApiKey = () => {
 
 const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 
+
+export const cleanTranscript = (text: string) => {
+  if (!text) return text;
+  let cleaned = text.replace(/\s+/g, " ").trim();
+  
+  // 1. Remove redundant word repeats (e.g., "ben ben" -> "ben", "I I I" -> "I")
+  let prev;
+  do {
+    prev = cleaned;
+    cleaned = cleaned.replace(/\b([\w\u00C0-\u017F]+)\s+\1\b/gi, "$1");
+  } while (cleaned !== prev);
+
+  // 2. Clean up self-correction markers and fillers
+  const fillers = ["yani", "şey", "işte", "ıı", "eee", "ee", "hmm", "öhm", "aa", "hı hı", "he", "heh", "I mean", "um", "uh", "like", "you know", "aslında", "ne bileyim", "nasıl desem"];
+  const regex = new RegExp(`\\b(${fillers.join('|')})\\b`, 'gi');
+  cleaned = cleaned.replace(regex, "");
+
+  // Cleanup extra spaces and punctuation left behind
+  cleaned = cleaned.replace(/\s+/g, " ").trim();
+  cleaned = cleaned.replace(/^[.,?!]\s*/, "");
+  cleaned = cleaned.replace(/\s+([.,?!])/g, "$1");
+
+  return cleaned || text; // fallback to original if completely emptied
+};
+
 export type ProficiencyLevel = "A1" | "A2" | "B1" | "B2" | "C1";
 
 export type VoiceType =
@@ -119,7 +144,7 @@ export class EltBot {
               const text = event.results[i][0].transcript;
               if (text.trim()) {
                 this.transcriptHistory.push(`[Student]: ${text}`);
-                this.callbacks.onTranscription?.(text, false);
+                this.callbacks.onTranscription?.(cleanTranscript(text), false);
               }
             }
           }
@@ -532,6 +557,7 @@ export class EltBot {
             ### 🗣️ Fluency & Pronunciation
             * [Strict feedback on clarity, pacing, hesitations, and overall fluency]
             * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes or actual words from transcript the student struggled with]
+            * **Fillers & Hesitations:** [Identify any thinking noises, redundant word repeats, or filler words (e.g. şey, yani, umm) used. Mention if they affected the flow.]
             * **Strengths:** [Examples from transcript]
             * **To improve:** [Examples]
 
@@ -568,6 +594,7 @@ export class EltBot {
 
             ### 🗣️ Fluency & Coherence
             * [Strict feedback on speaking at length, hesitation, and linking words based on the Band Descriptors]
+            * **Fillers & Hesitations:** [Identify any thinking noises, redundant word repeats, or filler words (e.g. şey, yani, umm) used. Mention if they affected the flow.]
 
             ### 📚 Lexical Resource
             * [Strict feedback on vocabulary range, flexibility, and idiomatic language based on the Band Descriptors]
