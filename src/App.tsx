@@ -1648,7 +1648,7 @@ export default function App() {
                     <LevelProgress reports={filteredReports} unlockedItems={userStats?.unlockedItems || []} />
                     <LearningPath reports={filteredReports} userLevel={userActualLevel} onSelectScenario={handleSelectScenario} />
                     <ScoreTrendChart reports={filteredReports} />
-                    <ProgressDashboard reports={filteredReports} />
+                    <ProgressDashboard reports={filteredReports} onSelectReport={(r) => setReport(r)} />
                     <AIProgressInsights reports={filteredReports} />
                     <div className="grid grid-cols-3 gap-4 mb-8">
                     <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">

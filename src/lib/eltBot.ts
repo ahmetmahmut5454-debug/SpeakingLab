@@ -207,6 +207,7 @@ export class EltBot {
         5. Terminate: Call endConversation tool when session ends.
         6. KEEP GOING: If the student stops speaking or is quiet, you MUST encourage them to continue or ask a follow-up question. Do NOT remain silent.
         7. IGNORE NOISE & FILLERS: Ignore thinking noises (umm, uh, eee, ıı, hmm), backchanneling (mhm, yeah, ah, evet, hı hı), filler words (şey, yani, işte, like, you know), throat clearing, laughs, and self-corrections. Do not get distracted. If you are interrupted by these short sounds while speaking, IMMEDIATELY RESUME and finish your previous sentence. Wait patiently for their full thought.
+        8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Say: "Now I will give you a topic. You have 1 minute to prepare your notes, starting now. Please do not speak during preparation time." Then STAY SILENT during their 1-minute prep. Do NOT speak or prompt the student until they finish their 1 to 2 minute presentation or indicate they are finished.
 
         ${
           context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner")
@@ -604,13 +605,17 @@ export class EltBot {
         const isIELTS = isIELTSSession(context);
 
         const accuracyRules = `
-            >>> CRITICAL DIRECTIVE: TRANSCRIPT ACCURACY & NO HALLUCINATIONS <<<
-            1. EXACT VERBATIM QUOTING: When quoting what the student said or listing corrections/mistakes, you MUST ONLY quote the exact words and phrases that appear verbatim in the [Student]: lines of the transcript.
-            2. NO HALLUCINATED OR MADE-UP WORDS: Absolute prohibition against inventing, fabricating, or misspelling words that the student did NOT actually say. Do not invent fake typos or imaginary words.
-            3. EXACT MATCH FORMATTING: Format corrections as: "Exact Student Quote" -> "Suggested Correction".
-            4. DO NOT INVENT ERRORS: If the student spoke correctly or the transcript is brief, do NOT fabricate imaginary grammar/vocabulary mistakes. Instead, offer advanced alternative phrasings or vocabulary enhancements.
-            5. CLICKABLE VOCABULARY: Wrap any advanced, interesting, or corrected English vocabulary words you use in your feedback in <u> tags (e.g., <u>resilience</u> or <u>fascinating</u>) so the student can click them in the UI to see definitions. Wrap single words only, not phrases.
-            6. FILLER WORDS & NOISES: The transcript may contain filler words or thinking noises (e.g., umm, uh, eee, ıı, hmm, şey, yani, işte, like, you know). DO NOT treat these as grammar errors or vocabulary mistakes. If they are excessive, note them under the 'Fluency' section, but do not correct them as grammatical errors.
+            >>> CRITICAL DIRECTIVE: TRANSCRIPT ACCURACY & STT PHONETIC/ACCENT TOLERANCE <<<
+            1. SPEECH-TO-TEXT (STT) ACCENT & PHONETIC ERROR TOLERANCE: Web Speech API and STT engines frequently introduce transcript misrecognitions due to non-native accents, speech rhythm, acoustic distortion, or background noise (e.g., mishearing "think" as "thing", "worked" as "work", "ship" as "sheep", missing word-final 's', or misinterpreting punctuation).
+               - DO NOT penalize the student or cite STT transcript typos/phonetic misrecognitions as student grammar or vocabulary errors.
+               - Evaluate the student's TRUE linguistic intent and underlying competence. If a sentence makes clear semantic sense in context despite a minor acoustic glitch, assume the student spoke correctly.
+               - Only correct genuine grammatical errors (e.g., wrong tenses, subject-verb agreement errors, incorrect preposition usage) that are clearly intended by the student, not isolated STT acoustic misrecognitions.
+            2. EXACT VERBATIM QUOTING: When quoting what the student said or listing corrections/mistakes, you MUST ONLY quote the exact words and phrases that appear verbatim in the [Student]: lines of the transcript.
+            3. NO HALLUCINATED OR MADE-UP WORDS: Absolute prohibition against inventing, fabricating, or misspelling words that the student did NOT actually say. Do not invent fake typos or imaginary words.
+            4. EXACT MATCH FORMATTING: Format corrections as: "Exact Student Quote" -> "Suggested Correction".
+            5. DO NOT INVENT ERRORS: If the student spoke correctly or the transcript is brief, do NOT fabricate imaginary grammar/vocabulary mistakes. Instead, offer advanced alternative phrasings or vocabulary enhancements.
+            6. CLICKABLE VOCABULARY: Wrap any advanced, interesting, or corrected English vocabulary words you use in your feedback in <u> tags (e.g., <u>resilience</u> or <u>fascinating</u>) so the student can click them in the UI to see definitions. Wrap single words only, not phrases.
+            7. FILLER WORDS & NOISES: The transcript may contain filler words or thinking noises (e.g., umm, uh, eee, ıı, hmm, şey, yani, işte, like, you know). DO NOT treat these as grammar errors or vocabulary mistakes. If they are excessive, note them under the 'Fluency' section, but do not correct them as grammatical errors.
             >>> END CRITICAL DIRECTIVE <<<
         `;
 
