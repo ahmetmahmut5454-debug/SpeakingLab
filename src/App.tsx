@@ -185,22 +185,43 @@ const StatusBadge = ({ on }: { on: boolean }) => (
   </div>
 );
 
-const VoiceBar = ({ level, color }: { level: number; color: string }) => {
+const VoiceBar = ({ level, color, isActive = false, delayOffset = 0 }: { level: number; color: string; isActive?: boolean; delayOffset?: number }) => {
   const bars = Array.from({ length: 8 });
   return (
     <div className="flex flex-col gap-1 items-center justify-end h-32 w-4">
       {bars.map((_, i) => {
         const threshold = (i + 1) * 12;
         const active = level > threshold;
+        // Hardware-inspired subtle breathing for the first two bars when active but silent
+        const isBreathing = isActive && level <= 12 && i < 2;
+
         return (
           <motion.div
             key={i}
             initial={false}
-            animate={{
-              backgroundColor: active ? color : "#1e1e1e",
-              opacity: active ? 1 : 0.2,
-              boxShadow: active ? `0 0 10px ${color}` : "none",
-            }}
+            animate={
+              isBreathing
+                ? {
+                    backgroundColor: [color, "#1e1e1e", color],
+                    opacity: [0.5, 0.15, 0.5],
+                    boxShadow: [`0 0 8px ${color}40`, "none", `0 0 8px ${color}40`],
+                  }
+                : {
+                    backgroundColor: active ? color : "#1e1e1e",
+                    opacity: active ? 1 : 0.2,
+                    boxShadow: active ? `0 0 10px ${color}` : "none",
+                  }
+            }
+            transition={
+              isBreathing
+                ? {
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: delayOffset + i * 0.3,
+                  }
+                : { type: "tween", duration: 0.1 }
+            }
             className="w-full h-2 rounded-sm"
           />
         );
@@ -351,6 +372,8 @@ export default function App() {
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<"daily" | "monthly" | "allTime">("daily");
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [pastReports, setPastReports] = useState<LocalReport[]>([]);
+  const [historyLevelFilter, setHistoryLevelFilter] = useState<string>("All");
+  const [historyModeFilter, setHistoryModeFilter] = useState<string>("All");
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isStreakAnimating, setIsStreakAnimating] = useState(false);
@@ -1115,9 +1138,9 @@ export default function App() {
             <div className="relative z-10 flex items-end justify-center gap-12 h-40">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex gap-[6px]">
-                  <VoiceBar level={userLevel} color="#34d399" />
-                  <VoiceBar level={userLevel * 0.9} color="#34d399" />
-                  <VoiceBar level={userLevel * 1.1} color="#34d399" />
+                  <VoiceBar level={userLevel} color="#34d399" isActive={isRunning} delayOffset={0} />
+                  <VoiceBar level={userLevel * 0.9} color="#34d399" isActive={isRunning} delayOffset={0.2} />
+                  <VoiceBar level={userLevel * 1.1} color="#34d399" isActive={isRunning} delayOffset={0.4} />
                 </div>
               </div>
 
@@ -1130,9 +1153,9 @@ export default function App() {
 
               <div className="flex flex-col items-center gap-4">
                 <div className="flex gap-[6px]">
-                  <VoiceBar level={botLevel * 1.1} color="#60a5fa" />
-                  <VoiceBar level={botLevel} color="#60a5fa" />
-                  <VoiceBar level={botLevel * 0.9} color="#60a5fa" />
+                  <VoiceBar level={botLevel * 1.1} color="#60a5fa" isActive={isRunning} delayOffset={0.4} />
+                  <VoiceBar level={botLevel} color="#60a5fa" isActive={isRunning} delayOffset={0} />
+                  <VoiceBar level={botLevel * 0.9} color="#60a5fa" isActive={isRunning} delayOffset={0.2} />
                 </div>
               </div>
             </div>
@@ -1502,7 +1525,13 @@ export default function App() {
 
         {/* History Modal */}
         <AnimatePresence>
-          {showHistory && (
+          {showHistory && (() => {
+            const filteredReports = pastReports.filter(r => {
+              if (historyLevelFilter !== "All" && r.level !== historyLevelFilter) return false;
+              if (historyModeFilter !== "All" && r.mode !== historyModeFilter) return false;
+              return true;
+            });
+            return (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1533,22 +1562,50 @@ export default function App() {
                     </button>
                   </div>
                 </div>
+
+                <div className="bg-slate-50 border-b border-slate-100 px-4 sm:px-8 py-3 flex flex-wrap gap-4 items-center shrink-0">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Filters:</span>
+                  <select
+                    value={historyLevelFilter}
+                    onChange={(e) => setHistoryLevelFilter(e.target.value)}
+                    className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 font-medium"
+                  >
+                    <option value="All">All Levels</option>
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                    <option value="C1">C1</option>
+                    <option value="C2">C2</option>
+                  </select>
+                  <select
+                    value={historyModeFilter}
+                    onChange={(e) => setHistoryModeFilter(e.target.value)}
+                    className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 font-medium"
+                  >
+                    <option value="All">All Modes</option>
+                    <option value="IELTS">IELTS Mock</option>
+                    <option value="Task">Scenario Task</option>
+                    <option value="Practice">Free Practice</option>
+                  </select>
+                </div>
+
                 <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar p-4 sm:p-8">
                 {/* Stats Bar */}
-                {!loadingHistory && pastReports.length > 0 && (
+                {!loadingHistory && filteredReports.length > 0 && (
                   <>
-                    <LevelProgress reports={pastReports} unlockedItems={userStats?.unlockedItems || []} />
-                    <LearningPath reports={pastReports} userLevel={userActualLevel} onSelectScenario={handleSelectScenario} />
-                    <ScoreTrendChart reports={pastReports} />
-                    <ProgressDashboard reports={pastReports} />
-                    <AIProgressInsights reports={pastReports} />
+                    <LevelProgress reports={filteredReports} unlockedItems={userStats?.unlockedItems || []} />
+                    <LearningPath reports={filteredReports} userLevel={userActualLevel} onSelectScenario={handleSelectScenario} />
+                    <ScoreTrendChart reports={filteredReports} />
+                    <ProgressDashboard reports={filteredReports} />
+                    <AIProgressInsights reports={filteredReports} />
                     <div className="grid grid-cols-3 gap-4 mb-8">
                     <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
                       <div className="text-[10px] text-slate-600/40 font-bold uppercase tracking-widest mb-1">
                         Total Sessions
                       </div>
                       <div className="text-3xl font-light text-slate-900">
-                        {pastReports.length}
+                        {filteredReports.length}
                       </div>
                     </div>
                     <div className="bg-white border border-slate-900/5 p-5 rounded-2xl">
@@ -1557,7 +1614,7 @@ export default function App() {
                       </div>
                       <div className="text-3xl font-light text-emerald-400">
                         {Object.entries(
-                          pastReports.reduce(
+                          filteredReports.reduce(
                             (acc, r) => ({
                               ...acc,
                               [r.level]: (acc[r.level] || 0) + 1,
@@ -1585,15 +1642,15 @@ export default function App() {
                     <div className="flex-1 flex items-center justify-center text-slate-600/50 uppercase tracking-widest text-sm animate-pulse">
                       Loading Archives...
                     </div>
-                  ) : pastReports.length === 0 ? (
+                  ) : filteredReports.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center gap-4 text-slate-600/30">
                       <Calendar className="w-12 h-12 opacity-50" />
                       <p className="uppercase tracking-widest text-xs">
-                        No records found initialized.
+                        No records found for the selected filters.
                       </p>
                     </div>
                   ) : (
-                    pastReports.map((r) => (
+                    filteredReports.map((r) => (
                       <div
                         key={r.id}
                         className="bg-[#1a1b1e] border border-slate-900/5 rounded-xl p-6 relative group flex flex-col gap-4"
@@ -1696,9 +1753,9 @@ export default function App() {
                 </div>
               </div>
             </motion.div>
-          )}
+            );
+          })()}
         </AnimatePresence>
-
         {/* Leaderboard Modal */}
         <AnimatePresence>
           {showLeaderboard && (
