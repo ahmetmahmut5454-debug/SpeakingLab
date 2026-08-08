@@ -326,7 +326,8 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
     const [userLevel, setUserLevel] = useState(0);
   const [botLevel, setBotLevel] = useState(0);
-  const [report, setReport] = useState<string | null>(null);
+  const [report, setReport] = useState<LocalReport | null>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
 
   const botRef = useRef<EltBot | null>(null);
 
@@ -510,7 +511,6 @@ export default function App() {
     }
 
     const sessionReport = await botRef.current.generateReport(context, currentTranscript);
-    setReport(sessionReport);
     setGeneratingReport(false);
 
     // Save to IndexedDB locally
@@ -525,9 +525,11 @@ export default function App() {
       reportText: hasReport ? sessionReport : "",
       transcript: currentTranscript,
       synced: false,
+      durationMs: sessionStartTime ? Date.now() - sessionStartTime : undefined,
     };
     await saveLocalReport(newReport);
     setPastReports((prev) => [newReport, ...prev]);
+    setReport(newReport);
   };
 
   const retryReportGeneration = async (report: LocalReport) => {
@@ -712,6 +714,7 @@ export default function App() {
         setCueCardTopic(null);
         await botRef.current?.start(context);
         setIsRunning(true);
+        setSessionStartTime(Date.now());
       } catch (err) {
         console.error("Start failed:", err);
         alert(
@@ -1348,16 +1351,27 @@ export default function App() {
               <div className="bg-white border-0 sm:border border-slate-900/10 rounded-none sm:rounded-2xl max-w-lg w-full h-full sm:h-auto sm:max-h-[90vh] shadow-2xl flex flex-col overflow-hidden">
                 <div className="flex items-center gap-3 shrink-0 p-4 sm:p-8 sm:pb-6 bg-white border-b border-slate-100 z-10">
                   <LayoutDashboard className="w-6 h-6 text-emerald-500" />
-                  <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
-                    Session Analysis
-                  </h2>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
+                      {report.mode === "Task" ? "Scenario Task" : report.mode === "IELTS" ? "IELTS Mock" : "Free Practice"} ({report.level})
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">
+                      <span>{new Date(report.createdAtTime).toLocaleDateString()}</span>
+                      {report.durationMs && (
+                        <>
+                          <span>•</span>
+                          <span>{Math.round(report.durationMs / 60000)}m {Math.round((report.durationMs % 60000) / 1000)}s</span>
+                        </>
+                      )}
+                    </p>
+                  </div>
                 </div>
                 
                 <div className="overflow-y-auto custom-scrollbar flex-1 min-h-0 p-4 sm:p-8">
                   {(() => {
-                    const match = report.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
+                    const match = report.reportText.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
                     const struggledText = match ? match[1] : null;
-                    const cleanReport = report.replace(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)\n?/i, '');
+                    const cleanReport = report.reportText.replace(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)\n?/i, '');
                     
                     return (
                       <>

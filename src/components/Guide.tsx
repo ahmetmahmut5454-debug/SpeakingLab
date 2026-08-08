@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Character } from "./Character";
+import { X } from "lucide-react";
 
 interface GuideProps {
   isRunning: boolean;
@@ -8,12 +9,11 @@ interface GuideProps {
 }
 
 export const Guide = ({ isRunning, onStartPractice }: GuideProps) => {
-  const [state, setState] = useState<"greeting" | "bored" | "hidden">(
-    "greeting",
-  );
+  const [state, setState] = useState<"greeting" | "bored" | "hidden">("greeting");
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    if (isRunning) {
+    if (isRunning || isDismissed) {
       setState("hidden");
       return;
     }
@@ -26,7 +26,7 @@ export const Guide = ({ isRunning, onStartPractice }: GuideProps) => {
     }, 10000);
 
     return () => clearTimeout(timer);
-  }, [isRunning]);
+  }, [isRunning, isDismissed]);
 
   if (state === "hidden") return null;
 
@@ -54,10 +54,19 @@ export const Guide = ({ isRunning, onStartPractice }: GuideProps) => {
           initial={{ scale: 0, originX: 0, originY: 1 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", bounce: 0.5 }}
-          className="bg-white px-5 py-4 md:py-5 md:px-6 rounded-3xl rounded-bl-none shadow-xl border border-slate-200 mb-12 -ml-6 relative hover:shadow-2xl transition-shadow cursor-pointer max-w-[200px] md:max-w-[250px] z-20"
+          className="bg-white px-5 py-4 md:py-5 md:px-6 md:pr-10 rounded-3xl rounded-bl-none shadow-xl border border-slate-200 mb-12 -ml-6 relative hover:shadow-2xl transition-shadow cursor-pointer max-w-[200px] md:max-w-[250px] z-20 group"
           onClick={onStartPractice}
         >
-          <p className="font-extrabold text-slate-800 text-sm md:text-base leading-tight">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDismissed(true);
+            }}
+            className="absolute top-2 right-2 p-1 text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-full transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <p className="font-extrabold text-slate-800 text-sm md:text-base leading-tight mt-1">
             {state === "greeting"
               ? "Let's do practice together! 🚀"
               : "I'm bored... aren't we going to practice? 🥱"}

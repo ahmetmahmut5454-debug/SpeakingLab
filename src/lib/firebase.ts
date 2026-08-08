@@ -438,6 +438,7 @@ export interface SavedReport {
   reportText: string;
   transcript?: string[];
   isLocal?: boolean;
+  durationMs?: number;
 }
 
 // Fetch user's reports

@@ -30,7 +30,7 @@ export function SpeakingTips() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-6 left-6 z-40 bg-white border border-slate-200 p-3 rounded-full shadow-lg hover:shadow-xl hover:bg-amber-50 transition-all group"
+        className="fixed top-24 left-4 sm:top-24 sm:left-6 z-40 bg-white border border-slate-200 p-3 rounded-full shadow-lg hover:shadow-xl hover:bg-amber-50 transition-all group"
         title="Speaking Tips"
       >
         <Lightbulb className="w-6 h-6 text-amber-400 group-hover:text-amber-500 group-hover:animate-pulse" />
@@ -49,7 +49,7 @@ export function SpeakingTips() {
               initial={{ opacity: 0, x: -20, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: -20, scale: 0.95 }}
-              className="fixed top-20 left-6 z-50 w-[320px] bg-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] border border-slate-200 overflow-hidden flex flex-col"
+              className="fixed top-36 left-4 sm:top-36 sm:left-6 z-50 w-[calc(100vw-32px)] sm:w-[320px] bg-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] border border-slate-200 overflow-hidden flex flex-col"
             >
               <div className="flex items-center justify-between p-4 bg-slate-50 border-b border-slate-100">
                 <div className="flex items-center gap-2 text-slate-800">

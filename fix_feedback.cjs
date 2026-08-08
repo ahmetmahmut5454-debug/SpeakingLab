@@ -1,56 +1,12 @@
-import React, { useState } from 'react';
-import Markdown from 'react-markdown';
-import { motion, AnimatePresence } from 'motion/react';
-import { BookOpen, X, Mic, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+const fs = require('fs');
 
-export function FeedbackMarkdown({ content, onPracticeWord }: { content: string, onPracticeWord?: (word: string) => void }) {
-  const [wordDefinition, setWordDefinition] = useState<{ word: string; definition: string; phonetic: string } | null>(null);
-  const [loading, setLoading] = useState(false);
+let content = fs.readFileSync('src/components/FeedbackMarkdown.tsx', 'utf8');
 
-  const handleWordClick = async (word: string) => {
-    // Strip punctuation if any sneaked in
-    const cleanWord = word.replace(/[^a-zA-Z]/g, '');
-    if (!cleanWord) return;
-    
-    setLoading(true);
-    setWordDefinition({ word: cleanWord, definition: "Loading...", phonetic: "" });
+// Replace the return block in FeedbackMarkdown
+const returnStart = content.indexOf('return (');
+const returnEnd = content.lastIndexOf(');') + 2;
 
-    try {
-      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleanWord)}`);
-      if (res.ok) {
-        const data = await res.json();
-        const firstMeaning = data[0]?.meanings[0]?.definitions[0]?.definition;
-        const phonetic = data[0]?.phonetics?.find((p: any) => p.text)?.text || data[0]?.phonetic || '';
-        
-        if (firstMeaning) {
-          setWordDefinition({
-            word: data[0].word,
-            definition: firstMeaning,
-            phonetic
-          });
-          setLoading(false);
-          return;
-        }
-      }
-      setWordDefinition({
-        word: cleanWord,
-        definition: "Definition not found.",
-        phonetic: ""
-      });
-    } catch (err) {
-      console.error(err);
-      setWordDefinition({
-        word: cleanWord,
-        definition: "Error fetching definition.",
-        phonetic: ""
-      });
-    }
-    setLoading(false);
-  };
-
-  const processedReport = content.replace(/<u>(.*?)<\/u>/g, '[$1](#define-$1)');
-
-  return (
+const newReturn = `return (
     <div className="text-slate-700 leading-relaxed space-y-4 font-medium">
       <Markdown
         components={{
@@ -69,7 +25,7 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
             }
             return (
               <h3 className="text-base font-bold text-slate-800 mt-5 mb-2 flex items-center gap-2">
-                <Icon className={`w-4 h-4 ${color}`} />
+                <Icon className={\`w-4 h-4 \${color}\`} />
                 {props.children}
               </h3>
             );
@@ -152,7 +108,7 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
                       </span>
                     )}
                   </h3>
-                  <p className={`text-sm mt-1 leading-relaxed ${loading ? 'text-slate-400 italic' : 'text-slate-300'}`}>
+                  <p className={\`text-sm mt-1 leading-relaxed \${loading ? 'text-slate-400 italic' : 'text-slate-300'}\`}>
                     {wordDefinition.definition}
                   </p>
                   
@@ -175,4 +131,7 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
         )}
       </AnimatePresence>
     </div>
-  );}
+  );`;
+
+content = content.substring(0, returnStart) + newReturn;
+fs.writeFileSync('src/components/FeedbackMarkdown.tsx', content);
