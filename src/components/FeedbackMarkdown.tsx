@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
-import { BookOpen, X } from 'lucide-react';
+import { BookOpen, X, Mic } from 'lucide-react';
 
-export function FeedbackMarkdown({ content }: { content: string }) {
+export function FeedbackMarkdown({ content, onPracticeWord }: { content: string, onPracticeWord?: (word: string) => void }) {
   const [wordDefinition, setWordDefinition] = useState<{ word: string; definition: string; phonetic: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -111,6 +111,19 @@ export function FeedbackMarkdown({ content }: { content: string }) {
                   <p className={`text-sm mt-1 leading-relaxed ${loading ? 'text-slate-400 italic' : 'text-slate-700'}`}>
                     {wordDefinition.definition}
                   </p>
+                  
+                  {!loading && onPracticeWord && (
+                    <button
+                      onClick={() => {
+                        onPracticeWord(wordDefinition.word);
+                        setWordDefinition(null);
+                      }}
+                      className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold text-sm rounded-xl transition-colors border border-orange-200 shadow-sm active:scale-95"
+                    >
+                      <Mic className="w-4 h-4" />
+                      Practice Pronunciation
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

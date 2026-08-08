@@ -45,6 +45,7 @@ export interface BotContext {
   taskDurationMinutes: number; // For Practice mode closing
   customRules?: string;
   scenarioId?: string;
+  pronunciationPracticeWord?: string;
   role?:
     | "station"
     | "restaurant"
@@ -135,7 +136,7 @@ export class EltBot {
         } catch (e) {}
       }
 
-      const systemInstruction = `
+      let systemInstruction = `
         You are SpeakingBuddy, an intelligent speaking partner designed by Ahmet M. Oturak. All rights reserved.
         You provide task-based speaking practices, IELTS scenarios, and free practice modes to help users improve their English speaking skills.
         
@@ -157,6 +158,19 @@ export class EltBot {
             : `Practice: Speak first. Introduce yourself, ask their name. Build rapport.`
         }
       `;
+
+      if (context.pronunciationPracticeWord) {
+        systemInstruction = `
+          You are a supportive pronunciation coach. The user wants to practice the word "${context.pronunciationPracticeWord}".
+          
+          CRITICAL INSTRUCTIONS FOR THIS SESSION:
+          1. Your very first response must be to simply say the word "${context.pronunciationPracticeWord}" clearly and slowly, and then ask the user to "Repeat after me". Do not say anything else in the first turn.
+          2. Listen carefully to their pronunciation.
+          3. Give immediate, specific feedback on how to improve, or praise them if they get it right.
+          4. Keep your responses very brief, supportive, and focused only on this word.
+          5. Call the endConversation tool when the user successfully pronounces the word or after 3 attempts.
+        `;
+      }
 
       const localKey = localStorage.getItem("gemini_custom_key");
       if (!localKey && !getApiKey()) {

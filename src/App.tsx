@@ -6,6 +6,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { FeedbackMarkdown } from "./components/FeedbackMarkdown";
+import { PronunciationPractice } from "./components/PronunciationPractice";
+import { SpeakingTips } from "./components/SpeakingTips";
 import {
   Settings,
   Mic,
@@ -340,6 +342,7 @@ export default function App() {
 
   const [user, setUser] = useState<User | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [pronunciationWord, setPronunciationWord] = useState<string | null>(null);
   const [showShop, setShowShop] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [cueCardTopic, setCueCardTopic] = useState<string | null>(null);
@@ -1370,13 +1373,26 @@ export default function App() {
                               <AudioLines className="w-4 h-4 text-orange-500" />
                               <span className="text-xs font-bold uppercase tracking-widest text-orange-600">Pronunciation Focus</span>
                             </div>
-                            <p className="text-sm text-orange-800 font-medium">
-                              {struggledText}
-                            </p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                        {struggledText.split(/[,;]+/).map((chunk, i) => {
+                                          const word = chunk.trim().replace(/[^a-zA-Z]/g, '');
+                                          if (!word) return null;
+                                          return (
+                                            <button 
+                                              key={i}
+                                              onClick={() => setPronunciationWord(word)}
+                                              className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg text-sm font-bold transition-colors shadow-sm active:scale-95"
+                                            >
+                                              <Mic className="w-3.5 h-3.5" />
+                                              {word}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
                           </div>
                         )}
                         <div className="prose prose-slate prose-sm mb-6 max-w-none">
-                          <FeedbackMarkdown content={cleanReport} />
+                          <FeedbackMarkdown content={cleanReport} onPracticeWord={setPronunciationWord} />
                         </div>
                         <FluencyHeatmap transcript={botRef.current?.transcript || []} />
                       </>
@@ -1619,13 +1635,26 @@ export default function App() {
                                         <AudioLines className="w-4 h-4 text-orange-500" />
                                         <span className="text-xs font-bold uppercase tracking-widest text-orange-600">Pronunciation Focus</span>
                                       </div>
-                                      <p className="text-sm text-orange-800 font-medium">
-                                        {struggledText}
-                                      </p>
+                                      <div className="flex flex-wrap gap-2 mt-2">
+                                        {struggledText.split(/[,;]+/).map((chunk, i) => {
+                                          const word = chunk.trim().replace(/[^a-zA-Z]/g, '');
+                                          if (!word) return null;
+                                          return (
+                                            <button 
+                                              key={i}
+                                              onClick={() => setPronunciationWord(word)}
+                                              className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg text-sm font-bold transition-colors shadow-sm active:scale-95"
+                                            >
+                                              <Mic className="w-3.5 h-3.5" />
+                                              {word}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
                                     </div>
                                   )}
                                   <div className="prose prose-slate prose-sm max-w-none">
-                                    <FeedbackMarkdown content={cleanReport} />
+                                    <FeedbackMarkdown content={cleanReport} onPracticeWord={setPronunciationWord} />
                                   </div>
                                   <FluencyHeatmap transcript={r.transcript || []} />
                                 </>
@@ -2171,6 +2200,8 @@ export default function App() {
            if (context.mode === "Task") setShowPreTask(true);
            else toggleBot();
         }} />
+        <AnimatePresence>{pronunciationWord && <PronunciationPractice word={pronunciationWord} onClose={() => setPronunciationWord(null)} />}</AnimatePresence>
+        <SpeakingTips />
       </main>
     </div>
   );
