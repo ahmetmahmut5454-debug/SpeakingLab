@@ -1385,7 +1385,7 @@ export default function App() {
                                       </div>
                           </div>
                         )}
-                        <div className="prose prose-slate prose-sm mb-6 max-w-none">
+                        <div className="mb-6">
                           <FeedbackMarkdown content={cleanReport} onPracticeWord={setPronunciationWord} />
                         </div>
                         <FluencyHeatmap transcript={botRef.current?.transcript || []} />
@@ -1647,7 +1647,7 @@ export default function App() {
                                       </div>
                                     </div>
                                   )}
-                                  <div className="prose prose-slate prose-sm max-w-none">
+                                  <div className="mb-4">
                                     <FeedbackMarkdown content={cleanReport} onPracticeWord={setPronunciationWord} />
                                   </div>
                                   <FluencyHeatmap transcript={r.transcript || []} />
