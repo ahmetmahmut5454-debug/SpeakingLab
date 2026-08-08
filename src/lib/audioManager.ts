@@ -10,7 +10,12 @@ export class AudioProcessor {
   private analyser: AnalyserNode | null = null;
   private dataArray: any | null = null;
 
-  async start(stream: MediaStream, onAudioData: (base64Data: string) => void, onLevel?: (level: number) => void) {
+  async start(
+    stream: MediaStream,
+    onAudioData: (base64Data: string) => void,
+    onLevel?: (level: number) => void,
+    isAudioPlaying?: () => boolean
+  ) {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     this.audioContext = new AudioContextClass({ sampleRate: 16000 });
     
@@ -41,11 +46,22 @@ export class AudioProcessor {
     this.processor.onaudioprocess = (e) => {
       const inputData = e.inputBuffer.getChannelData(0);
       
-      // Calculate level
-      if (onLevel && this.analyser) {
+      // Calculate energy level
+      let avgLevel = 0;
+      if (this.analyser) {
         this.analyser.getByteFrequencyData(this.dataArray!);
         const sum = this.dataArray!.reduce((a: number, b: number) => a + b, 0);
-        onLevel(sum / this.dataArray!.length);
+        avgLevel = sum / this.dataArray!.length;
+        if (onLevel) onLevel(avgLevel);
+      }
+
+      // Echo / Self-Interruption Guard:
+      // If AI audio is actively playing, apply an energy threshold gate so speaker audio output isn't fed back into Gemini
+      if (isAudioPlaying && isAudioPlaying()) {
+        if (avgLevel < 25) {
+          // Low energy audio during playback is likely speaker echo - skip sending
+          return;
+        }
       }
 
       const pcm16 = this.floatTo16BitPCM(inputData);

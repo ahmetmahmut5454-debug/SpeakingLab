@@ -3,8 +3,10 @@ import { LocalReport } from "./indexedDB";
 export const extractScore = (text: string, keyword: string) => {
   if (!text) return null;
   const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Matches markdown headers, bolding, lists, colons, equal signs, brackets, e.g.
+  // **Grammar Score**: 85, - Vocabulary: [70], ### Fluency & Coherence Score = 7.5
   const regex = new RegExp(
-    `(?:\\*\\*|\\*|#)*${escapedKeyword}(?:\\*\\*|\\*|#)*\\s*[:=-]\\s*(?:\\[|\\(|Band\\s*)?([0-9]+(?:\\.[0-9]+)?)`,
+    `(?:\\*\\*|\\*|#|\\||-)*\\s*${escapedKeyword}(?:\\*\\*|\\*|#)*\\s*[:=\\|-]?\\s*(?:\\[|\\(|Band\\s*|Skoru?\\s*)?([0-9]+(?:\\.[0-9]+)?)`,
     'i'
   );
   const match = regex.exec(text);
@@ -201,6 +203,12 @@ export const checkMasteryUnlocks = (reports: LocalReport[]): string[] => {
 
   for (const report of sorted) {
     if (!report.reportText) continue;
+    
+    // Quality & Pedagogy Check: Skip brief/spam sessions (<45s or empty reports)
+    const sessionDuration = report.durationMs || 0;
+    const isQualifyingSession = sessionDuration >= 45000 || report.reportText.length >= 250;
+    if (!isQualifyingSession) continue;
+
     const level = extractEstimatedLevel(report.reportText);
     if (level) {
       // Valid if they targeted that level or were rated at that level.

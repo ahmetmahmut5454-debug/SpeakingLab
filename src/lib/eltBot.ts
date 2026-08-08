@@ -155,8 +155,16 @@ export class EltBot {
     console.log("Starting ELT Bot session...", context);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("Microphone access granted.");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 16000,
+        },
+      });
+      console.log("Microphone access granted with hardware Echo Cancellation & Noise Suppression.");
 
       // Setup parallel Browser Speech Recognition to capture the user's side of the transcript reliably
       const SpeechRecognition =
@@ -276,6 +284,7 @@ export class EltBot {
               (level) => {
                 this.callbacks.onUserLevel?.(level);
               },
+              () => this.audioPlayer.isPlaying
             );
 
             // Trigger the bot to start after a small delay
@@ -660,6 +669,11 @@ export class EltBot {
             * [Actionable tip 1]
             * [Actionable tip 2]
             * [Actionable tip 3]
+
+            ### 🏋️ 1-Minute Actionable Drills
+            * **Drill 1 (Sentence Correction):** Practice repeating: "Exact student mistake" -> "Corrected version"
+            * **Drill 2 (Pronunciation/Vocab):** Practice saying <u>word</u> out loud 3 times.
+            * **Drill 3 (Fluency Builder):** Express your opinion on today's topic in 2 complete sentences without using filler words.
         `;
 
         const ieltsFormat = `
@@ -705,6 +719,11 @@ export class EltBot {
             * [Actionable tip 1 based on lowest scoring criterion]
             * [Actionable tip 2]
             * [Actionable tip 3]
+
+            ### 🏋️ 1-Minute Actionable Drills
+            * **Drill 1 (Grammar Fix):** Re-say your sentence: "Mistake" -> "Corrected Version"
+            * **Drill 2 (Band-Booster Vocab):** Practice using <u>collocation</u> in a complete response.
+            * **Drill 3 (Fluency Sprint):** Speak continuously for 30 seconds on a follow-up topic without pausing.
         `;
 
         const response = await ai.models.generateContent({

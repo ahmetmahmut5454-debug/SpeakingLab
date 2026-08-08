@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
-import { BookOpen, X, Mic, CheckCircle2, AlertCircle, Sparkles, Award, Target } from 'lucide-react';
+import { BookOpen, X, Mic, CheckCircle2, AlertCircle, Sparkles, Award, Target, Dumbbell } from 'lucide-react';
 import { BandScoreDisplay } from './BandScoreDisplay';
 
 export function FeedbackMarkdown({ content, onPracticeWord }: { content: string, onPracticeWord?: (word: string) => void }) {
@@ -69,7 +69,10 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
             const text = String(props.children);
             let Icon = Sparkles;
             let color = "text-indigo-500";
-            if (text.toLowerCase().includes('good') || text.toLowerCase().includes('strength') || text.toLowerCase().includes('positive')) {
+            if (text.toLowerCase().includes('drill') || text.toLowerCase().includes('1-minute')) {
+              Icon = Dumbbell;
+              color = "text-amber-500";
+            } else if (text.toLowerCase().includes('good') || text.toLowerCase().includes('strength') || text.toLowerCase().includes('positive')) {
               Icon = CheckCircle2;
               color = "text-emerald-500";
             } else if (text.toLowerCase().includes('improve') || text.toLowerCase().includes('weak') || text.toLowerCase().includes('constructive')) {
