@@ -1,6 +1,7 @@
 import { GoogleGenAI, Modality, LiveServerMessage, Type } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
 import { predefinedScenarios } from "./scenarios";
+import { calculateIELTSBandScore, processIELTSReportScores } from "./mastery";
 
 const getApiKey = () => {
   try {
@@ -478,26 +479,51 @@ export class EltBot {
       }
 
       if (isIELTS) {
+        const avgWords = studentTurns > 0 ? (studentWordCount / studentTurns) : 0;
+        let fluencyScore = 5.0;
+        let lexicalScore = 5.5;
+        let grammarScore = 5.5;
+        let pronScore = 6.0;
+
+        if (studentTurns > 5 && avgWords > 12) {
+          fluencyScore = 7.0;
+          lexicalScore = 6.5;
+          grammarScore = 6.5;
+          pronScore = 7.0;
+        } else if (studentTurns > 2 && avgWords > 7) {
+          fluencyScore = 6.0;
+          lexicalScore = 6.0;
+          grammarScore = 6.0;
+          pronScore = 6.0;
+        } else if (studentTurns > 0) {
+          fluencyScore = 5.5;
+          lexicalScore = 5.5;
+          grammarScore = 5.0;
+          pronScore = 5.5;
+        }
+
+        const calculatedBand = calculateIELTSBandScore(fluencyScore, lexicalScore, grammarScore, pronScore);
+
         return `### 🎯 IELTS Mock Assessment
-* **Estimated Band Score:** 6.0
-* **Fluency & Coherence Score:** 6.0
-* **Lexical Resource Score:** 6.0
-* **Grammatical Range & Accuracy Score:** 5.5
-* **Pronunciation Score:** 6.0
-* **General Impression:** Good overall attempt addressing the IELTS speaking prompt.
+* **Estimated Band Score:** ${calculatedBand.toFixed(1)}
+* **Fluency & Coherence Score:** ${fluencyScore.toFixed(1)}
+* **Lexical Resource Score:** ${lexicalScore.toFixed(1)}
+* **Grammatical Range & Accuracy Score:** ${grammarScore.toFixed(1)}
+* **Pronunciation Score:** ${pronScore.toFixed(1)}
+* **General Impression:** ${studentTurns > 3 ? 'Good overall attempt addressing the IELTS speaking prompt with sustained turns.' : 'Short attempt addressing the IELTS speaking prompt. Try to elaborate on your answers.'}
 
 ### 🗣️ Fluency & Coherence
-* Spoke with acceptable flow and coherence.
-* **Fillers & Hesitations:** Occasional minor pauses.
+* Spoke with ${fluencyScore >= 6.5 ? 'good fluency and minimal hesitations.' : 'acceptable flow and coherence.'}
+* **Fillers & Hesitations:** ${studentTurns > 0 ? 'Occasional minor pauses while organizing thoughts.' : 'Limited speech data recorded.'}
 
 ### 📚 Lexical Resource
 * Used appropriate vocabulary for the scenario.
 
 ### 📝 Grammatical Range & Accuracy
-* Sentence structure was generally clear.
+* Sentence structure was ${grammarScore >= 6.0 ? 'generally complex with good control.' : 'mostly simple and generally clear.'}
 
 ### 🎤 Pronunciation
-* Pronunciation was intelligible.
+* Pronunciation was clear and intelligible.
 
 ### 🚀 Next Steps
 - Practice answering Part 1 and Part 2 questions with longer responses.
@@ -658,7 +684,7 @@ export class EltBot {
         });
 
         if (response.text && response.text.trim().length > 0) {
-          return response.text;
+          return isIELTS ? processIELTSReportScores(response.text) : response.text;
         }
       } catch (err: any) {
         lastErr = err;

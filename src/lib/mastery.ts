@@ -11,6 +11,32 @@ export const extractScore = (text: string, keyword: string) => {
   return null;
 };
 
+/**
+ * Calculates official IELTS overall band score from the 4 criterion sub-scores.
+ * IELTS rounding rule:
+ * - Average is rounded to the nearest half band.
+ * - If average ends in .25, rounds UP to .5.
+ * - If average ends in .75, rounds UP to next whole band (.0).
+ */
+export const calculateIELTSBandScore = (
+  fluency: number,
+  lexical: number,
+  grammar: number,
+  pronunciation: number
+): number => {
+  const avg = (fluency + lexical + grammar + pronunciation) / 4;
+  const floor = Math.floor(avg);
+  const decimal = Math.round((avg - floor) * 1000) / 1000;
+
+  if (decimal < 0.25) {
+    return floor;
+  } else if (decimal < 0.75) {
+    return floor + 0.5;
+  } else {
+    return floor + 1.0;
+  }
+};
+
 export const extractFluencyScore = (text: string): number | null => {
   return extractScore(text, "Fluency & Coherence Score") ??
          extractScore(text, "Fluency Score") ??
@@ -35,6 +61,31 @@ export const extractVocabScore = (text: string): number | null => {
 export const extractPronunciationScore = (text: string): number | null => {
   return extractScore(text, "Pronunciation Score") ??
          extractScore(text, "Pronunciation");
+};
+
+/**
+ * Ensures an IELTS report has a mathematically consistent Estimated Band Score
+ * calculated from its 4 criteria scores using official IELTS rounding rules.
+ */
+export const processIELTSReportScores = (reportText: string): string => {
+  if (!reportText) return reportText;
+
+  const fluency = extractFluencyScore(reportText);
+  const lexical = extractVocabScore(reportText);
+  const grammar = extractGrammarScore(reportText);
+  const pronunciation = extractPronunciationScore(reportText);
+
+  if (fluency !== null && lexical !== null && grammar !== null && pronunciation !== null) {
+    const calculatedBand = calculateIELTSBandScore(fluency, lexical, grammar, pronunciation);
+    const formattedBand = calculatedBand.toFixed(1);
+    
+    const bandRegex = /(\*?\*?Estimated Band Score\*?\*?\s*:\s*\*?\*?\s*)([0-9.]+)/i;
+    if (bandRegex.test(reportText)) {
+      return reportText.replace(bandRegex, `$1${formattedBand}`);
+    }
+  }
+
+  return reportText;
 };
 
 export const extractOverallScore = (text: string): number | null => {

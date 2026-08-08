@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
-import { BookOpen, X, Mic, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { BookOpen, X, Mic, CheckCircle2, AlertCircle, Sparkles, Award, Target } from 'lucide-react';
+import { BandScoreDisplay } from './BandScoreDisplay';
 
 export function FeedbackMarkdown({ content, onPracticeWord }: { content: string, onPracticeWord?: (word: string) => void }) {
   const [wordDefinition, setWordDefinition] = useState<{ word: string; definition: string; phonetic: string } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const isIeltsReport = content.toLowerCase().includes('band score') || content.toLowerCase().includes('ielts');
 
   const handleWordClick = async (word: string) => {
     // Strip punctuation if any sneaked in
@@ -52,6 +55,8 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
 
   return (
     <div className="text-slate-700 leading-relaxed space-y-4 font-medium">
+      {isIeltsReport && <BandScoreDisplay content={content} />}
+
       <Markdown
         components={{
           h1: ({ node, ...props }) => <h1 className="text-xl font-bold text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-200" {...props} />,
@@ -77,12 +82,43 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
           p: ({ node, ...props }) => <p className="text-sm leading-relaxed mb-4 text-slate-600" {...props} />,
           ul: ({ node, ...props }) => <ul className="space-y-2 mb-6 ml-1" {...props} />,
           ol: ({ node, ...props }) => <ol className="space-y-2 mb-6 ml-1 list-decimal list-inside" {...props} />,
-          li: ({ node, ...props }) => (
-            <li className="flex items-start gap-2 text-sm text-slate-600 group">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0 mt-2 transition-colors group-hover:bg-slate-400" />
-              <span className="flex-1">{props.children}</span>
-            </li>
-          ),
+          li: ({ node, ...props }) => {
+            const rawText = React.Children.toArray(props.children)
+              .map((c) => (typeof c === 'string' || typeof c === 'number' ? c : ''))
+              .join('');
+
+            const isIeltsBandScore = rawText.toLowerCase().includes('estimated band score');
+            const isSubScore = rawText.toLowerCase().includes('score:');
+
+            if (isIeltsBandScore) {
+              return (
+                <li className="flex items-center justify-between p-3.5 my-2.5 bg-gradient-to-r from-blue-900 to-indigo-900 border border-blue-700/50 rounded-xl text-white font-bold shadow-md">
+                  <span className="flex items-center gap-2.5 text-sm sm:text-base">
+                    <Award className="w-5 h-5 text-amber-400 shrink-0" />
+                    {props.children}
+                  </span>
+                </li>
+              );
+            }
+
+            if (isSubScore) {
+              return (
+                <li className="flex items-center justify-between px-3.5 py-2 my-1.5 bg-slate-100/80 border border-slate-200/80 rounded-lg text-slate-800 font-semibold">
+                  <span className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Target className="w-4 h-4 text-blue-600 shrink-0" />
+                    {props.children}
+                  </span>
+                </li>
+              );
+            }
+
+            return (
+              <li className="flex items-start gap-2 text-sm text-slate-600 group">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0 mt-2 transition-colors group-hover:bg-slate-400" />
+                <span className="flex-1">{props.children}</span>
+              </li>
+            );
+          },
           strong: ({ node, ...props }) => <strong className="font-bold text-slate-900" {...props} />,
           blockquote: ({ node, ...props }) => (
             <blockquote className="border-l-2 border-slate-300 bg-slate-50 p-4 rounded-r-lg italic text-slate-600 my-4" {...props}>
