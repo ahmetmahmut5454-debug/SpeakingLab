@@ -42,8 +42,8 @@ import {
   FileText
 } from "lucide-react";
 import { CueCardOverlay } from "./components/CueCardOverlay";
-import { EltBot, ProficiencyLevel, BotContext, VoiceType } from "./lib/eltBot";
-import { predefinedScenarios, Scenario } from "./lib/scenarios";
+import { EltBot, ProficiencyLevel, BotContext, VoiceType, isIELTSSession } from "./lib/eltBot";
+import { predefinedScenarios, Scenario, extractCueCardFromScenario } from "./lib/scenarios";
 import {
   auth,
   loginWithGoogle,
@@ -1361,6 +1361,27 @@ export default function App() {
           </div>
         </div>
 
+        {/* Floating IELTS Cue Card Button during active session */}
+        {isRunning && isIELTSSession(context) && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-6 left-6 z-[80]"
+          >
+            <button
+              onClick={() => {
+                const activeScenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
+                const cardText = cueCardTopic || extractCueCardFromScenario(activeScenario) || (context.topic ? `Topic: ${context.topic}` : "Describe the topic given by your IELTS examiner.");
+                setCueCardTopic(cardText);
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-full shadow-2xl border border-amber-300/50 transition-all cursor-pointer transform hover:scale-105"
+            >
+              <FileText className="w-4 h-4 text-slate-950" />
+              <span>📋 IELTS Cue Card Göster</span>
+            </button>
+          </motion.div>
+        )}
+
         {/* Cue Card Modal */}
         <AnimatePresence>
           {cueCardTopic && isRunning && (
@@ -1487,23 +1508,42 @@ export default function App() {
                     </p>
                   </div>
 
-                  <div className="w-full bg-white/50 rounded-2xl p-6 text-left border border-slate-900/5">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">
-                      Key Vocabulary
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {predefinedScenarios
-                        .find((s) => s.id === context.scenarioId)
-                        ?.vocabulary?.map((word, i) => (
-                          <span
-                            key={i}
-                            className="px-3 py-1 bg-slate-900/5 border border-slate-900/10 rounded-lg text-sm text-slate-600/80"
-                          >
-                            {word}
-                          </span>
-                        ))}
-                    </div>
-                  </div>
+                  {(() => {
+                    const currentScen = predefinedScenarios.find((s) => s.id === context.scenarioId);
+                    const cueCardPreview = extractCueCardFromScenario(currentScen);
+
+                    return (
+                      <>
+                        {cueCardPreview && (
+                          <div className="w-full bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-left mb-2">
+                            <div className="flex items-center gap-2 mb-2 text-amber-600 font-bold text-xs uppercase tracking-wider">
+                              <FileText className="w-4 h-4 text-amber-500" />
+                              <span>IELTS Part 2 Cue Card Task</span>
+                            </div>
+                            <pre className="text-xs text-slate-800 font-sans whitespace-pre-wrap leading-relaxed bg-white/90 p-3 rounded-xl border border-amber-200">
+                              {cueCardPreview}
+                            </pre>
+                          </div>
+                        )}
+
+                        <div className="w-full bg-white/50 rounded-2xl p-6 text-left border border-slate-900/5">
+                          <h3 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">
+                            Key Vocabulary
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {currentScen?.vocabulary?.map((word, i) => (
+                              <span
+                                key={i}
+                                className="px-3 py-1 bg-slate-900/5 border border-slate-900/10 rounded-lg text-sm text-slate-600/80"
+                              >
+                                {word}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
 
                   <div className="flex gap-4 w-full mt-4">
                     <button
@@ -1514,6 +1554,11 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => {
+                        const currentScen = predefinedScenarios.find((s) => s.id === context.scenarioId);
+                        const cueCardText = extractCueCardFromScenario(currentScen);
+                        if (cueCardText) {
+                          setCueCardTopic(cueCardText);
+                        }
                         setShowPreTask(false);
                         toggleBot();
                       }}

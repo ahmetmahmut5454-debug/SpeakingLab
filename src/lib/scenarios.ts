@@ -1454,3 +1454,35 @@ Conduct a full IELTS Speaking test step-by-step.
   }
 ] as Scenario[];
 export const predefinedScenarios = originalScenarios.concat(generatedIeltsScenarios);
+
+export function extractCueCardFromScenario(scenario: Scenario | null | undefined): string | null {
+  if (!scenario) return null;
+
+  if (scenario.objective) {
+    const match = scenario.objective.match(/set EXACTLY to "([^"]+)"/s) ||
+                  scenario.objective.match(/with the following text:\s*"([^"]+)"/s) ||
+                  scenario.objective.match(/topic argument set EXACTLY to "([^"]+)"/s) ||
+                  scenario.objective.match(/tool with[^\n]*?"(Describe [^"]+)"/i) ||
+                  scenario.objective.match(/Part 2 \(Cue Card\):[^\n]*?"([^"]+)"/i);
+    if (match && match[1]) {
+      return match[1].replace(/\\n/g, '\n').trim();
+    }
+  }
+
+  if (scenario.studentBriefing) {
+    const part2Match = scenario.studentBriefing.match(/Part 2:\s*([^\.]+)/i);
+    if (part2Match && part2Match[1]) {
+      return part2Match[1].trim();
+    }
+  }
+
+  if (scenario.title && scenario.title.includes('&')) {
+    const parts = scenario.title.split('&');
+    if (parts.length > 1) {
+      return parts[1].trim();
+    }
+  }
+
+  return null;
+}
+
