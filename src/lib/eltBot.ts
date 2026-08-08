@@ -1,4 +1,4 @@
-import { GoogleGenAI, Modality, LiveServerMessage } from "@google/genai";
+import { GoogleGenAI, Modality, LiveServerMessage, Type } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
 import { predefinedScenarios } from "./scenarios";
 
@@ -90,6 +90,7 @@ export class EltBot {
       onBotLevel?: (level: number) => void;
       onError?: (err: any) => void;
       onBotFinished?: () => void;
+      onShowCueCard?: (topic: string) => void;
     },
   ) {}
 
@@ -249,7 +250,27 @@ export class EltBot {
                     }
                   };
                   // Wait before checking so audio has time to start playing if part of the same turn
-                  setTimeout(checkFinish, 2000);
+                  setTimeout(checkFinish, 1000);
+                } else if (fc.name === "showCueCard") {
+                  console.log("AI called showCueCard function!", fc.args);
+                  if (this.callbacks.onShowCueCard && fc.args && fc.args.topic) {
+                    this.callbacks.onShowCueCard(fc.args.topic as string);
+                  }
+                  if (this.session && this.isConnected) {
+                    try {
+                      this.session.sendToolResponse([
+                        {
+                          functionResponse: {
+                            name: "showCueCard",
+                            id: fc.id,
+                            response: { success: true },
+                          },
+                        },
+                      ]);
+                    } catch (e) {
+                      console.error("Error sending tool response:", e);
+                    }
+                  }
                 }
               }
             }
@@ -332,6 +353,20 @@ export class EltBot {
                   name: "endConversation",
                   description:
                     "Call this when the conversation naturally concludes or when the user explicitly requests to end it, say goodbye, or finish the task.",
+                },
+                {
+                  name: "showCueCard",
+                  description: "Call this EXACTLY when you are transitioning to IELTS Part 2 and about to present the cue card to the student. Pass the complete text of the cue card as the topic argument.",
+                  parameters: {
+                    type: Type.OBJECT,
+                    properties: {
+                      topic: {
+                        type: Type.STRING,
+                        description: "The complete text of the cue card task (e.g. 'Describe a job that you consider highly important. You should say: ...')",
+                      }
+                    },
+                    required: ["topic"],
+                  }
                 },
               ],
             },
@@ -446,26 +481,13 @@ export class EltBot {
         const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
         const isIELTS = scenario?.category === 'IELTS Preparation';
 
-        let explicitScoreSnippet = "";
-        if (isIELTS) {
-           const fullTranscript = transcriptToUse.join("\n");
-           const scoreRegex = /(?:band|score)(?:\s+is|\s+of|\s*:)?\s*([1-9](?:\.[05])?)/gi;
-           let match;
-           let lastScore = null;
-           while ((match = scoreRegex.exec(fullTranscript)) !== null) {
-              lastScore = match[1];
-           }
-           if (lastScore) {
-              explicitScoreSnippet = `\n\n>>> CRITICAL REQUIREMENT: The Tutor assigned an Estimated Band Score of ${lastScore} in the conversation. You MUST set the Estimated Band Score in your report to EXACTLY ${lastScore}. Do NOT change it or recalculate it. <<<\n\n`;
-           }
-        }
-
         const accuracyRules = `
             >>> CRITICAL DIRECTIVE: TRANSCRIPT ACCURACY & NO HALLUCINATIONS <<<
             1. EXACT VERBATIM QUOTING: When quoting what the student said or listing corrections/mistakes, you MUST ONLY quote the exact words and phrases that appear verbatim in the [Student]: lines of the transcript.
             2. NO HALLUCINATED OR MADE-UP WORDS: Absolute prohibition against inventing, fabricating, or misspelling words that the student did NOT actually say. Do not invent fake typos or imaginary words.
             3. EXACT MATCH FORMATTING: Format corrections as: "Exact Student Quote" -> "Suggested Correction".
             4. DO NOT INVENT ERRORS: If the student spoke correctly or the transcript is brief, do NOT fabricate imaginary grammar/vocabulary mistakes. Instead, offer advanced alternative phrasings or vocabulary enhancements.
+            5. CLICKABLE VOCABULARY: Wrap any advanced, interesting, or corrected English vocabulary words you use in your feedback in <u> tags (e.g., <u>resilience</u> or <u>fascinating</u>) so the student can click them in the UI to see definitions. Wrap single words only, not phrases.
             >>> END CRITICAL DIRECTIVE <<<
         `;
 
@@ -503,44 +525,43 @@ export class EltBot {
         `;
 
         const ieltsFormat = `
-            Provide a highly structured, strictly objective, and critical feedback report based on the official IELTS Speaking test grading criteria.
-            Do NOT inflate the Band Score. Give a realistic, strict score reflecting true IELTS standards. Do not give "free" points. If the student makes basic grammar errors or hesitates frequently, the score must be penalized accordingly (e.g. 5.0 or 5.5).
-            ${explicitScoreSnippet}
+            Provide a highly structured, strictly objective, and critical feedback report based on the official IELTS Speaking Band Descriptors (0-9).
+            Do NOT inflate the Band Score. Give a realistic, strict score reflecting true IELTS standards using the four official criteria:
+            1. Fluency and coherence (hesitation, repetition, discourse markers, topic development)
+            2. Lexical resource (vocabulary flexibility, idiomatic language, paraphrase)
+            3. Grammatical range and accuracy (complex structures, error frequency, sentence forms)
+            4. Pronunciation (phonological features, chunking, clarity, intelligibility)
 
             ${accuracyRules}
-
-            >>> CRITICAL INSTRUCTION FOR BAND SCORE <<<
-            Read the last few messages of the transcript. The [Tutor] has likely given the student a specific Estimated Band Score (e.g., 4.5, 5.5, 6.0).
-            You MUST extract this exact number and use it as your Estimated Band Score. Do NOT recalculate or invent a different score. If the Tutor said 5.5, your score MUST be 5.5.
-            >>> END CRITICAL INSTRUCTION <<<
 
             Use the following exact Markdown format:
 
             ### 🎯 IELTS Mock Assessment
-            * **Estimated Band Score:** [Extract the exact score mentioned by the Tutor in the transcript. If not mentioned, estimate strictly 0.0 - 9.0]
-            * **Fluency Score:** [Estimate sub-score strictly 0.0 - 9.0]
-            * **Grammar Score:** [Estimate sub-score strictly 0.0 - 9.0]
-            * **Vocabulary Score:** [Estimate sub-score strictly 0.0 - 9.0]
-            * **General Impression:** [Summary of performance, focusing on areas costing them points]
+            * **Estimated Band Score:** [Estimate strictly 0.0 - 9.0 based on the official descriptors]
+            * **Fluency & Coherence Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
+            * **Lexical Resource Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
+            * **Grammatical Range & Accuracy Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
+            * **Pronunciation Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
+            * **General Impression:** [Summary of performance based on the official Band Descriptors]
 
             ### 🗣️ Fluency & Coherence
-            * [Strict feedback on speaking at length, hesitation, and linking words]
+            * [Strict feedback on speaking at length, hesitation, and linking words based on the Band Descriptors]
 
             ### 📚 Lexical Resource
-            * [Strict feedback on vocabulary range, flexibility, and idiomatic language]
+            * [Strict feedback on vocabulary range, flexibility, and idiomatic language based on the Band Descriptors]
             * **Strong words used:** [Exact words from transcript]
             * **To improve:** [Examples of better vocabulary to use]
 
             ### 📝 Grammatical Range & Accuracy
-            * [Strict feedback on complex structures and error density]
+            * [Strict feedback on complex structures, error density, and sentence forms based on the Band Descriptors]
             * **Corrections:** [Exact student quote from transcript -> Corrected version]
 
             ### 🎤 Pronunciation
-            * [Strict feedback on clarity, intonation, and features of connected speech]
+            * [Strict feedback on clarity, intonation, chunking, and features of connected speech based on the Band Descriptors]
             * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes or actual words from transcript the student struggled to pronounce]
 
             ### 🚀 Next Steps
-            * [Actionable tip 1]
+            * [Actionable tip 1 based on the lowest scoring criterion]
             * [Actionable tip 2]
             * [Actionable tip 3]
         `;

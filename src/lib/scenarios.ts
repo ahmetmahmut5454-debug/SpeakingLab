@@ -353,9 +353,9 @@ const originalScenarios: Scenario[] = [
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Emails): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a hotel that you know." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a hotel that you know." Wait for the user's full response.
 - Part 3 (Staying in hotels & Working in a hotel): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_15_2",
@@ -370,9 +370,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Languages): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a website that you bought something from." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a website that you bought something from." Wait for the user's full response.
 - Part 3 (Shopping online & The culture of consumerism): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_15_3",
@@ -387,9 +387,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Swimming): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a famous business person that you know about." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a famous business person that you know about." Wait for the user's full response.
 - Part 3 (Famous people today & Advantages of being famous): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_15_4",
@@ -404,9 +404,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Jewellery): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe an interesting TV programme you watched about a science topic." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe an interesting TV programme you watched about a science topic." Wait for the user's full response.
 - Part 3 (Science and the public & Scientific discoveries): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_14_1",
@@ -421,9 +421,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Future): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a book that you enjoyed reading because you had to think a lot." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a book that you enjoyed reading because you had to think a lot." Wait for the user's full response.
 - Part 3 (Children and reading & Electronic books): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_14_2",
@@ -438,9 +438,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Social media): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe something you liked very much which you bought for your home." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe something you liked very much which you bought for your home." Wait for the user's full response.
 - Part 3 (Creating a nice home & Different types of home): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_14_3",
@@ -455,9 +455,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Neighbors): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a very difficult task that you succeeded in doing as part of your work or studies." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a very difficult task that you succeeded in doing as part of your work or studies." Wait for the user's full response.
 - Part 3 (Difficult jobs & Personal and career success): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_14_4",
@@ -472,9 +472,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Your neighbourhood): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a website you have bought something from." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a website you have bought something from." Wait for the user's full response.
 - Part 3 (Shopping online & Online retail businesses): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_13_1",
@@ -489,9 +489,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Television programmes): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe someone you know who has started a business." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe someone you know who has started a business." Wait for the user's full response.
 - Part 3 (Choosing work & Work-Life balance): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_13_2",
@@ -506,9 +506,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Age): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a time when you started using a new technological device." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a time when you started using a new technological device." Wait for the user's full response.
 - Part 3 (Technology and education & Technology and society): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_13_3",
@@ -523,9 +523,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Money): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe an interesting discussion you had as part of your work or studies." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe an interesting discussion you had as part of your work or studies." Wait for the user's full response.
 - Part 3 (Discussing problems with others & Communication skills at work): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_13_4",
@@ -540,9 +540,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Animals): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a website you use that helps you a lot in your work or studies." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a website you use that helps you a lot in your work or studies." Wait for the user's full response.
 - Part 3 (The internet & Social media websites): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_12_1",
@@ -557,9 +557,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Health): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe an occasion when you had to wait a long time for someone or something to arrive." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe an occasion when you had to wait a long time for someone or something to arrive." Wait for the user's full response.
 - Part 3 (Arriving early & Being patient): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_12_2",
@@ -574,9 +574,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Songs and singing): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a film/movie actor from your own county who is very popular." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a film/movie actor from your own county who is very popular." Wait for the user's full response.
 - Part 3 (Watching films/movies & Theatre): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_12_3",
@@ -591,9 +591,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Clothes): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe an interesting discussion you had about how you spend your money." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe an interesting discussion you had about how you spend your money." Wait for the user's full response.
 - Part 3 (Money and young people & Money and society): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_12_4",
@@ -608,9 +608,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Art): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a time when you visited a friend or family member at their workplace." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a time when you visited a friend or family member at their workplace." Wait for the user's full response.
 - Part 3 (Different kinds of workplaces & The importance of work): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_11_1",
@@ -625,9 +625,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Food and cooking): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a house/apartment someone you know lives in." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a house/apartment someone you know lives in." Wait for the user's full response.
 - Part 3 (Different types of home & Finding a place to live): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_11_2",
@@ -642,9 +642,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Friends): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a writer you would like to meet." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a writer you would like to meet." Wait for the user's full response.
 - Part 3 (Reading and children & Reading for different purposes): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_11_3",
@@ -659,9 +659,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Photographs): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a day when you thought the weather was perfect." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a day when you thought the weather was perfect." Wait for the user's full response.
 - Part 3 (Types of weather & Weather forecast): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_11_4",
@@ -676,9 +676,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Names): Ask 2-3 questions one by one. Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a TV documentary you watched that was particularly interesting." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a TV documentary you watched that was particularly interesting." Wait for the user's full response.
 - Part 3 (Different types of TV programs & TV advertising): Ask 2-3 deep, abstract questions related to the topic.
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_pdf_1",
@@ -693,9 +693,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Work & Study): Ask 2-3 questions one by one (e.g., "What is your job/subject?", "Why did you choose it?"). Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe your favourite leisure activity. You should say what it is, who you do it with, and explain why you enjoy it." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe your favourite leisure activity. You should say what it is, who you do it with, and explain why you enjoy it." Wait for the user's full response.
 - Part 3 (Leisure time): Ask 2-3 deep, abstract questions related to the topic (e.g., "Do most people get two days off a week?", "Is leisure time important?").
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_pdf_2",
@@ -710,9 +710,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Hometown): Ask 2-3 questions one by one (e.g., "What is it like?", "Has it changed much since you were a child?"). Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a good neighbour. You should say who they are, how you know them, and explain why they are a good neighbour." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a good neighbour. You should say who they are, how you know them, and explain why they are a good neighbour." Wait for the user's full response.
 - Part 3 (Neighbourhoods & Transport): Ask 2-3 deep, abstract questions related to the topic (e.g., "Are neighbours close in your country?", "What is the transport system like in your country?").
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_pdf_3",
@@ -727,9 +727,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Family & Friends): Ask 2-3 questions one by one (e.g., "Who are you closest to?", "Who is your best friend?"). Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe a birthday you enjoyed as a child. You should say what you did, who was there, and explain why you enjoyed it." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe a birthday you enjoyed as a child. You should say what you did, who was there, and explain why you enjoyed it." Wait for the user's full response.
 - Part 3 (Birthdays & Celebrations): Ask 2-3 deep, abstract questions related to the topic (e.g., "Which birthdays are considered important in your country?", "Do most people celebrate with a party?").
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_pdf_4",
@@ -744,9 +744,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Hobbies): Ask 2-3 questions one by one (e.g., "What equipment do you need?", "Did you have a hobby as a child?"). Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe your favourite website. You should say what it is, what you use it for, and explain why you like it." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe your favourite website. You should say what it is, what you use it for, and explain why you like it." Wait for the user's full response.
 - Part 3 (Internet & TV): Ask 2-3 deep, abstract questions related to the topic (e.g., "Do you think children should be allowed unsupervised access to the internet?", "What sorts of things do people watch on TV?").
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "ielts_pdf_5",
@@ -761,9 +761,9 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Food): Ask 2-3 questions one by one (e.g., "Is there any food you dislike?", "What do you think of fast food?"). Wait for answers.
-- Part 2 (Cue Card): "Now I will give you a topic. Describe your favourite shop. You should say where it is, what they sell, and explain why you like it." Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the complete cue card text in the topic argument to display the cue card on the user's screen. Then say "Now I will give you a topic. Describe your favourite shop. You should say where it is, what they sell, and explain why you like it." Wait for the user's full response.
 - Part 3 (Shopping & Daily Routine): Ask 2-3 deep, abstract questions related to the topic (e.g., "Do men and women have different opinions about shopping?", "Is it important to have a daily routine?").
-- Conclude the test and give a highly critical, strictly objective estimated band score. Do not inflate scores.`
+- Conclude the test with a polite farewell. Do not give any band scores during this conversation, they will be calculated in the final report.`
   },
   {
     id: "a1_speaking_p1",

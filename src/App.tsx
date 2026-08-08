@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import Markdown from "react-markdown";
+import { FeedbackMarkdown } from "./components/FeedbackMarkdown";
 import {
   Settings,
   Mic,
@@ -37,7 +37,9 @@ import {
   Check,
   Lock,
   Trophy,
+  FileText
 } from "lucide-react";
+import { CueCardOverlay } from "./components/CueCardOverlay";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType } from "./lib/eltBot";
 import { predefinedScenarios, Scenario } from "./lib/scenarios";
 import {
@@ -340,6 +342,7 @@ export default function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [cueCardTopic, setCueCardTopic] = useState<string | null>(null);
   const [showScenarioSelector, setShowScenarioSelector] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<UserStats[]>([]);
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<"daily" | "monthly" | "allTime">("daily");
@@ -448,6 +451,9 @@ export default function App() {
       onBotFinished: () => {
         handleStopAndReport();
       },
+      onShowCueCard: (topic) => {
+        setCueCardTopic(topic);
+      }
     });
     return () => botRef.current?.stop();
   }, []);
@@ -478,6 +484,7 @@ export default function App() {
     if (!botRef.current) return;
     const currentTranscript = botRef.current.transcript;
     setIsRunning(false);
+    setCueCardTopic(null);
     setGeneratingReport(true);
     botRef.current.stop(); // Stop audio/mic first
 
@@ -700,6 +707,7 @@ export default function App() {
     } else {
       try {
         setReport(null);
+        setCueCardTopic(null);
         await botRef.current?.start(context);
         setIsRunning(true);
       } catch (err) {
@@ -1324,6 +1332,13 @@ export default function App() {
           </div>
         </div>
 
+        {/* Cue Card Modal */}
+        <AnimatePresence>
+          {cueCardTopic && isRunning && (
+            <CueCardOverlay topic={cueCardTopic} onClose={() => setCueCardTopic(null)} />
+          )}
+        </AnimatePresence>
+
         {/* Report Modal */}
         <AnimatePresence>
           {report && (
@@ -1361,7 +1376,7 @@ export default function App() {
                           </div>
                         )}
                         <div className="prose prose-slate prose-sm mb-6 max-w-none">
-                          <Markdown>{cleanReport}</Markdown>
+                          <FeedbackMarkdown content={cleanReport} />
                         </div>
                         <FluencyHeatmap transcript={botRef.current?.transcript || []} />
                       </>
@@ -1610,7 +1625,7 @@ export default function App() {
                                     </div>
                                   )}
                                   <div className="prose prose-slate prose-sm max-w-none">
-                                    <Markdown>{cleanReport}</Markdown>
+                                    <FeedbackMarkdown content={cleanReport} />
                                   </div>
                                   <FluencyHeatmap transcript={r.transcript || []} />
                                 </>
