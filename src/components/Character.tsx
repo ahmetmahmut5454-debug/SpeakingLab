@@ -12,20 +12,6 @@ export const Character = ({ type, expression = "idle", className = "" }: Charact
   const isHappy = expression === "happy";
   const isBored = expression === "bored";
 
-  if (type === "lily" && isBored) {
-    return (
-      <div className={`relative ${className} flex items-center justify-center`}>
-        <motion.img
-          src="/bored_avatar.png"
-          alt="Bored Avatar"
-          className="w-full h-full object-contain drop-shadow-2xl"
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: [10, 0, 10], opacity: 1 }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
-    );
-  }
 
   if (type === "lily") {
     return (
