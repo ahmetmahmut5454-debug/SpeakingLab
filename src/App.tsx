@@ -518,7 +518,7 @@ export default function App() {
     const studentTurns = currentTranscript.filter((line) => line.startsWith("[Student]:")).length;
     const botTurns = currentTranscript.filter((line) => line.startsWith("[Tutor]:")).length;
     
-    if (user && (studentTurns > 0 || botTurns > 0)) {
+    if (currentTranscript.length > 0 || studentTurns > 0 || botTurns > 0) {
       try {
         const stats = await updateGamificationStats(context.mode);
         if (stats) {
@@ -695,10 +695,11 @@ export default function App() {
   };
 
   const handleSelectScenario = (scenario: Scenario) => {
+    const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS";
     setContext({
       ...context,
-      mode: "Task",
-      level: scenario.level === "B1-B2" ? "B2" : scenario.level,
+      mode: isIelts ? "IELTS" : "Task",
+      level: scenario.level === "B1-B2" ? "B2" : (scenario.level as any),
       topic: scenario.topic,
       objective: scenario.objective,
       role: scenario.role,
@@ -1274,6 +1275,8 @@ export default function App() {
                 >
                   {context.mode === "Practice" 
                     ? "-- Free Practice Mode --" 
+                    : context.mode === "IELTS"
+                    ? `[IELTS] ${predefinedScenarios.find(s => s.id === context.scenarioId)?.title || "IELTS Mock Assessment"}`
                     : `[${context.level}] ${predefinedScenarios.find(s => s.id === context.scenarioId)?.title || "Custom Scenario"}`}
                 </button>
               </div>
@@ -2080,9 +2083,10 @@ export default function App() {
           }
           onSelect={(scenario, language) => {
             if (scenario) {
+              const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS";
               setContext({
                 ...context,
-                mode: "Task",
+                mode: isIelts ? "IELTS" : "Task",
                 level: scenario.level === "B1-B2" ? "B2" : (scenario.level as any),
                 topic: scenario.topic,
                 objective: scenario.objective,

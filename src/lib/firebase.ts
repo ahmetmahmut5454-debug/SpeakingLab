@@ -92,8 +92,119 @@ const getLocalMonthString = (): string => {
   return getLocalDateString().substring(0, 7);
 };
 
+const GUEST_STATS_KEY = "guest_user_stats";
+
+export const getGuestStats = (): UserStats => {
+  const today = getLocalDateString();
+  const currentMonth = getLocalMonthString();
+  const raw = typeof window !== "undefined" ? localStorage.getItem(GUEST_STATS_KEY) : null;
+  if (raw) {
+    try {
+      const stats: UserStats = JSON.parse(raw);
+      if (stats.lastActiveDate !== today) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
+        const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+        stats.todaySessions = 0;
+        stats.todayTaskSessions = 0;
+        if (stats.lastActiveDate !== yesterdayStr) {
+          stats.streak = 0;
+        }
+      }
+      return stats;
+    } catch (e) {
+      console.error("Error parsing guest stats", e);
+    }
+  }
+
+  const defaultStats: UserStats = {
+    userId: "guest",
+    displayName: "Guest Scholar",
+    photoURL: "",
+    streak: 0,
+    lastActiveDate: today,
+    todaySessions: 0,
+    todayTaskSessions: 0,
+    xp: 0,
+    daily: { [today]: 0 },
+    monthly: { [currentMonth]: 0 },
+    unlockedItems: ["outfit_default"],
+    equippedBadge: "",
+    equippedOutfit: "outfit_default",
+    updatedAt: new Date().toISOString(),
+  };
+  if (typeof window !== "undefined") {
+    localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(defaultStats));
+  }
+  return defaultStats;
+};
+
+export const updateGuestGamificationStats = (mode: "Practice" | "Task" | "IELTS" = "Practice"): UserStats => {
+  const stats = getGuestStats();
+  const today = getLocalDateString();
+  const currentMonth = getLocalMonthString();
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
+  const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+  let lastDate = stats.lastActiveDate;
+  let newStreak = stats.streak || 0;
+  let newTodaySessions = stats.todaySessions || 0;
+  let newTodayTaskSessions = stats.todayTaskSessions || 0;
+  let xpGained = 50;
+
+  const isTaskOrIelts = mode === "Task" || mode === "IELTS";
+
+  if (lastDate === today) {
+    newTodaySessions += 1;
+    if (isTaskOrIelts) {
+      newTodayTaskSessions += 1;
+    }
+  } else if (lastDate === yesterdayStr) {
+    newStreak += 1;
+    newTodaySessions = 1;
+    newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
+  } else {
+    newStreak = 1;
+    newTodaySessions = 1;
+    newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
+  }
+
+  if (lastDate === today) {
+    if (newTodaySessions === 3) {
+      xpGained += 200;
+    }
+    if (isTaskOrIelts && newTodayTaskSessions === 2) {
+      xpGained += 300;
+    }
+  } else if (lastDate === yesterdayStr) {
+    if (newStreak === 3) xpGained += 150;
+    if (newStreak === 7) xpGained += 500;
+  }
+
+  stats.lastActiveDate = today;
+  stats.streak = newStreak;
+  stats.todaySessions = newTodaySessions;
+  stats.todayTaskSessions = newTodayTaskSessions;
+  stats.xp = (stats.xp || 0) + xpGained;
+  stats.daily = stats.daily || {};
+  stats.daily[today] = (stats.daily[today] || 0) + xpGained;
+  stats.monthly = stats.monthly || {};
+  stats.monthly[currentMonth] = (stats.monthly[currentMonth] || 0) + xpGained;
+  stats.updatedAt = new Date().toISOString();
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(stats));
+  }
+  return stats;
+};
+
 export const getUserStats = async (): Promise<UserStats | null> => {
-  if (!auth.currentUser) return null;
+  if (!auth.currentUser) return getGuestStats();
   try {
     const docRef = doc(db, "userStats", auth.currentUser.uid);
     const snap = await getDoc(docRef);
@@ -182,7 +293,7 @@ export const getUserStats = async (): Promise<UserStats | null> => {
     }
   } catch (error) {
     console.error("Failed to fetch user stats", error);
-    return null;
+    return getGuestStats();
   }
 };
 
@@ -192,7 +303,18 @@ export const updateUserPurchase = async (
   newBadge: string,
   newOutfit: string,
 ) => {
-  if (!auth.currentUser) return null;
+  if (!auth.currentUser) {
+    const stats = getGuestStats();
+    stats.xp = newXp;
+    stats.unlockedItems = newUnlockedItems;
+    stats.equippedBadge = newBadge;
+    stats.equippedOutfit = newOutfit;
+    stats.updatedAt = new Date().toISOString();
+    if (typeof window !== "undefined") {
+      localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(stats));
+    }
+    return stats;
+  }
   try {
     const uid = auth.currentUser.uid;
     const docRef = doc(db, "userStats", uid);
@@ -218,13 +340,16 @@ export const updateUserPurchase = async (
 
 // Internal function to update user gamification stats
 export const updateGamificationStats = async (
-  mode: "Practice" | "Task" = "Practice",
+  mode: "Practice" | "Task" | "IELTS" = "Practice",
 ) => {
-  if (!auth.currentUser) return;
+  if (!auth.currentUser) {
+    return updateGuestGamificationStats(mode);
+  }
   const uid = auth.currentUser.uid;
   const today = getLocalDateString();
   const currentMonth = getLocalMonthString();
   const docRef = doc(db, "userStats", uid);
+  const isTaskOrIelts = mode === "Task" || mode === "IELTS";
 
   try {
     const snap = await getDoc(docRef);
@@ -235,7 +360,7 @@ export const updateGamificationStats = async (
       streak: 1,
       lastActiveDate: today,
       todaySessions: 1,
-      todayTaskSessions: mode === "Task" ? 1 : 0,
+      todayTaskSessions: isTaskOrIelts ? 1 : 0,
       xp: 50,
       daily: { [today]: 50 },
       monthly: { [currentMonth]: 50 },
@@ -270,7 +395,7 @@ export const updateGamificationStats = async (
       if (lastDate === today) {
         console.log("Activity detected today. Incrementing daily counts.");
         newTodaySessions += 1;
-        if (mode === "Task") {
+        if (isTaskOrIelts) {
           newTodayTaskSessions += 1;
         }
         xpGained += 50; 
@@ -278,13 +403,13 @@ export const updateGamificationStats = async (
         console.log("Activity detected on consecutive day. Incrementing streak.");
         newStreak += 1;
         newTodaySessions = 1;
-        newTodayTaskSessions = mode === "Task" ? 1 : 0;
+        newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
         xpGained += 50;
       } else {
         console.log("Streak broken or new user. Setting streak to 1.");
         newStreak = 1;
         newTodaySessions = 1;
-        newTodayTaskSessions = mode === "Task" ? 1 : 0;
+        newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
         xpGained += 50;
       }
 
@@ -296,8 +421,8 @@ export const updateGamificationStats = async (
           console.log("Daily quest completed! +200 XP");
         }
 
-        // Daily quest 2: 2 TBLT (Task) conversations
-        if (mode === "Task" && newTodayTaskSessions === 2) {
+        // Daily quest 2: 2 TBLT (Task) / IELTS conversations
+        if (isTaskOrIelts && newTodayTaskSessions === 2) {
           xpGained += 300; // Bonus 300 XP
           console.log("Task quest completed! +300 XP");
         }

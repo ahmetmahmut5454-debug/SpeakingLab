@@ -66,7 +66,7 @@ export interface BotContext {
   level: ProficiencyLevel;
   objective: string;
   topic: string;
-  mode: "Practice" | "Task";
+  mode: "Practice" | "Task" | "IELTS";
   taskDurationMinutes: number; // For Practice mode closing
   customRules?: string;
   scenarioId?: string;
@@ -471,14 +471,37 @@ export class EltBot {
       let nextsteps = "";
 
       const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
-      const isIELTS = scenario?.category === 'IELTS Preparation';
+      const isIELTS = context.mode === 'IELTS' || scenario?.category === 'IELTS Preparation' || context.topic?.toLowerCase().includes('ielts');
 
       if (studentTurns === 0 && botTurns === 0) {
         return "Sistem bağlantısı sağlandı ancak cihazınızda mikrofon/ses iletimi yapılamadı. Başka bir cihazdan veya Chrome tarayıcıdan denemelisiniz.";
       }
 
       if (isIELTS) {
-        return `### 🎯 IELTS Mock Band Score & Feedback\n* **Estimated Band Score:** 5.0\n* **Fluency & Coherence:** Need more practice speaking at length.\n* **Lexical Resource:** Try to use more varied vocabulary.\n* **Grammatical Range & Accuracy:** Focus on complex sentence structures.\n* **Pronunciation:** Clear enough to be understood.\n\n### 🚀 Next Steps\n- Practice answering Part 1 questions.\n- Learn more idioms.`;
+        return `### 🎯 IELTS Mock Assessment
+* **Estimated Band Score:** 6.0
+* **Fluency & Coherence Score:** 6.0
+* **Lexical Resource Score:** 6.0
+* **Grammatical Range & Accuracy Score:** 5.5
+* **Pronunciation Score:** 6.0
+* **General Impression:** Good overall attempt addressing the IELTS speaking prompt.
+
+### 🗣️ Fluency & Coherence
+* Spoke with acceptable flow and coherence.
+* **Fillers & Hesitations:** Occasional minor pauses.
+
+### 📚 Lexical Resource
+* Used appropriate vocabulary for the scenario.
+
+### 📝 Grammatical Range & Accuracy
+* Sentence structure was generally clear.
+
+### 🎤 Pronunciation
+* Pronunciation was intelligible.
+
+### 🚀 Next Steps
+- Practice answering Part 1 and Part 2 questions with longer responses.
+- Use more varied connective words and advanced vocabulary.`;
       }
 
 
@@ -525,7 +548,7 @@ export class EltBot {
         console.log(`Generating report with model: ${modelName}`);
         
         const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
-        const isIELTS = scenario?.category === 'IELTS Preparation';
+        const isIELTS = context.mode === 'IELTS' || scenario?.category === 'IELTS Preparation' || context.topic?.toLowerCase().includes('ielts');
 
         const accuracyRules = `
             >>> CRITICAL DIRECTIVE: TRANSCRIPT ACCURACY & NO HALLUCINATIONS <<<

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { LocalReport } from '../lib/indexedDB';
-import { extractScore } from '../lib/mastery';
+import { extractOverallScore, extractFluencyScore, extractGrammarScore, extractVocabScore } from '../lib/mastery';
 import {
   LineChart,
   Line,
@@ -26,11 +26,18 @@ export const ScoreTrendChart: React.FC<Props> = ({ reports }) => {
     return last10.map((report, idx) => {
       let overallScore = 0;
       if (report.reportText) {
-        const fluency = extractScore(report.reportText, "Fluency Score") || 0;
-        const grammar = extractScore(report.reportText, "Grammar Score") || 0;
-        const vocab = extractScore(report.reportText, "Vocabulary Score") || 0;
-        const count = (fluency ? 1 : 0) + (grammar ? 1 : 0) + (vocab ? 1 : 0);
-        overallScore = count > 0 ? Math.round((fluency + grammar + vocab) / count) : 0;
+        const extracted = extractOverallScore(report.reportText);
+        if (extracted !== null) {
+          // If extracted score is 0-9 (IELTS band score), scale to 100 for consistent trend visualization
+          overallScore = extracted <= 9 ? Math.round((extracted / 9) * 100) : Math.round(extracted);
+        } else {
+          const fluency = extractFluencyScore(report.reportText) || 0;
+          const grammar = extractGrammarScore(report.reportText) || 0;
+          const vocab = extractVocabScore(report.reportText) || 0;
+          const count = (fluency ? 1 : 0) + (grammar ? 1 : 0) + (vocab ? 1 : 0);
+          const raw = count > 0 ? (fluency + grammar + vocab) / count : 0;
+          overallScore = raw <= 9 ? Math.round((raw / 9) * 100) : Math.round(raw);
+        }
       }
       
       const date = new Date(report.createdAtTime);

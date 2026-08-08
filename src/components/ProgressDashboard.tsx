@@ -1,6 +1,13 @@
 import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { LocalReport } from '../lib/indexedDB';
+import {
+  extractFluencyScore,
+  extractGrammarScore,
+  extractVocabScore,
+  extractPronunciationScore,
+  extractOverallScore,
+} from '../lib/mastery';
 import { TrendingUp, TrendingDown, Target, Zap } from 'lucide-react';
 
 interface Props {
@@ -16,25 +23,11 @@ export const ProgressDashboard: React.FC<Props> = ({ reports }) => {
     return last5.map((report, index) => {
       const text = report.reportText || "";
       
-      const extractScore = (keyword: string) => {
-        // Match things like "**Fluency Score:** 5.5" or "**Fluency Score**: 5.5" or "Fluency Score: 5.5"
-        const regex = new RegExp(`\\*?\\*?${keyword}\\*?\\*?\\s*:\\s*\\*?\\*?\\s*([0-9.]+)`, 'i');
-        const match = regex.exec(text);
-        if (match && match[1]) {
-           const val = parseFloat(match[1]);
-           return isNaN(val) ? null : val;
-        }
-        return null;
-      };
-
-      const fluency = extractScore('Fluency Score');
-      const grammar = extractScore('Grammar Score');
-      const vocabulary = extractScore('Vocabulary Score');
-      const pronunciation = extractScore('Pronunciation Score');
-      let overall = extractScore('Estimated Band Score');
-      
-      // If we don't find "Estimated Band Score", maybe check "Estimated Level" and convert A1-C2 to 1-6?
-      // Since it's for IELTS band score mostly, we will leave it null if not found.
+      const fluency = extractFluencyScore(text);
+      const grammar = extractGrammarScore(text);
+      const vocabulary = extractVocabScore(text);
+      const pronunciation = extractPronunciationScore(text);
+      let overall = extractOverallScore(text);
 
       return {
         name: `S${index + 1}`,

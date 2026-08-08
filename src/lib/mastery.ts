@@ -1,11 +1,54 @@
 import { LocalReport } from "./indexedDB";
 
 export const extractScore = (text: string, keyword: string) => {
+  if (!text) return null;
   const regex = new RegExp(`\\*?\\*?${keyword}\\*?\\*?\\s*:\\s*\\*?\\*?\\s*([0-9.]+)`, 'i');
   const match = regex.exec(text);
   if (match && match[1]) {
      const val = parseFloat(match[1]);
      return isNaN(val) ? null : val;
+  }
+  return null;
+};
+
+export const extractFluencyScore = (text: string): number | null => {
+  return extractScore(text, "Fluency & Coherence Score") ??
+         extractScore(text, "Fluency Score") ??
+         extractScore(text, "Fluency & Coherence") ??
+         extractScore(text, "Fluency");
+};
+
+export const extractGrammarScore = (text: string): number | null => {
+  return extractScore(text, "Grammatical Range & Accuracy Score") ??
+         extractScore(text, "Grammar Score") ??
+         extractScore(text, "Grammatical Range & Accuracy") ??
+         extractScore(text, "Grammar");
+};
+
+export const extractVocabScore = (text: string): number | null => {
+  return extractScore(text, "Lexical Resource Score") ??
+         extractScore(text, "Vocabulary Score") ??
+         extractScore(text, "Lexical Resource") ??
+         extractScore(text, "Vocabulary");
+};
+
+export const extractPronunciationScore = (text: string): number | null => {
+  return extractScore(text, "Pronunciation Score") ??
+         extractScore(text, "Pronunciation");
+};
+
+export const extractOverallScore = (text: string): number | null => {
+  const band = extractScore(text, "Estimated Band Score") ?? extractScore(text, "Band Score");
+  if (band !== null) return band;
+
+  const fluency = extractFluencyScore(text);
+  const grammar = extractGrammarScore(text);
+  const vocab = extractVocabScore(text);
+  
+  const validScores = [fluency, grammar, vocab].filter((s): s is number => s !== null);
+  if (validScores.length > 0) {
+    const avg = validScores.reduce((a, b) => a + b, 0) / validScores.length;
+    return Math.round(avg * 10) / 10;
   }
   return null;
 };
@@ -19,14 +62,25 @@ export const extractEstimatedLevel = (text: string): string | null => {
   }
   
   // Try Band Score mapping
-  const bandScore = extractScore(text, "Estimated Band Score");
+  const bandScore = extractOverallScore(text);
   if (bandScore !== null) {
-    if (bandScore >= 8.5) return "C2";
-    if (bandScore >= 7.0) return "C1";
-    if (bandScore >= 5.5) return "B2";
-    if (bandScore >= 4.0) return "B1";
-    if (bandScore >= 3.0) return "A2";
-    return "A1";
+    // If it's 0-9 IELTS band score
+    if (bandScore <= 9) {
+      if (bandScore >= 8.0) return "C2";
+      if (bandScore >= 7.0) return "C1";
+      if (bandScore >= 5.5) return "B2";
+      if (bandScore >= 4.0) return "B1";
+      if (bandScore >= 3.0) return "A2";
+      return "A1";
+    } else {
+      // 0-100 percentage
+      if (bandScore >= 85) return "C2";
+      if (bandScore >= 70) return "C1";
+      if (bandScore >= 55) return "B2";
+      if (bandScore >= 40) return "B1";
+      if (bandScore >= 25) return "A2";
+      return "A1";
+    }
   }
   
   return null;
