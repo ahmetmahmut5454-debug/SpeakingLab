@@ -151,9 +151,13 @@ export class EltBot {
         3. 70/30 Ratio: Student speaks 70%, you 30%.
         4. Culture: Handle Turkish names (Sakarya, Istanbul) correctly.
         5. Terminate: Call endConversation tool when session ends.
+        6. KEEP GOING: If the student stops speaking or is quiet, you MUST encourage them to continue or ask a follow-up question. Do NOT remain silent.
+        7. IGNORE NOISE & FILLERS: Ignore thinking noises (umm, uh, eee, ıı, hmm), backchanneling (mhm, yeah, ah, evet, hı hı), filler words (şey, yani, işte, like, you know), throat clearing, laughs, and self-corrections. Do not get distracted. If you are interrupted by these short sounds while speaking, IMMEDIATELY RESUME and finish your previous sentence. Wait patiently for their full thought.
 
         ${
-          context.mode === "Task"
+          context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner")
+            ? `Examiner: Speak first with an icebreaker: "${context.icebreaker || "Hello. Let's start the IELTS speaking test."}". Stay in character as a strict examiner.`
+            : context.mode === "Task"
             ? `Character: Speak first with an icebreaker: "${context.icebreaker || "Hello, how can I help you today?"}". Stay in character.`
             : `Practice: Speak first. Introduce yourself, ask their name. Build rapport.`
         }
@@ -214,8 +218,11 @@ export class EltBot {
             setTimeout(() => {
               if (this.session && this.isConnected) {
                 try {
+                  const triggerMessage = context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner")
+                    ? "The student has connected. Please start the IELTS speaking test now by asking the first question."
+                    : "The student has connected. Please introduce yourself and start the conversation naturally.";
                   this.session.sendRealtimeInput({
-                    text: "The student has connected. Please introduce yourself and start the conversation naturally.",
+                    text: triggerMessage,
                   });
                 } catch (e) {}
               }
@@ -277,7 +284,7 @@ export class EltBot {
                           functionResponse: {
                             name: "showCueCard",
                             id: fc.id,
-                            response: { success: true },
+                            response: { success: true, instruction: "Tool successful. The cue card is now visible to the student. YOU MUST IMMEDIATELY SPEAK to tell the student they have 1 minute to prepare and 1-2 minutes to speak. DO NOT WAIT FOR THEM. Speak now." },
                           },
                         },
                       ]);
@@ -502,6 +509,7 @@ export class EltBot {
             3. EXACT MATCH FORMATTING: Format corrections as: "Exact Student Quote" -> "Suggested Correction".
             4. DO NOT INVENT ERRORS: If the student spoke correctly or the transcript is brief, do NOT fabricate imaginary grammar/vocabulary mistakes. Instead, offer advanced alternative phrasings or vocabulary enhancements.
             5. CLICKABLE VOCABULARY: Wrap any advanced, interesting, or corrected English vocabulary words you use in your feedback in <u> tags (e.g., <u>resilience</u> or <u>fascinating</u>) so the student can click them in the UI to see definitions. Wrap single words only, not phrases.
+            6. FILLER WORDS & NOISES: The transcript may contain filler words or thinking noises (e.g., umm, uh, eee, ıı, hmm, şey, yani, işte, like, you know). DO NOT treat these as grammar errors or vocabulary mistakes. If they are excessive, note them under the 'Fluency' section, but do not correct them as grammatical errors.
             >>> END CRITICAL DIRECTIVE <<<
         `;
 

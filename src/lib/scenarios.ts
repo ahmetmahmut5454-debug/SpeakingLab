@@ -1006,7 +1006,7 @@ Ask questions from the 24 B1 speaking questions bank sequentially, one by one. E
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Animals): Ask 2-3 questions about Animals one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an interesting animal.\nYou should say:\n- What it is\n- Where it lives\n- Where you first saw it\n- And explain why it is interesting." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an interesting animal.\nYou should say:\n- What it is\n- Where it lives\n- Where you first saw it\n- And explain why it is interesting." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Animals in society and conservation): Ask 3-4 abstract questions related to Animals in society and conservation. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1023,7 +1023,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Art): Ask 2-3 questions about Art one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a work of art you like.\nYou should say:\n- What it is\n- Where you saw it\n- What it shows\n- And explain why you like it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a work of art you like.\nYou should say:\n- What it is\n- Where you saw it\n- What it shows\n- And explain why you like it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Art in society and museums): Ask 3-4 abstract questions related to Art in society and museums. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1040,7 +1040,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Apps): Ask 2-3 questions about Apps one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a useful app.\nYou should say:\n- What it is\n- How you heard about it\n- What it does\n- And explain why you find it useful." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a useful app.\nYou should say:\n- What it is\n- How you heard about it\n- What it does\n- And explain why you find it useful." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Technology and mobile apps): Ask 3-4 abstract questions related to Technology and mobile apps. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1057,7 +1057,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Books): Ask 2-3 questions about Books one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a childhood story you enjoyed.\nYou should say:\n- What type of story it was\n- What characters were in it\n- What it was about\n- And explain why you enjoyed it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a childhood story you enjoyed.\nYou should say:\n- What type of story it was\n- What characters were in it\n- What it was about\n- And explain why you enjoyed it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Reading habits and literature): Ask 3-4 abstract questions related to Reading habits and literature. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1074,7 +1074,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Broken Promises): Ask 2-3 questions about Broken Promises one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a time someone broke their promise.\nYou should say:\n- Who made the promise\n- What the promise was\n- Why they broke it\n- And explain how you felt about it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a time someone broke their promise.\nYou should say:\n- Who made the promise\n- What the promise was\n- Why they broke it\n- And explain how you felt about it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Trust and reliability in society): Ask 3-4 abstract questions related to Trust and reliability in society. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1091,7 +1091,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Buildings): Ask 2-3 questions about Buildings one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a historical building in your country.\nYou should say:\n- Where it is\n- What it is like\n- What it is used for\n- And explain why you think it is important." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a historical building in your country.\nYou should say:\n- Where it is\n- What it is like\n- What it is used for\n- And explain why you think it is important." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Architecture and preservation): Ask 3-4 abstract questions related to Architecture and preservation. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1108,7 +1108,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Challenges): Ask 2-3 questions about Challenges one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a tough challenge you have faced.\nYou should say:\n- What it was\n- When it happened\n- How you coped with it\n- And explain why you remember it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a tough challenge you have faced.\nYou should say:\n- What it was\n- When it happened\n- How you coped with it\n- And explain why you remember it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Overcoming difficulties and personal growth): Ask 3-4 abstract questions related to Overcoming difficulties and personal growth. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1125,7 +1125,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Clothes): Ask 2-3 questions about Clothes one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an item of clothing you most enjoy wearing.\nYou should say:\n- What it is\n- How often you wear it\n- When you bought it\n- And explain why you enjoy wearing it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an item of clothing you most enjoy wearing.\nYou should say:\n- What it is\n- How often you wear it\n- When you bought it\n- And explain why you enjoy wearing it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Fashion trends and clothing choices): Ask 3-4 abstract questions related to Fashion trends and clothing choices. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1142,7 +1142,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Confidence): Ask 2-3 questions about Confidence one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a person you know who is confident.\nYou should say:\n- Who it is\n- How you know them\n- What they are like\n- And explain why you think they are confident." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a person you know who is confident.\nYou should say:\n- Who it is\n- How you know them\n- What they are like\n- And explain why you think they are confident." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Self-esteem and confidence building): Ask 3-4 abstract questions related to Self-esteem and confidence building. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1159,7 +1159,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Crime): Ask 2-3 questions about Crime one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a good law.\nYou should say:\n- What it is\n- When it was introduced\n- How it impacts people\n- And explain why you think it is good." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a good law.\nYou should say:\n- What it is\n- When it was introduced\n- How it impacts people\n- And explain why you think it is good." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Rules, laws, and society): Ask 3-4 abstract questions related to Rules, laws, and society. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1176,7 +1176,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Education): Ask 2-3 questions about Education one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a subject you enjoyed at school.\nYou should say:\n- What it was\n- Who taught you\n- What you learned\n- And explain why you enjoyed it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a subject you enjoyed at school.\nYou should say:\n- What it was\n- Who taught you\n- What you learned\n- And explain why you enjoyed it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (School systems and learning methods): Ask 3-4 abstract questions related to School systems and learning methods. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1193,7 +1193,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Friends & Family): Ask 2-3 questions about Friends & Family one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe your best friend at school.\nYou should say:\n- Who it was\n- What he or she was like\n- What you remember doing together\n- And explain why you liked them." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe your best friend at school.\nYou should say:\n- Who it was\n- What he or she was like\n- What you remember doing together\n- And explain why you liked them." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Relationships and family dynamics): Ask 3-4 abstract questions related to Relationships and family dynamics. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1210,7 +1210,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Food): Ask 2-3 questions about Food one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a foreign food you would like to try.\nYou should say:\n- What it is\n- Where it comes from\n- How you heard of it\n- And explain why you would like to try it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a foreign food you would like to try.\nYou should say:\n- What it is\n- Where it comes from\n- How you heard of it\n- And explain why you would like to try it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Diet, health, and culinary traditions): Ask 3-4 abstract questions related to Diet, health, and culinary traditions. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1227,7 +1227,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Happiness): Ask 2-3 questions about Happiness one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a happy event you remember.\nYou should say:\n- When it was\n- Who was with you\n- What you did\n- And explain why it was a happy event." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a happy event you remember.\nYou should say:\n- When it was\n- Who was with you\n- What you did\n- And explain why it was a happy event." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Well-being and life satisfaction): Ask 3-4 abstract questions related to Well-being and life satisfaction. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1244,7 +1244,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Health): Ask 2-3 questions about Health one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a healthy activity.\nYou should say:\n- What it is\n- How it is done\n- Who can enjoy it\n- And explain why it is healthy." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a healthy activity.\nYou should say:\n- What it is\n- How it is done\n- Who can enjoy it\n- And explain why it is healthy." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Lifestyle, exercise, and public health): Ask 3-4 abstract questions related to Lifestyle, exercise, and public health. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1261,7 +1261,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Holidays): Ask 2-3 questions about Holidays one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a recent holiday you had.\nYou should say:\n- Where it was\n- Who went with you\n- What you did there\n- And explain why you enjoyed it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a recent holiday you had.\nYou should say:\n- Where it was\n- Who went with you\n- What you did there\n- And explain why you enjoyed it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Travel, tourism, and vacations): Ask 3-4 abstract questions related to Travel, tourism, and vacations. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1278,7 +1278,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Intelligence): Ask 2-3 questions about Intelligence one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an intelligent person you know.\nYou should say:\n- Who it is\n- What they are like\n- How they are intelligent\n- And explain what you have learned from them." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an intelligent person you know.\nYou should say:\n- Who it is\n- What they are like\n- How they are intelligent\n- And explain what you have learned from them." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Types of intelligence and education): Ask 3-4 abstract questions related to Types of intelligence and education. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1295,7 +1295,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Media): Ask 2-3 questions about Media one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe your favourite film.\nYou should say:\n- What it is\n- When you first watched it\n- What it is about\n- And explain why you like it so much." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe your favourite film.\nYou should say:\n- What it is\n- When you first watched it\n- What it is about\n- And explain why you like it so much." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (News, entertainment, and social media): Ask 3-4 abstract questions related to News, entertainment, and social media. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1312,7 +1312,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Names): Ask 2-3 questions about Names one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a person with an interesting name.\nYou should say:\n- Who it is\n- What their name is\n- What it means\n- And explain why you find it interesting." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a person with an interesting name.\nYou should say:\n- Who it is\n- What their name is\n- What it means\n- And explain why you find it interesting." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Cultural significance of names): Ask 3-4 abstract questions related to Cultural significance of names. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1329,7 +1329,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Nature): Ask 2-3 questions about Nature one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a place of natural beauty in your country.\nYou should say:\n- Where it is\n- When you first went there\n- What there is to see\n- And explain why it is special." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a place of natural beauty in your country.\nYou should say:\n- Where it is\n- When you first went there\n- What there is to see\n- And explain why it is special." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Environment and outdoor activities): Ask 3-4 abstract questions related to Environment and outdoor activities. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1346,7 +1346,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Numbers): Ask 2-3 questions about Numbers one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a time you needed to remember a number.\nYou should say:\n- When it was\n- What the number was\n- How you remembered it\n- And explain why it was important." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a time you needed to remember a number.\nYou should say:\n- When it was\n- What the number was\n- How you remembered it\n- And explain why it was important." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Mathematics and memory): Ask 3-4 abstract questions related to Mathematics and memory. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1363,7 +1363,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Remembering): Ask 2-3 questions about Remembering one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a memorable experience.\nYou should say:\n- When it was\n- What happened\n- Who was involved\n- And explain why it is so memorable." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a memorable experience.\nYou should say:\n- When it was\n- What happened\n- Who was involved\n- And explain why it is so memorable." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Memory and forgetfulness): Ask 3-4 abstract questions related to Memory and forgetfulness. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1380,7 +1380,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Success): Ask 2-3 questions about Success one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe someone who is successful.\nYou should say:\n- Who it is\n- What they are like\n- What they do\n- And explain why they are successful." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe someone who is successful.\nYou should say:\n- Who it is\n- What they are like\n- What they do\n- And explain why they are successful." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Ambition, careers, and achievements): Ask 3-4 abstract questions related to Ambition, careers, and achievements. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1397,7 +1397,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Politeness): Ask 2-3 questions about Politeness one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe someone you know who is very polite.\nYou should say:\n- Who it is\n- What they are like\n- How you know them\n- And explain why they are so polite." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe someone you know who is very polite.\nYou should say:\n- Who it is\n- What they are like\n- How you know them\n- And explain why they are so polite." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Manners, etiquette, and social rules): Ask 3-4 abstract questions related to Manners, etiquette, and social rules. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1414,7 +1414,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Sugar): Ask 2-3 questions about Sugar one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a sweet treat you enjoy.\nYou should say:\n- What it is\n- How often you eat it\n- What is special about it\n- And explain why you like it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a sweet treat you enjoy.\nYou should say:\n- What it is\n- How often you eat it\n- What is special about it\n- And explain why you like it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Diet, nutrition, and sugary foods): Ask 3-4 abstract questions related to Diet, nutrition, and sugary foods. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1431,7 +1431,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Weather): Ask 2-3 questions about Weather one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an activity you enjoy in warm weather.\nYou should say:\n- What it is\n- Where you do it\n- How it is done\n- And explain why you enjoy it." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe an activity you enjoy in warm weather.\nYou should say:\n- What it is\n- Where you do it\n- How it is done\n- And explain why you enjoy it." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Climate, seasons, and outdoor activities): Ask 3-4 abstract questions related to Climate, seasons, and outdoor activities. Wait for answers.
 - Give a brief feedback at the end.`
   },
@@ -1448,7 +1448,7 @@ Conduct a full IELTS Speaking test step-by-step.
     objective: `STRICT SCENARIO INSTRUCTIONS:
 Conduct a full IELTS Speaking test step-by-step.
 - Part 1 (Work): Ask 2-3 questions about Work one by one. Wait for answers.
-- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a job you think is important.\nYou should say:\n- What it is\n- Who usually does this work\n- What is involved in it\n- And explain why it is important." to display the cue card on the user's screen. Then tell the user they have 1 minute to prepare and 1-2 minutes to speak. Wait for the user's full response.
+- Part 2 (Cue Card): FIRST call the showCueCard tool with the following text: "Describe a job you think is important.\nYou should say:\n- What it is\n- Who usually does this work\n- What is involved in it\n- And explain why it is important." to display the cue card on the user's screen. IMPORTANT: Immediately after calling the tool, YOU MUST verbally tell the user they have 1 minute to prepare and 1-2 minutes to speak. Do NOT stay silent after the tool call. Then wait for their full response. If they stop too early, prompt them to continue.
 - Part 3 (Employment, careers, and workplace): Ask 3-4 abstract questions related to Employment, careers, and workplace. Wait for answers.
 - Give a brief feedback at the end.`
   }
