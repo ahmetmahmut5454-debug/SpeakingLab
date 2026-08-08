@@ -2054,7 +2054,7 @@ export default function App() {
            else toggleBot();
         }} />
         <AnimatePresence>{pronunciationWord && <PronunciationPractice word={pronunciationWord} onClose={() => setPronunciationWord(null)} />}</AnimatePresence>
-        <SpeakingTips />
+        <SpeakingTips mode={context.mode} level={context.level} />
       </main>
     </div>
   );

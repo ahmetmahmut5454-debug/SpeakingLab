@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Lightbulb, X, MessageCircle, RefreshCw, Layers, Zap, Target } from 'lucide-react';
 
@@ -18,7 +20,7 @@ export function SpeakingTips({ mode, level }: SpeakingTipsProps) {
       baseTips.push({
         title: 'IELTS Fluency',
         icon: <Zap className="w-5 h-5 text-indigo-500" />,
-        content: 'Keep talking, even if you make a mistake. Self-correction is okay but don\'t let it stop your flow.',
+        content: 'Keep talking, even if you make a mistake. Self-correction is okay but don\\'t let it stop your flow.',
         examples: ['"What I mean is..."', '"Or rather..."']
       });
       baseTips.push({
@@ -48,7 +50,7 @@ export function SpeakingTips({ mode, level }: SpeakingTipsProps) {
       baseTips.push({
         title: 'Keep It Simple',
         icon: <RefreshCw className="w-5 h-5 text-emerald-500" />,
-        content: 'Use short, simple sentences. Don\'t worry about complex grammar.',
+        content: 'Use short, simple sentences. Don\\'t worry about complex grammar.',
         examples: ['"I like this because..."', '"It is very good."']
       });
     } else if (['B1', 'B2'].includes(level)) {
@@ -56,14 +58,14 @@ export function SpeakingTips({ mode, level }: SpeakingTipsProps) {
         title: 'Paraphrasing',
         icon: <RefreshCw className="w-5 h-5 text-blue-500" />,
         content: 'If you forget a word, explain what it means:',
-        examples: ['"It\'s a kind of..."', '"It\'s similar to..."']
+        examples: ['"It\\'s a kind of..."', '"It\\'s similar to..."']
       });
     } else {
       baseTips.push({
         title: 'Advanced Vocabulary',
         icon: <Zap className="w-5 h-5 text-purple-500" />,
         content: 'Try to incorporate idiomatic expressions and less common vocabulary.',
-        examples: ['"It\'s a double-edged sword..."', '"In the grand scheme of things..."']
+        examples: ['"It\\'s a double-edged sword..."', '"In the grand scheme of things..."']
       });
     }
 
@@ -138,3 +140,6 @@ export function SpeakingTips({ mode, level }: SpeakingTipsProps) {
     </>
   );
 }
+`;
+
+fs.writeFileSync('src/components/SpeakingTips.tsx', code);
