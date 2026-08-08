@@ -42,6 +42,8 @@ export class AudioProcessor {
         } catch (e) {}
     }
     
+    if (!this.audioContext) return;
+    
     this.source = this.audioContext.createMediaStreamSource(stream);
     
     // DynamicsCompressorNode to prevent integer overflow & hard clipping distortion
@@ -73,7 +75,7 @@ export class AudioProcessor {
       // Calculate energy level
       let avgLevel = 0;
       if (this.analyser && this.dataArray) {
-        this.analyser.getByteFrequencyData(this.dataArray);
+        this.analyser.getByteFrequencyData(this.dataArray as any);
         const sum = this.dataArray.reduce((a: number, b: number) => a + b, 0);
         avgLevel = sum / this.dataArray.length;
         if (onLevel) onLevel(avgLevel);
@@ -242,7 +244,7 @@ export class AudioPlayer {
     if (onLevel && this.dataArray && this.analyser) {
       const checkLevel = () => {
         if (this.audioContext && this.audioContext.currentTime < this.startTime && this.analyser && this.dataArray) {
-          this.analyser.getByteFrequencyData(this.dataArray);
+          this.analyser.getByteFrequencyData(this.dataArray as any);
           const sum = this.dataArray.reduce((a: number, b: number) => a + b, 0);
           onLevel(sum / this.dataArray.length);
           requestAnimationFrame(checkLevel);

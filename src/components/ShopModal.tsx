@@ -1,0 +1,126 @@
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Store, Sparkles, X, Lock, Check } from "lucide-react";
+import { UserStats } from "../lib/firebase";
+import { SHOP_ITEMS } from "../lib/shopItems";
+
+interface ShopModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userStats: UserStats | null;
+  onPurchase: (item: (typeof SHOP_ITEMS)[0]) => void;
+}
+
+export function ShopModal({ isOpen, onClose, userStats, onPurchase }: ShopModalProps) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="absolute inset-0 z-50 bg-slate-50/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8"
+        >
+          <div className="max-w-2xl w-full bg-white border border-slate-900/10 rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex justify-between items-center mb-8 border-b border-slate-900/10 pb-4">
+              <div>
+                <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2 text-blue-400">
+                  <Store className="w-6 h-6" /> Item Store
+                </h2>
+                <p className="text-slate-600/50 text-xs uppercase tracking-widest mt-1">
+                  Unlock badges and outfits with your Points
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl text-lg font-bold border border-emerald-500/20 shadow-lg">
+                  <Sparkles className="w-5 h-5" />
+                  {userStats?.xp || 0} Points
+                </div>
+                <button
+                  onClick={onClose}
+                  className="p-3 bg-slate-900/5 hover:bg-slate-900/10 rounded-full transition-all border border-slate-900/10 text-slate-600/50 hover:text-slate-900"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {userStats ? (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600/40 mb-4 flex items-center gap-2">
+                    <Lock className="w-4 h-4" /> Badges
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {SHOP_ITEMS.filter((i) => i.type === "badge").map((item) => {
+                      const isUnlocked = userStats.unlockedItems?.includes(item.id);
+                      const isEquipped = userStats.equippedBadge === item.id;
+                      const isMastery = (item as any).isMastery;
+
+                      const isDisabled = !isUnlocked && (isMastery || userStats.xp < item.price);
+                      const canBuy = !isUnlocked && !isMastery && userStats.xp >= item.price;
+
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => onPurchase(item)}
+                          disabled={isDisabled}
+                          title={(item as any).description || ""}
+                          className={`flex flex-col items-center p-4 rounded-2xl border transition-all relative overflow-hidden ${
+                            isEquipped
+                              ? "bg-blue-500/20 border-blue-500/50 shadow-lg"
+                              : isUnlocked
+                              ? "bg-slate-900/5 border-slate-900/10 hover:bg-slate-900/10"
+                              : canBuy
+                              ? "bg-slate-900/5 border-emerald-500/30 hover:border-emerald-500/80 cursor-pointer"
+                              : "bg-black/50 border-slate-900/5 opacity-50 cursor-not-allowed"
+                          }`}
+                        >
+                          <span className="text-4xl mb-2 drop-shadow-md">{item.icon}</span>
+                          <span className="font-bold text-[10px] uppercase tracking-wider text-center">
+                            {item.name}
+                          </span>
+                          <div className="mt-2 text-[10px] font-bold">
+                            {isEquipped ? (
+                              <span className="text-blue-400 uppercase tracking-widest flex items-center gap-1">
+                                <Check className="w-3 h-3" /> Equipped
+                              </span>
+                            ) : isUnlocked ? (
+                              <span className="text-slate-600/70 uppercase tracking-widest">
+                                Equip
+                              </span>
+                            ) : isMastery ? (
+                              <span className="text-amber-500/80 uppercase tracking-widest flex items-center gap-1">
+                                <Lock className="w-3 h-3" /> Locked
+                              </span>
+                            ) : (
+                              <span className="text-emerald-400 flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" /> {item.price}
+                              </span>
+                            )}
+                          </div>
+                          {isMastery && !isUnlocked && (
+                            <div className="absolute inset-0 bg-slate-900/80 text-white opacity-0 hover:opacity-100 flex items-center justify-center p-2 text-center text-[10px] transition-opacity font-medium tracking-wide leading-relaxed">
+                              {(item as any).description}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Lock className="w-12 h-12 text-slate-600/20 mx-auto mb-4" />
+                <p className="text-slate-600/50 text-sm uppercase tracking-widest">
+                  Please sign in to access the store
+                </p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
