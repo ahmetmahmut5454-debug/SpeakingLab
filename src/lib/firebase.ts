@@ -560,6 +560,7 @@ export interface SavedReport {
   level: string;
   mode: string;
   topic: string;
+  scenarioId?: string;
   reportText: string;
   transcript?: string[];
   isLocal?: boolean;

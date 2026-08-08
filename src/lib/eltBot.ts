@@ -86,6 +86,34 @@ export interface BotContext {
   targetLanguageCode?: string;
 }
 
+export const isIELTSSession = (context: BotContext): boolean => {
+  if (!context) return false;
+  if (context.mode === "IELTS" || (context.level as string) === "IELTS") return true;
+
+  const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
+  if (scenario?.category === "IELTS Preparation" || (scenario?.level as string) === "IELTS") return true;
+
+  const textToSearch = [
+    context.topic,
+    context.objective,
+    context.scenarioId,
+    scenario?.title,
+    scenario?.topic,
+    scenario?.studentBriefing,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  return (
+    textToSearch.includes("ielts") ||
+    textToSearch.includes("cue card") ||
+    textToSearch.includes("speaking test") ||
+    textToSearch.includes("speaking part 1") ||
+    textToSearch.includes("speaking part 2") ||
+    textToSearch.includes("speaking part 3") ||
+    textToSearch.includes("examiner") ||
+    textToSearch.includes("band score")
+  );
+};
+
 const getPromptTarget = (context: BotContext) => {
   const lang = context.targetLanguage || "English";
   if (context.level === "A1") {
@@ -472,7 +500,7 @@ export class EltBot {
       let nextsteps = "";
 
       const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
-      const isIELTS = context.mode === 'IELTS' || scenario?.category === 'IELTS Preparation' || context.topic?.toLowerCase().includes('ielts');
+      const isIELTS = isIELTSSession(context);
 
       if (studentTurns === 0 && botTurns === 0) {
         return "Sistem bağlantısı sağlandı ancak cihazınızda mikrofon/ses iletimi yapılamadı. Başka bir cihazdan veya Chrome tarayıcıdan denemelisiniz.";
@@ -480,26 +508,26 @@ export class EltBot {
 
       if (isIELTS) {
         const avgWords = studentTurns > 0 ? (studentWordCount / studentTurns) : 0;
-        let fluencyScore = 5.0;
-        let lexicalScore = 5.5;
-        let grammarScore = 5.5;
-        let pronScore = 6.0;
+        let fluencyScore = 6.0;
+        let lexicalScore = 6.0;
+        let grammarScore = 6.0;
+        let pronScore = 6.5;
 
-        if (studentTurns > 5 && avgWords > 12) {
+        if (studentTurns >= 4 && avgWords > 10) {
           fluencyScore = 7.0;
           lexicalScore = 6.5;
           grammarScore = 6.5;
           pronScore = 7.0;
-        } else if (studentTurns > 2 && avgWords > 7) {
-          fluencyScore = 6.0;
+        } else if (studentTurns >= 2 && avgWords > 5) {
+          fluencyScore = 6.5;
           lexicalScore = 6.0;
           grammarScore = 6.0;
-          pronScore = 6.0;
+          pronScore = 6.5;
         } else if (studentTurns > 0) {
-          fluencyScore = 5.5;
-          lexicalScore = 5.5;
-          grammarScore = 5.0;
-          pronScore = 5.5;
+          fluencyScore = 6.0;
+          lexicalScore = 6.0;
+          grammarScore = 5.5;
+          pronScore = 6.0;
         }
 
         const calculatedBand = calculateIELTSBandScore(fluencyScore, lexicalScore, grammarScore, pronScore);
@@ -573,8 +601,7 @@ export class EltBot {
         const modelName = modelsToTry[attempt] || "gemini-3.5-flash";
         console.log(`Generating report with model: ${modelName}`);
         
-        const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
-        const isIELTS = context.mode === 'IELTS' || scenario?.category === 'IELTS Preparation' || context.topic?.toLowerCase().includes('ielts');
+        const isIELTS = isIELTSSession(context);
 
         const accuracyRules = `
             >>> CRITICAL DIRECTIVE: TRANSCRIPT ACCURACY & NO HALLUCINATIONS <<<
@@ -622,44 +649,46 @@ export class EltBot {
         `;
 
         const ieltsFormat = `
-            Provide a highly structured, strictly objective, and critical feedback report based on the official IELTS Speaking Band Descriptors (0-9).
-            Do NOT inflate the Band Score. Give a realistic, strict score reflecting true IELTS standards using the four official criteria:
-            1. Fluency and coherence (hesitation, repetition, discourse markers, topic development)
-            2. Lexical resource (vocabulary flexibility, idiomatic language, paraphrase)
-            3. Grammatical range and accuracy (complex structures, error frequency, sentence forms)
-            4. Pronunciation (phonological features, chunking, clarity, intelligibility)
+            Provide a realistic, professional, and well-calibrated feedback report strictly aligned with official IELTS Speaking Band Descriptors (0-9).
+
+            >>> CRITICAL IELTS SCORING CALIBRATION <<<
+            - ACCURATE BENCHMARKING: Evaluate the candidate fairly based on official IELTS standards.
+            - BAND 6.0 (COMPETENT USER): A student who can maintain a continuous conversation, communicate ideas clearly, use connected sentences, and show adequate vocabulary MUST be awarded Band 6.0 or 6.5.
+            - DO NOT UNDER-GRADE: Do NOT penalize intermediate students down to Band 4.5 or 5.0 for minor hesitations, occasional grammar slips, filler words, or speech-to-text recognition artifacts. In real IELTS, a candidate who answers the prompts directly and communicates meaning intelligibly achieves Band 6.0+.
+            - BAND 7.0+: Award Band 7.0 or higher if the student speaks at length with good fluency, uses advanced vocabulary (idiomatic expressions, collocations), and displays complex grammatical structures.
+            - CALCULATE OVERALL BAND ACCURATELY: Calculate the Estimated Band Score as the average of the 4 criteria sub-scores (Fluency & Coherence, Lexical Resource, Grammatical Range & Accuracy, Pronunciation) rounded according to IELTS rules (.25/.75 rounds UP to .5/.0).
 
             ${accuracyRules}
 
             Use the following exact Markdown format:
 
             ### 🎯 IELTS Mock Assessment
-            * **Estimated Band Score:** [Estimate strictly 0.0 - 9.0 based on the official descriptors]
-            * **Fluency & Coherence Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
-            * **Lexical Resource Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
-            * **Grammatical Range & Accuracy Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
-            * **Pronunciation Score:** [Estimate sub-score strictly 0.0 - 9.0 based on official descriptors]
-            * **General Impression:** [Summary of performance based on the official Band Descriptors]
+            * **Estimated Band Score:** [Score 0.0 - 9.0 calculated accurately from sub-scores]
+            * **Fluency & Coherence Score:** [Sub-score 0.0 - 9.0]
+            * **Lexical Resource Score:** [Sub-score 0.0 - 9.0]
+            * **Grammatical Range & Accuracy Score:** [Sub-score 0.0 - 9.0]
+            * **Pronunciation Score:** [Sub-score 0.0 - 9.0]
+            * **General Impression:** [Balanced, objective summary of performance aligned with official Band Descriptors]
 
             ### 🗣️ Fluency & Coherence
-            * [Strict feedback on speaking at length, hesitation, and linking words based on the Band Descriptors]
-            * **Fillers & Hesitations:** [Identify any thinking noises, redundant word repeats, or filler words (e.g. şey, yani, umm) used. Mention if they affected the flow.]
+            * [Feedback on speaking at length, hesitation, and linking words based on Band Descriptors]
+            * **Fillers & Hesitations:** [Identify any thinking noises or filler words used, if any]
 
             ### 📚 Lexical Resource
-            * [Strict feedback on vocabulary range, flexibility, and idiomatic language based on the Band Descriptors]
+            * [Feedback on vocabulary range, flexibility, and word choice based on Band Descriptors]
             * **Strong words used:** [Exact words from transcript]
-            * **To improve:** [Examples of better vocabulary to use]
+            * **To improve:** [Examples of advanced vocabulary or collocations to use]
 
             ### 📝 Grammatical Range & Accuracy
-            * [Strict feedback on complex structures, error density, and sentence forms based on the Band Descriptors]
+            * [Feedback on sentence structures and accuracy based on Band Descriptors]
             * **Corrections:** [Exact student quote from transcript -> Corrected version]
 
             ### 🎤 Pronunciation
-            * [Strict feedback on clarity, intonation, chunking, and features of connected speech based on the Band Descriptors]
-            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes or actual words from transcript the student struggled to pronounce]
+            * [Feedback on clarity, intonation, chunking, and connected speech based on Band Descriptors]
+            * **Struggled Sounds/Words:** [Specific words from transcript or phonemes to practice]
 
             ### 🚀 Next Steps
-            * [Actionable tip 1 based on the lowest scoring criterion]
+            * [Actionable tip 1 based on lowest scoring criterion]
             * [Actionable tip 2]
             * [Actionable tip 3]
         `;

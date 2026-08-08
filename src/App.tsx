@@ -545,6 +545,7 @@ export default function App() {
       level: context.level,
       mode: context.mode,
       topic: context.topic,
+      scenarioId: context.scenarioId,
       reportText: hasReport ? sessionReport : "",
       transcript: currentTranscript,
       synced: false,
@@ -564,12 +565,14 @@ export default function App() {
 
     setLoadingHistory(true);
     try {
+      const isIeltsScenario = report.scenarioId?.toLowerCase().includes("ielts") || report.topic?.toLowerCase().includes("ielts");
       const newReport = await botRef.current.generateReport(
         {
           level: report.level as ProficiencyLevel,
-          mode: report.mode as any,
+          mode: (report.mode === "IELTS" || isIeltsScenario) ? "IELTS" : (report.mode as any),
           topic: report.topic,
           objective: report.topic,
+          scenarioId: report.scenarioId,
           taskDurationMinutes: 5,
         },
         report.transcript,
@@ -1313,9 +1316,9 @@ export default function App() {
                 if (isRunning) {
                   toggleBot();
                 } else {
-                  // If starting and not dev mode (scenarios available), show pretask First
-                  if (context.mode === "Task") setShowPreTask(true);
-                  else toggleBot(); // Only Practice mode starts directly
+                  // If starting scenario, show pretask modal first
+                  if (context.mode === "Task" || context.mode === "IELTS" || context.scenarioId) setShowPreTask(true);
+                  else toggleBot(); // Free practice mode starts directly
                 }
               }}
               disabled={generatingReport}
@@ -2111,7 +2114,7 @@ export default function App() {
         />
 
         <Guide isRunning={isRunning} onStartPractice={() => {
-           if (context.mode === "Task") setShowPreTask(true);
+           if (context.mode === "Task" || context.mode === "IELTS" || context.scenarioId) setShowPreTask(true);
            else toggleBot();
         }} />
         <AnimatePresence>{pronunciationWord && <PronunciationPractice word={pronunciationWord} onClose={() => setPronunciationWord(null)} />}</AnimatePresence>
