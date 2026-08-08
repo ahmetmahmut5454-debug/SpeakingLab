@@ -1268,7 +1268,7 @@ export default function App() {
             )}
 
             <div className="flex flex-wrap items-center justify-center gap-4 w-full">
-              <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
+              <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-700 mb-1 text-center">
                   Scenario
                 </label>
@@ -1278,14 +1278,41 @@ export default function App() {
                   className="bg-blue-900 border border-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg cursor-pointer hover:bg-blue-800 transition-colors truncate"
                 >
                   {context.mode === "Practice" 
-                    ? "-- Free Practice Mode --" 
+                    ? `-- Free Practice (${context.targetLanguage || "English"}) --` 
                     : context.mode === "IELTS"
                     ? `[IELTS] ${predefinedScenarios.find(s => s.id === context.scenarioId)?.title || "IELTS Mock Assessment"}`
                     : `[${context.level}] ${predefinedScenarios.find(s => s.id === context.scenarioId)?.title || "Custom Scenario"}`}
                 </button>
               </div>
 
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 min-w-[140px]">
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-700 mb-1 text-center">
+                  Target Language
+                </label>
+                <select
+                  value={context.targetLanguageCode || "en-US"}
+                  onChange={(e) => {
+                    const lang = SUPPORTED_LANGUAGES.find((l) => l.code === e.target.value);
+                    if (lang) {
+                      setContext({
+                        ...context,
+                        targetLanguage: lang.name,
+                        targetLanguageCode: lang.code,
+                      });
+                    }
+                  }}
+                  className="bg-blue-900 border border-blue-700 text-white font-bold rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg cursor-pointer hover:bg-blue-800 transition-colors h-[42px] mt-[2px]"
+                  disabled={isRunning}
+                >
+                  {SUPPORTED_LANGUAGES.map((lang) => (
+                    <option key={lang.code} value={lang.code} className="bg-white text-slate-900 font-medium">
+                      {lang.flag} {lang.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1 min-w-[140px]">
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-700 mb-1 text-center">
                   Tutor Voice
                 </label>
@@ -2147,6 +2174,7 @@ export default function App() {
               ? null
               : context.scenarioId || null
           }
+          currentTargetLanguageCode={context.targetLanguageCode}
           onSelect={(scenario, language) => {
             if (scenario) {
               const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS";

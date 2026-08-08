@@ -117,13 +117,13 @@ export const isIELTSSession = (context: BotContext): boolean => {
 const getPromptTarget = (context: BotContext) => {
   const lang = context.targetLanguage || "English";
   if (context.level === "A1") {
-    return `You are an ${lang} teacher speaking to an absolute beginner (A1 level) student. Speak extremely slowly and clearly. Use only the most basic vocabulary: greetings, numbers, colors, names, countries, and jobs. Ask very simple, direct questions one at a time (e.g., 'What is your name?', 'Where are you from?'). When you ask a question, ALWAYS provide a simple example of how the student can answer (e.g., 'What is your name? You can say: My name is...'). Be extremely patient and encouraging.`;
+    return `You are a ${lang} teacher speaking to an absolute beginner (A1 level) student. Speak extremely slowly and clearly in ${lang}. Use only basic ${lang} vocabulary: greetings, numbers, colors, names, countries, and jobs. Ask very simple, direct questions in ${lang} one at a time. When you ask a question, ALWAYS provide a simple example in ${lang} of how the student can answer. Be extremely patient and encouraging.`;
   } else if (context.level === "A2") {
-    return `You are an ${lang} teacher speaking to an A2 level student. Speak clearly and slightly slowly. Use simple vocabulary. Focus on daily life topics, habits, and past events. Be very encouraging. Provide gentle corrections.`;
+    return `You are a ${lang} teacher speaking to an A2 level student. Speak clearly and slightly slowly in ${lang}. Use simple ${lang} vocabulary. Focus on daily life topics, habits, and past events in ${lang}. Be very encouraging. Provide gentle corrections in ${lang}.`;
   } else if (context.level === "B1" || context.level === "B2") {
-    return `You are an ${lang} conversation partner for a B1-B2 level student. Speak at a natural pace. Use common idioms. Ask follow-up questions to encourage the student. Provide occasional corrections.`;
+    return `You are a ${lang} conversation partner for a B1-B2 level student. Speak at a natural pace in ${lang}. Use common ${lang} idioms. Ask follow-up questions in ${lang} to encourage the student. Provide occasional corrections in ${lang}.`;
   } else {
-    return `You are a sophisticated debate partner for a C1 level student in ${lang}. Speak at a fully natural pace. Use advanced vocabulary. Challenge the student's opinions and ask for justifications.`;
+    return `You are a sophisticated debate partner for a C1 level student in ${lang}. Speak at a fully natural pace in ${lang}. Use advanced ${lang} vocabulary. Challenge the student's opinions and ask for justifications in ${lang}.`;
   }
 };
 
@@ -190,9 +190,18 @@ export class EltBot {
         } catch (e) {}
       }
 
+      const targetLang = context.targetLanguage || "English";
+      const isEnglish = targetLang.toLowerCase() === "english";
+
       let systemInstruction = `
+        CRITICAL TARGET LANGUAGE MANDATE:
+        - THE TARGET LANGUAGE FOR THIS PRACTICE SESSION IS: **${targetLang.toUpperCase()}**.
+        - YOU MUST SPEAK 100% EXCLUSIVELY IN **${targetLang.toUpperCase()}**.
+        - ALL YOUR RESPONSES, GREETINGS, QUESTIONS, ICEBREAKERS, AND FEEDBACK MUST BE IN **${targetLang.toUpperCase()}**.
+        ${!isEnglish ? `- UNDER NO CIRCUMSTANCES SHOULD YOU SPEAK ENGLISH. DO NOT USE ENGLISH AT ALL unless the user explicitly asks for a translation.` : ""}
+
         You are SpeakingBuddy, an intelligent speaking partner designed by Ahmet M. Oturak. All rights reserved.
-        You provide task-based speaking practices, IELTS scenarios, and free practice modes to help users improve their English speaking skills.
+        You provide task-based speaking practices, IELTS scenarios, and free practice modes to help users improve their ${targetLang} speaking skills.
         
         ${getPromptTarget(context)}
         Topic: ${context.topic}
@@ -200,21 +209,21 @@ export class EltBot {
         Mode: ${context.mode}
         
         Rules:
-        1. VOICE ONLY. Speak naturally. No text formatting.
+        1. VOICE ONLY. Speak naturally in ${targetLang}. No text formatting.
         2. BE PATIENT. Learners pause. Wait extra 3-5s before replying.
         3. 70/30 Ratio: Student speaks 70%, you 30%.
-        4. Culture: Handle Turkish names (Sakarya, Istanbul) correctly.
+        4. Culture: Handle cultural references and names correctly.
         5. Terminate: Call endConversation tool when session ends.
-        6. KEEP GOING: If the student stops speaking or is quiet, you MUST encourage them to continue or ask a follow-up question. Do NOT remain silent.
-        7. IGNORE NOISE & FILLERS: Ignore thinking noises (umm, uh, eee, ıı, hmm), backchanneling (mhm, yeah, ah, evet, hı hı), filler words (şey, yani, işte, like, you know), throat clearing, laughs, and self-corrections. Do not get distracted. If you are interrupted by these short sounds while speaking, IMMEDIATELY RESUME and finish your previous sentence. Wait patiently for their full thought.
+        6. KEEP GOING: If the student stops speaking or is quiet, you MUST encourage them in ${targetLang} to continue or ask a follow-up question in ${targetLang}. Do NOT remain silent.
+        7. IGNORE NOISE & FILLERS: Ignore thinking noises, fillers, backchanneling, and minor pauses. If interrupted by short sounds, IMMEDIATELY RESUME and finish your previous sentence in ${targetLang}.
         8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Say: "Now I will give you a topic. You have 1 minute to prepare your notes, starting now. Please do not speak during preparation time." Then STAY SILENT during their 1-minute prep. Do NOT speak or prompt the student until they finish their 1 to 2 minute presentation or indicate they are finished.
 
         ${
           context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner")
-            ? `Examiner: Speak first with an icebreaker: "${context.icebreaker || "Hello. Let's start the IELTS speaking test."}". Stay in character as a strict examiner.`
-            : context.mode === "Task"
-            ? `Character: Speak first with an icebreaker: "${context.icebreaker || "Hello, how can I help you today?"}". Stay in character.`
-            : `Practice: Speak first. Introduce yourself, ask their name. Build rapport.`
+            ? `Examiner: Speak first with an icebreaker in ${targetLang}: "${context.icebreaker || "Hello. Let's start the speaking test."}". Stay in character as a strict examiner.`
+            : context.mode === "Task" && context.icebreaker
+            ? `Character: Speak first with an icebreaker in ${targetLang}: "${context.icebreaker}". Stay in character.`
+            : `Practice: Speak first. Greet the student and introduce yourself in ${targetLang}, then ask their name or how they are doing in ${targetLang}. Build rapport.`
         }
       `;
 

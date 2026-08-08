@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ChevronRight, ArrowLeft, Check, Globe } from "lucide-react";
 import { predefinedScenarios, Scenario } from "../lib/scenarios";
@@ -8,6 +8,7 @@ const LANGUAGES = [
   { name: "Spanish", code: "es-ES", flag: "🇪🇸" },
   { name: "French", code: "fr-FR", flag: "🇫🇷" },
   { name: "German", code: "de-DE", flag: "🇩🇪" },
+  { name: "Italian", code: "it-IT", flag: "🇮🇹" },
   { name: "Turkish", code: "tr-TR", flag: "🇹🇷" },
 ];
 
@@ -16,6 +17,7 @@ interface ScenarioSelectorProps {
   onClose: () => void;
   onSelect: (scenario: Scenario | null, language?: {name: string, code: string}) => void;
   currentScenarioId: string | null;
+  currentTargetLanguageCode?: string;
 }
 
 export const ScenarioSelector = ({
@@ -23,10 +25,20 @@ export const ScenarioSelector = ({
   onClose,
   onSelect,
   currentScenarioId,
+  currentTargetLanguageCode,
 }: ScenarioSelectorProps) => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [selectedScenarioForLang, setSelectedScenarioForLang] = useState<Scenario | "FREE" | null>(null);
-  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
+  const [selectedLang, setSelectedLang] = useState(() => {
+    return LANGUAGES.find(l => l.code === currentTargetLanguageCode) || LANGUAGES[0];
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      const matched = LANGUAGES.find(l => l.code === currentTargetLanguageCode) || LANGUAGES[0];
+      setSelectedLang(matched);
+    }
+  }, [isOpen, currentTargetLanguageCode]);
 
   const allGroups = [
     { id: "A1", title: "A1 (Beginner)", desc: "Basic vocabulary and simple phrases." },
