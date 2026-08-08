@@ -538,12 +538,13 @@ export default function App() {
 
     // Save to IndexedDB locally
     const hasReport = sessionReport && !sessionReport.includes("❌");
+    const isIELTS = isIELTSSession(context);
     const newReport: LocalReport = {
       id: Date.now().toString(),
       createdAt: new Date(),
       createdAtTime: Date.now(),
-      level: context.level,
-      mode: context.mode,
+      level: isIELTS ? "IELTS" : context.level,
+      mode: isIELTS ? "IELTS" : context.mode,
       topic: context.topic,
       scenarioId: context.scenarioId,
       reportText: hasReport ? sessionReport : "",
@@ -1402,9 +1403,26 @@ export default function App() {
                 <div className="flex items-center gap-3 shrink-0 p-4 sm:p-8 sm:pb-6 bg-white border-b border-slate-100 z-10">
                   <LayoutDashboard className="w-6 h-6 text-emerald-500" />
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
-                      {report.mode === "Task" ? "Scenario Task" : report.mode === "IELTS" ? "IELTS Mock" : "Free Practice"} ({report.level})
-                    </h2>
+                    {(() => {
+                      const isIeltsReport = report.mode === "IELTS" ||
+                                            isIELTSSession({
+                                              mode: report.mode as any,
+                                              topic: report.topic,
+                                              objective: report.topic,
+                                              scenarioId: report.scenarioId,
+                                              level: report.level as any,
+                                            } as any) ||
+                                            (report.reportText && (
+                                              report.reportText.toLowerCase().includes("band score") ||
+                                              report.reportText.toLowerCase().includes("ielts") ||
+                                              report.reportText.toLowerCase().includes("fluency & coherence")
+                                            ));
+                      return (
+                        <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
+                          {isIeltsReport ? "IELTS Mock Assessment" : report.mode === "Task" ? "Scenario Task" : "Free Practice"} ({report.level})
+                        </h2>
+                      );
+                    })()}
                     <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">
                       <span>{new Date(report.createdAtTime).toLocaleDateString()}</span>
                       {report.durationMs && (

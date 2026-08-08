@@ -2,7 +2,11 @@ import { LocalReport } from "./indexedDB";
 
 export const extractScore = (text: string, keyword: string) => {
   if (!text) return null;
-  const regex = new RegExp(`\\*?\\*?${keyword}\\*?\\*?\\s*:\\s*\\*?\\*?\\s*([0-9.]+)`, 'i');
+  const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(
+    `(?:\\*\\*|\\*|#)*${escapedKeyword}(?:\\*\\*|\\*|#)*\\s*[:=-]\\s*(?:\\[|\\(|Band\\s*)?([0-9]+(?:\\.[0-9]+)?)`,
+    'i'
+  );
   const match = regex.exec(text);
   if (match && match[1]) {
      const val = parseFloat(match[1]);
@@ -89,17 +93,28 @@ export const processIELTSReportScores = (reportText: string): string => {
 };
 
 export const extractOverallScore = (text: string): number | null => {
-  const band = extractScore(text, "Estimated Band Score") ?? extractScore(text, "Band Score");
+  const band = extractScore(text, "Estimated Band Score") ??
+               extractScore(text, "Overall Band Score") ??
+               extractScore(text, "Overall Band") ??
+               extractScore(text, "Band Score") ??
+               extractScore(text, "Tahmini Band Skoru") ??
+               extractScore(text, "Overall Score");
   if (band !== null) return band;
 
   const fluency = extractFluencyScore(text);
   const grammar = extractGrammarScore(text);
   const vocab = extractVocabScore(text);
+  const pron = extractPronunciationScore(text);
   
-  const validScores = [fluency, grammar, vocab].filter((s): s is number => s !== null);
-  if (validScores.length > 0) {
-    const avg = validScores.reduce((a, b) => a + b, 0) / validScores.length;
-    return Math.round(avg * 10) / 10;
+  const validScores = [fluency, grammar, vocab, pron].filter((s): s is number => s !== null);
+  if (validScores.length >= 2) {
+    const sum = validScores.reduce((acc, v) => acc + v, 0);
+    return calculateIELTSBandScore(
+      fluency ?? sum / validScores.length,
+      vocab ?? sum / validScores.length,
+      grammar ?? sum / validScores.length,
+      pron ?? sum / validScores.length
+    );
   }
   return null;
 };

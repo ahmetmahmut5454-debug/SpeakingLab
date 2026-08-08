@@ -8,7 +8,11 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
   const [wordDefinition, setWordDefinition] = useState<{ word: string; definition: string; phonetic: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const isIeltsReport = content.toLowerCase().includes('band score') || content.toLowerCase().includes('ielts');
+  const isIeltsReport = content.toLowerCase().includes('band score') ||
+                        content.toLowerCase().includes('ielts') ||
+                        content.toLowerCase().includes('fluency & coherence') ||
+                        content.toLowerCase().includes('lexical resource') ||
+                        content.toLowerCase().includes('grammatical range');
 
   const handleWordClick = async (word: string) => {
     // Strip punctuation if any sneaked in
