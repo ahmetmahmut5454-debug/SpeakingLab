@@ -1,7 +1,8 @@
+import { SavedReport } from '../lib/firebase';
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, AudioLines, Mic } from 'lucide-react';
-import { SavedReport } from '../store/sessionStore';
+
 import { FeedbackMarkdown } from './FeedbackMarkdown';
 import { FluencyHeatmap } from './FluencyHeatmap';
 import { isIELTSSession } from '../lib/eltBot';
@@ -53,7 +54,7 @@ export function ReportModal({
                   );
                 })()}
                 <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">
-                  <span>{new Date(report.createdAtTime).toLocaleDateString()}</span>
+                  <span>{new Date(report.createdAt).toLocaleDateString()}</span>
                   {report.durationMs && (
                     <>
                       <span>•</span>
@@ -79,7 +80,7 @@ export function ReportModal({
                           <span className="text-xs font-bold uppercase tracking-widest text-orange-600">Pronunciation Focus</span>
                         </div>
                         <div className="flex flex-wrap gap-2 mt-2">
-                          {struggledText.split(/[,;]+/).map((chunk, i) => {
+                          {struggledText.split(/[,;]+/).map((chunk: any, i: number) => {
                             const word = chunk.trim().replace(/[^a-zA-Z]/g, '');
                             if (!word) return null;
                             return (

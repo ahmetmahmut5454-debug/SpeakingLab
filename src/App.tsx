@@ -8,6 +8,9 @@ import { useUserStore } from "./store/userStore";
 import { useSessionStore } from "./store/sessionStore";
 import { motion, AnimatePresence } from "motion/react";
 import { FeedbackMarkdown } from "./components/FeedbackMarkdown";
+import { PreTaskModal } from "./components/PreTaskModal";
+import { OnboardingModal } from "./components/OnboardingModal";
+import { EmojiBurst } from "./components/EmojiBurst";
 import { PronunciationPractice } from "./components/PronunciationPractice";
 import { SpeakingTips } from "./components/SpeakingTips";
 import {
@@ -68,7 +71,7 @@ import {
   updateUserPurchase,
   updateGamificationStats,
   getLeaderboard,
-  ensureAuth,
+  
 } from "./lib/firebase";
 
 import { checkMasteryUnlocks } from "./lib/mastery";
@@ -93,48 +96,6 @@ const StatusBadge = ({ on }: { on: boolean }) => (
   </div>
 );
 
-const EmojiBurst = ({
-  icon,
-  onComplete,
-}: {
-  icon: string;
-  onComplete: () => void;
-}) => {
-  useEffect(() => {
-    const timer = setTimeout(onComplete, 2000);
-    return () => clearTimeout(timer);
-  }, [onComplete]);
-
-  const particles = Array.from({ length: 30 }).map((_, i) => ({
-    id: i,
-    angle: Math.random() * Math.PI * 2,
-    speed: 50 + Math.random() * 150,
-    size: 1 + Math.random() * 2,
-    rotation: Math.random() * 360,
-  }));
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          initial={{ x: 0, y: 0, scale: 0, rotate: 0, opacity: 1 }}
-          animate={{
-            x: Math.cos(p.angle) * p.speed * 2,
-            y: Math.sin(p.angle) * p.speed * 2,
-            scale: p.size,
-            rotate: p.rotation + 360,
-            opacity: 0,
-          }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute text-4xl"
-        >
-          {icon}
-        </motion.div>
-      ))}
-    </div>
-  );
-};
 
 const SUPPORTED_LANGUAGES = [
   { name: "English", code: "en-US", flag: "🇬🇧" },
@@ -156,7 +117,7 @@ import { FluencyHeatmap } from "./components/FluencyHeatmap";
 import { ProficiencyBadge } from "./components/ProficiencyBadge";
 
 export default function App() {
-  const { context, setContext, isRunning, setIsRunning, report, setReport, generatingReport, setGeneratingReport, cueCardTopic, setCueCardTopic } = useSessionStore();
+  const { context, setContext, isRunning, setIsRunning, report, setReport, generatingReport, setGeneratingReport, cueCardTopic, setCueCardTopic, pastReports, setPastReports, isShopOpen, setIsShopOpen, isLeaderboardOpen, setIsLeaderboardOpen, isHistoryOpen, setIsHistoryOpen } = useSessionStore();
   /* const [context, setContext] = useState<BotContext>({
     level: "B1",
     mode: "Practice",
@@ -179,21 +140,8 @@ export default function App() {
   } | null>(null);
   const subtitleTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const [user, setUser] = useState<User | null>(null);
-  const [showHistory, setShowHistory] = useState(false);
-  const [pronunciationWord, setPronunciationWord] = useState<string | null>(null);
-  const [showShop, setShowShop] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [showScenarioSelector, setShowScenarioSelector] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [leaderboardData, setLeaderboardData] = useState<UserStats[]>([]);
-  const [leaderboardPeriod, setLeaderboardPeriod] = useState<"daily" | "monthly" | "allTime">("daily");
-  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [pastReports, setPastReports] = useState<SavedReport[]>([]);
-  const [historyLevelFilter, setHistoryLevelFilter] = useState<string>("All");
-  const [historyModeFilter, setHistoryModeFilter] = useState<string>("All");
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const { userStats, setUserStats, isStreakAnimating, setIsStreakAnimating, isQuestAnimating, setIsQuestAnimating } = useUserStore();
+  const [user, setUser] = useState<User | null>(null);  const [pronunciationWord, setPronunciationWord] = useState<string | null>(null);  const [showScenarioSelector, setShowScenarioSelector] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);  const { userStats, setUserStats, isStreakAnimating, setIsStreakAnimating, isQuestAnimating, setIsQuestAnimating } = useUserStore();
   const [levelUpBadgeId, setLevelUpBadgeId] = useState<string | null>(null);
   const [purchasedBadgeInfo, setPurchasedBadgeInfo] = useState<{
     id: string;
@@ -212,56 +160,6 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
-
-  const handlePurchase = async (item: (typeof SHOP_ITEMS)[0]) => {
-    if (!userStats) return;
-
-    // Check if already unlocked
-    const unlocked = userStats.unlockedItems || [];
-    if (unlocked.includes(item.id)) {
-      // Just equip
-      let newBadge = userStats.equippedBadge || "";
-      let newOutfit = userStats.equippedOutfit || "outfit_default";
-
-      if (item.type === "badge") newBadge = item.id;
-      if (item.type === "outfit") newOutfit = item.id;
-
-      const newStats = await updateUserPurchase(
-        userStats.xp,
-        unlocked,
-        newBadge,
-        newOutfit,
-      );
-      if (newStats) setUserStats(newStats);
-      return;
-    }
-
-    // Buy item
-    if (userStats.xp >= item.price) {
-      if (item.type === "badge") {
-        setPurchasedBadgeInfo({ id: item.id, icon: item.icon });
-      }
-      const remainingXp = userStats.xp - item.price;
-      const newUnlocked = [...unlocked, item.id];
-
-      let newBadge = userStats.equippedBadge || "";
-      let newOutfit = userStats.equippedOutfit || "outfit_default";
-
-      if (item.type === "badge") newBadge = item.id;
-      if (item.type === "outfit") newOutfit = item.id;
-
-      const newStats = await updateUserPurchase(
-        remainingXp,
-        newUnlocked,
-        newBadge,
-        newOutfit,
-      );
-      if (newStats) setUserStats(newStats);
-    } else {
-      alert("Not enough Points!");
-    }
-  };
-
   // Scaffolding & Hint systems
   const [showPreTask, setShowPreTask] = useState(false);
   const [silenceTimer, setSilenceTimer] = useState(0);
@@ -278,7 +176,7 @@ export default function App() {
         const stats = await getUserStats();
         setUserStats(stats);
       } else {
-        await ensureAuth();
+        
       }
     });
     return () => unsubscribe();
@@ -384,7 +282,7 @@ export default function App() {
     const isIELTS = isIELTSSession(context);
     const newReport: SavedReport = {
       id: Date.now().toString(),
-      createdAt: new Date(),
+      createdAt: Date.now(),
       
       level: isIELTS ? "IELTS" : context.level,
       mode: isIELTS ? "IELTS" : context.mode,
@@ -396,9 +294,7 @@ export default function App() {
       durationMs: sessionStartTime ? Date.now() - sessionStartTime : undefined,
     };
     const cloudId = await saveReportToDb(context, sessionReport || "", currentTranscript, sessionStartTime ? Date.now() - sessionStartTime : undefined); 
-    if (cloudId) newReport.id = cloudId;
-    setPastReports((prev) => [newReport, ...prev]);
-    setReport(newReport);
+    if (cloudId) newReport.id = cloudId;    setReport(newReport);
   };
 
   const retryReportGeneration = async (report: SavedReport) => {
@@ -406,10 +302,7 @@ export default function App() {
     if (!report.transcript || report.transcript.length === 0) {
       alert("No transcript found for this session.");
       return;
-    }
-
-    setLoadingHistory(true);
-    try {
+    }    try {
       const isIeltsScenario = report.scenarioId?.toLowerCase().includes("ielts") || report.topic?.toLowerCase().includes("ielts");
       const newReport = await botRef.current.generateReport(
         {
@@ -427,9 +320,7 @@ export default function App() {
         const updated = await updateReportInDb(report.id, newReport);
         if (updated) { report.reportText = newReport; }
         if (updated) {
-          setPastReports((prev) =>
-            prev.map((r) => (r.id === report.id ? report : r))
-          );
+          setPastReports(pastReports.map((r) => (r.id === report.id ? report : r)));
         }
         alert("Feedback generated successfully!");
       } else {
@@ -438,26 +329,8 @@ export default function App() {
     } catch (e) {
       console.error(e);
       alert("Failed to retry feedback generation.");
-    } finally {
-      setLoadingHistory(false);
-    }
+    } finally {    }
   };
-
-  
-
-  const loadLeaderboard = async (period: "daily" | "monthly" | "allTime" = leaderboardPeriod) => {
-    setLoadingLeaderboard(true);
-    const data = await getLeaderboard(period, 20);
-    setLeaderboardData(data);
-    setLoadingLeaderboard(false);
-  };
-
-  useEffect(() => {
-    if (showLeaderboard) {
-      loadLeaderboard(leaderboardPeriod);
-    }
-  }, [showLeaderboard, leaderboardPeriod]);
-
   useEffect(() => {
     if (userStats && pastReports.length > 0) {
       const unlockedBadges = checkMasteryUnlocks(pastReports);
@@ -488,38 +361,7 @@ export default function App() {
         handleUnlocks();
       }
     }
-  }, [pastReports, userStats]);
-
-  const loadReports = async () => {
-    setLoadingHistory(true);
-    // Load reports from Firestore
-    const localReports = await getUserReports();
-    setPastReports(localReports);
-    setLoadingHistory(false);
-  };
-
-  const handleDeleteReport = async (id: string) => {
-    await deleteSavedReport(id);
-    setPastReports((prev) => prev.filter((r) => r.id !== id));
-  };
-
-  const handleSelectScenario = (scenario: Scenario) => {
-    const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS";
-    setContext({
-      ...context,
-      mode: isIelts ? "IELTS" : "Task",
-      level: scenario.level === "B1-B2" ? "B2" : (scenario.level as any),
-      topic: scenario.topic,
-      objective: scenario.objective,
-      role: scenario.role,
-      icebreaker: translated?.icebreaker || scenario.icebreaker,
-      scenarioId: scenario.id,
-                vocabulary: scenario.vocabulary,
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const toggleBot = async () => {
+  }, [pastReports, userStats]);  const toggleBot = async () => {
     // 100% STRICT UI CHECK FOR LOCAL VITE USERS OR MAC APP USERS
     const localKey = localStorage.getItem("gemini_custom_key");
     const metaEnv = (import.meta as any).env;
@@ -566,15 +408,11 @@ export default function App() {
   const sessionsToday = useMemo(() => {
     const today = new Date().toDateString();
     return pastReports.filter(r => {
-      let timeMs = r.createdAtTime;
-      if (!timeMs && r.createdAt) {
-        if (typeof (r.createdAt as any).seconds === 'number') {
-          timeMs = (r.createdAt as any).seconds * 1000;
-        } else if (r.createdAt instanceof Date) {
-          timeMs = r.createdAt.getTime();
-        } else {
-          timeMs = new Date(r.createdAt as any).getTime();
-        }
+      let timeMs = r.createdAt as any;
+      if (typeof timeMs !== 'number' && timeMs) {
+        if (typeof timeMs.seconds === 'number') timeMs = timeMs.seconds * 1000;
+        else if (timeMs.getTime) timeMs = timeMs.getTime();
+        else timeMs = new Date(timeMs).getTime();
       }
       if (!timeMs) return false;
       return new Date(timeMs).toDateString() === today;
@@ -615,12 +453,6 @@ export default function App() {
       {levelUpBadgeId && (
         <LevelUpModal badgeId={levelUpBadgeId} onClose={() => setLevelUpBadgeId(null)} />
       )}
-      {purchasedBadgeInfo && (
-        <EmojiBurst
-          icon={purchasedBadgeInfo.icon}
-          onComplete={() => setPurchasedBadgeInfo(null)}
-        />
-      )}
 
       {/* HUD Background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-[0.02]">
@@ -640,11 +472,9 @@ export default function App() {
           isStreakAnimating={isStreakAnimating}
           isQuestAnimating={isQuestAnimating}
           sessionsToday={sessionsToday}
-          setShowShop={setShowShop}
-          loadLeaderboard={loadLeaderboard}
-          setShowLeaderboard={setShowLeaderboard}
-          loadReports={loadReports}
-          setShowHistory={setShowHistory}
+          setShowShop={setIsShopOpen}
+          setShowLeaderboard={setIsLeaderboardOpen}
+          setShowHistory={setIsHistoryOpen}
           logout={logout}
           loginWithGoogle={loginWithGoogle}
           showSubtitles={showSubtitles}
@@ -896,169 +726,37 @@ export default function App() {
           transcript={botRef.current?.transcript || []}
         />
         {/* Pre-Task / Scaffolding Modal */}
-        <AnimatePresence>
-          {showPreTask && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm"
-            >
-              <div className="bg-white border-0 sm:border-4 border-slate-200 p-4 sm:p-10 rounded-none sm:rounded-[2rem] max-w-lg w-full h-full sm:h-auto overflow-y-auto sm:overflow-visible shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col">
-                <div className="flex flex-col items-center gap-4 sm:gap-6 text-center pt-4 sm:pt-0">
-                  {predefinedScenarios.find((s) => s.id === context.scenarioId)
-                    ?.imageUrl ? (
-                    <img
-                      src={
-                        predefinedScenarios.find((s) => s.id === context.scenarioId)
-                          ?.imageUrl
-                      }
-                      alt="Scenario"
-                      className="w-full h-40 object-cover rounded-2xl shadow-inner mb-2"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                      <RoleAvatar role={context.role} isActive={false} />
-                    </div>
-                  )}
-                  <div>
-                    <h2 className="text-2xl font-bold tracking-tight mb-2">
-                      Scenario Briefing
-                    </h2>
-                    <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-white/80 p-4 rounded-xl border border-slate-200 shadow-inner">
-                      {context.studentBriefing ||
-                        "Get ready to solve the problem using your English skills!"}
-                    </p>
-                  </div>
-
-                  {(() => {
-                    const currentScen = predefinedScenarios.find((s) => s.id === context.scenarioId);
-                    const cueCardPreview = extractCueCardFromScenario(currentScen);
-
-                    return (
-                      <>
-                        {cueCardPreview && (
-                          <div className="w-full bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-left mb-2">
-                            <div className="flex items-center gap-2 mb-2 text-amber-600 font-bold text-xs uppercase tracking-wider">
-                              <FileText className="w-4 h-4 text-amber-500" />
-                              <span>IELTS Part 2 Cue Card Task</span>
-                            </div>
-                            <pre className="text-xs text-slate-800 font-sans whitespace-pre-wrap leading-relaxed bg-white/90 p-3 rounded-xl border border-amber-200">
-                              {cueCardPreview}
-                            </pre>
-                          </div>
-                        )}
-
-                        <div className="w-full bg-white/50 rounded-2xl p-6 text-left border border-slate-900/5">
-                          <h3 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">
-                            Key Vocabulary
-                          </h3>
-                          <div className="flex flex-wrap gap-2">
-                            {context.vocabulary?.map((word, i) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-slate-900/5 border border-slate-900/10 rounded-lg text-sm text-slate-600/80"
-                              >
-                                {word}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
-
-                  <div className="flex gap-4 w-full mt-4">
-                    <button
-                      onClick={() => setShowPreTask(false)}
-                      className="flex-1 py-4 bg-slate-900/5 border border-slate-900/10 rounded-xl hover:bg-slate-900/10 font-bold uppercase tracking-widest transition-all text-xs"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        const currentScen = predefinedScenarios.find((s) => s.id === context.scenarioId);
-                        const cueCardText = extractCueCardFromScenario(currentScen);
-                        if (cueCardText) {
-                          setCueCardTopic(cueCardText);
-                        }
-                        setShowPreTask(false);
-                        toggleBot();
-                      }}
-                      className="flex-[2] py-4 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 hover:from-emerald-500/30 hover:to-blue-500/30 border border-emerald-500/30 text-emerald-300 rounded-xl font-bold uppercase tracking-widest transition-all text-xs shadow-lg"
-                    >
-                      <Phone className="w-4 h-4 inline-block mr-2 -mt-1" />{" "}
-                      Ready, Connect
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <PreTaskModal 
+          showPreTask={showPreTask}
+          setShowPreTask={setShowPreTask}
+          context={context}
+          setCueCardTopic={setCueCardTopic}
+          toggleBot={toggleBot}
+        />
 
         {/* History Modal */}
         <HistoryModal 
-          showHistory={showHistory}
-          setShowHistory={setShowHistory}
-          historyLevelFilter={historyLevelFilter}
-          setHistoryLevelFilter={setHistoryLevelFilter}
-          historyModeFilter={historyModeFilter}
-          setHistoryModeFilter={setHistoryModeFilter}
-          pastReports={pastReports}
-          loadingHistory={loadingHistory}
+          showHistory={isHistoryOpen}
+          setShowHistory={setIsHistoryOpen}
           setPronunciationWord={setPronunciationWord}
-          handleDeleteReport={handleDeleteReport}
           retryReportGeneration={retryReportGeneration}
         />
         {/* Leaderboard Modal */}
-        <LeaderboardModal
-          showLeaderboard={showLeaderboard}
-          setShowLeaderboard={setShowLeaderboard}
-          leaderboardPeriod={leaderboardPeriod}
-          setLeaderboardPeriod={setLeaderboardPeriod}
-          leaderboardData={leaderboardData}
-          userStats={userStats}
+        <LeaderboardModal 
+          showLeaderboard={isLeaderboardOpen}
+          setShowLeaderboard={setIsLeaderboardOpen}
         />
-        <ShopModal isOpen={showShop} onClose={() => setShowShop(false)} userStats={userStats} onPurchase={handlePurchase} />
+        <ShopModal isOpen={isShopOpen} onClose={() => setIsShopOpen(false)} userStats={userStats} />
 
         {/* Onboarding Guide Modal */}
-        <AnimatePresence>
-          {showOnboarding &&
-            !isRunning &&
-            !showPreTask &&
-            !showHistory &&
-            !report && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: 0.5, duration: 0.4 }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 max-w-sm w-full"
-              >
-                <div className="bg-white border border-slate-900/10 p-8 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] text-center relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
-                  <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-emerald-500/10">
-                    🎓
-                  </div>
-                  <h2 className="text-xl font-bold tracking-tight mb-2">
-                    Let's do practice together!
-                  </h2>
-                  <p className="text-slate-600/70 font-medium text-sm leading-relaxed mb-6">
-                    Pick a scenario from the selector below, review your briefing, and
-                    start speaking. I'll track your English level and reward you
-                    with Points and cool new items!
-                  </p>
-                  <button
-                    onClick={() => setShowOnboarding(false)}
-                    className="w-full py-3 bg-emerald-500 hover:bg-yellow-500 text-blue-950 font-bold uppercase tracking-widest text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(250,204,21,0.3)]"
-                  >
-                    Start Learning
-                  </button>
-                </div>
-              </motion.div>
-            )}
-        </AnimatePresence>
+        <OnboardingModal
+          showOnboarding={showOnboarding}
+          isRunning={isRunning}
+          showPreTask={showPreTask}
+          showHistory={isHistoryOpen}
+          report={report}
+          setShowOnboarding={setShowOnboarding}
+        />
 
         {/* Footer info */}
         <footer className="mt-12 pt-6 pb-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-3">

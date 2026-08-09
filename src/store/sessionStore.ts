@@ -15,6 +15,8 @@ interface SessionState {
   setIsLeaderboardOpen: (open: boolean) => void;
   isQuestsOpen: boolean;
   setIsQuestsOpen: (open: boolean) => void;
+  isHistoryOpen: boolean;
+  setIsHistoryOpen: (open: boolean) => void;
   isErrorBankOpen: boolean;
   setIsErrorBankOpen: (open: boolean) => void;
   context: BotContext;
@@ -25,6 +27,8 @@ interface SessionState {
   setGeneratingReport: (generating: boolean) => void;
   cueCardTopic: string | null;
   setCueCardTopic: (topic: string | null) => void;
+  pastReports: SavedReport[];
+  setPastReports: (reports: SavedReport[]) => void;
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
@@ -40,6 +44,8 @@ export const useSessionStore = create<SessionState>((set) => ({
   setIsLeaderboardOpen: (open) => set({ isLeaderboardOpen: open }),
   isQuestsOpen: false,
   setIsQuestsOpen: (open) => set({ isQuestsOpen: open }),
+  isHistoryOpen: false,
+  setIsHistoryOpen: (open) => set({ isHistoryOpen: open }),
   isErrorBankOpen: false,
   setIsErrorBankOpen: (open) => set({ isErrorBankOpen: open }),
   context: {
@@ -57,4 +63,6 @@ export const useSessionStore = create<SessionState>((set) => ({
   setGeneratingReport: (generating) => set({ generatingReport: generating }),
   cueCardTopic: null,
   setCueCardTopic: (topic) => set({ cueCardTopic: topic }),
+  pastReports: [],
+  setPastReports: (reports) => set({ pastReports: reports }),
 }));

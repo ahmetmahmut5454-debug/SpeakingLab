@@ -3,9 +3,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  signOut,
-  signInAnonymously,
-  linkWithPopup
+  signOut
 } from "firebase/auth";
 import {
   getFirestore,
@@ -31,24 +29,11 @@ export const auth = getAuth(app);
 
 const googleProvider = new GoogleAuthProvider();
 
-export const ensureAuth = async () => {
-  if (!auth.currentUser) {
-    try {
-      await signInAnonymously(auth);
-    } catch (error) {
-      console.error("Anonymous auth failed", error);
-    }
-  }
-};
 
 export const loginWithGoogle = async () => {
   try {
     googleProvider.setCustomParameters({ prompt: "select_account" });
-    if (auth.currentUser && auth.currentUser.isAnonymous) {
-      await linkWithPopup(auth.currentUser, googleProvider);
-    } else {
-      await signInWithPopup(auth, googleProvider);
-    }
+    await signInWithPopup(auth, googleProvider);
   } catch (error: any) {
     if (error.code === 'auth/credential-already-in-use') {
       await signInWithPopup(auth, googleProvider);
@@ -109,7 +94,6 @@ const getLocalMonthString = (): string => {
 };
 
 export const getUserStats = async (): Promise<UserStats | null> => {
-  if (!auth.currentUser) await ensureAuth();
   if (!auth.currentUser) return null;
   
   try {
@@ -233,7 +217,6 @@ export const updateUserPurchase = async (
 export const updateGamificationStats = async (
   mode: "Practice" | "Task" | "IELTS" = "Practice",
 ) => {
-  if (!auth.currentUser) await ensureAuth();
   if (!auth.currentUser) return null;
   
   const uid = auth.currentUser.uid;
@@ -380,7 +363,6 @@ export const saveReportToDb = async (
   transcript?: string[],
   durationMs?: number,
 ) => {
-  if (!auth.currentUser) await ensureAuth();
   if (!auth.currentUser) return null;
 
   try {
@@ -422,7 +404,7 @@ export const updateReportInDb = async (reportId: string, reportText: string) => 
 
 export interface SavedReport {
   id: string;
-  createdAt: { seconds: number; nanoseconds: number } | Date;
+  createdAt: number;
   level: string;
   mode: string;
   topic: string;
@@ -433,7 +415,6 @@ export interface SavedReport {
 }
 
 export const getUserReports = async (): Promise<SavedReport[]> => {
-  if (!auth.currentUser) await ensureAuth();
   if (!auth.currentUser) return [];
 
   try {
@@ -442,16 +423,16 @@ export const getUserReports = async (): Promise<SavedReport[]> => {
       where("userId", "==", auth.currentUser.uid),
     );
     const snapshot = await getDocs(q);
-    const reports = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as SavedReport[];
-
-    reports.sort((a, b) => {
-      const timeA = (a.createdAt as any)?.seconds || 0;
-      const timeB = (b.createdAt as any)?.seconds || 0;
-      return timeB - timeA;
-    });
+    const reports = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      const time = data.createdAt?.toMillis?.() || data.createdAt?.seconds * 1000 || Date.now();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: time,
+      };
+    }) as SavedReport[];
+    reports.sort((a, b) => b.createdAt - a.createdAt);
 
     return reports;
   } catch (error) {

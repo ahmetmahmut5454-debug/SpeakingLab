@@ -20,7 +20,7 @@ export const ProgressDashboard: React.FC<Props> = ({ reports, onSelectReport }) 
 
   // Filter reports according to selected mode
   const filteredReports = useMemo(() => {
-    const sorted = [...reports].sort((a, b) => a.createdAtTime - b.createdAtTime);
+    const sorted = [...reports].sort((a, b) => a.createdAt - b.createdAt);
     if (filterMode === 'IELTS') {
       const ieltsOnly = sorted.filter(r => 
         r.mode === 'IELTS' || 
@@ -43,7 +43,7 @@ export const ProgressDashboard: React.FC<Props> = ({ reports, onSelectReport }) 
       const pronunciation = extractPronunciationScore(text);
       let overall = extractOverallScore(text);
 
-      const d = new Date(report.createdAtTime);
+      const d = new Date(report.createdAt);
       const formattedDate = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
 
       return {

@@ -24,9 +24,7 @@ interface HeaderProps {
   isQuestAnimating: boolean;
   sessionsToday: number;
   setShowShop: (show: boolean) => void;
-  loadLeaderboard: () => void;
   setShowLeaderboard: (show: boolean) => void;
-  loadReports: () => void;
   setShowHistory: (show: boolean) => void;
   logout: () => void;
   loginWithGoogle: () => Promise<void>;
@@ -43,9 +41,7 @@ export function Header({
   isQuestAnimating,
   sessionsToday,
   setShowShop,
-  loadLeaderboard,
   setShowLeaderboard,
-  loadReports,
   setShowHistory,
   logout,
   loginWithGoogle,
@@ -248,7 +244,6 @@ export function Header({
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3">
             <button
               onClick={() => {
-                loadLeaderboard();
                 setShowLeaderboard(true);
               }}
               className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-orange-200 text-orange-500 hover:bg-orange-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm"
@@ -258,7 +253,6 @@ export function Header({
             
             <button
               onClick={() => {
-                loadReports();
                 setShowHistory(true);
               }}
               className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-indigo-200 text-indigo-500 hover:bg-indigo-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm"
@@ -271,7 +265,6 @@ export function Header({
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3">
             <button
               onClick={() => {
-                loadLeaderboard();
                 setShowLeaderboard(true);
               }}
               className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-orange-200 text-orange-500 hover:bg-orange-50 transition-all text-xs font-bold uppercase tracking-widest shadow-sm"
@@ -282,7 +275,6 @@ export function Header({
             
             <button
               onClick={() => {
-                loadReports();
                 setShowHistory(true);
               }}
               className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-indigo-200 text-indigo-500 hover:bg-indigo-50 transition-all text-xs font-bold uppercase tracking-widest shadow-sm"

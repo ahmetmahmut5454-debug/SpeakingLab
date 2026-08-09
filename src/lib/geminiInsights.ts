@@ -30,7 +30,7 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
   const ai = new GoogleGenAI({ apiKey });
 
   // Take the last 10 reports to avoid token limits
-  const sortedReports = [...reports].sort((a, b) => b.createdAtTime - a.createdAtTime).slice(0, 10);
+  const sortedReports = [...reports].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
   
   const promptText = `
     Analyze the following recent speaking practice session reports for an English learner.
@@ -48,7 +48,7 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
     }
 
     Reports:
-    ${sortedReports.map((r, i) => `\n--- Session ${i + 1} (${new Date(r.createdAtTime).toLocaleDateString()}) ---\n${r.reportText}`).join("\n")}
+    ${sortedReports.map((r, i) => `\n--- Session ${i + 1} (${new Date(r.createdAt).toLocaleDateString()}) ---\n${r.reportText}`).join("\n")}
   `;
 
   try {

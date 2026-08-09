@@ -1,7 +1,6 @@
 /**
  * Audio processing utilities for PCM 16-bit conversion with DynamicsCompressor & Soft-Clipping.
  */
-
 export class AudioProcessor {
   static globalContext: AudioContext | null = null;
   
@@ -16,7 +15,8 @@ export class AudioProcessor {
   }
 
   private audioContext: AudioContext | null = null;
-  private processor: ScriptProcessorNode | null = null;
+  private workletNode: AudioWorkletNode | null = null;
+  private workletUrl: string | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
   private compressor: DynamicsCompressorNode | null = null;
   private analyser: AnalyserNode | null = null;
@@ -59,18 +59,75 @@ export class AudioProcessor {
     const bufferLength = this.analyser.frequencyBinCount;
     this.dataArray = new Uint8Array(bufferLength);
 
-    this.processor = this.audioContext.createScriptProcessor(2048, 1, 1);
+    const workletCode = `
+class PCMProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.bufferSize = 2048;
+    this.buffer = new Float32Array(this.bufferSize);
+    this.bytesWritten = 0;
+  }
 
-    // Audio Pipeline: Source -> Dynamics Compressor -> Analyser -> Script Processor -> Destination
+  process(inputs, outputs, parameters) {
+    const input = inputs[0];
+    if (input.length > 0) {
+      const channelData = input[0];
+      if (channelData) {
+        for (let i = 0; i < channelData.length; i++) {
+          this.buffer[this.bytesWritten++] = channelData[i];
+          if (this.bytesWritten >= this.bufferSize) {
+            this.flush();
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  flush() {
+    const pcm16 = new Int16Array(this.bufferSize);
+    for (let i = 0; i < this.bufferSize; i++) {
+      let s = Math.tanh(this.buffer[i]);
+      s = Math.max(-1, Math.min(1, s));
+      pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    
+    this.port.postMessage({
+      pcmData: pcm16.buffer
+    }, [pcm16.buffer]);
+
+    this.bytesWritten = 0;
+    this.buffer = new Float32Array(this.bufferSize);
+  }
+}
+
+registerProcessor('pcm-processor', PCMProcessor);
+    `;
+
+    if (!this.workletUrl) {
+      const blob = new Blob([workletCode], { type: 'application/javascript' });
+      this.workletUrl = URL.createObjectURL(blob);
+    }
+
+    try {
+      await this.audioContext.audioWorklet.addModule(this.workletUrl);
+    } catch (e) {
+      console.error("Failed to load AudioWorklet", e);
+      return;
+    }
+
+    this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-processor');
+
+    // Audio Pipeline: Source -> Dynamics Compressor -> Analyser -> AudioWorklet -> Destination
     this.source.connect(this.compressor);
     this.compressor.connect(this.analyser);
-    this.analyser.connect(this.processor);
-    this.processor.connect(this.audioContext.destination);
+    this.analyser.connect(this.workletNode);
+    this.workletNode.connect(this.audioContext.destination);
 
-    this.processor.onaudioprocess = (e) => {
+    this.workletNode.port.onmessage = (e) => {
       if (!this.audioContext || this.audioContext.state === 'closed') return;
-
-      const inputData = e.inputBuffer.getChannelData(0);
+      
+      const pcmData = e.data.pcmData;
       
       // Calculate energy level
       let avgLevel = 0;
@@ -88,19 +145,18 @@ export class AudioProcessor {
         }
       }
 
-      const pcm16 = this.floatTo16BitPCM(inputData);
-      const base64 = this.arrayBufferToBase64(pcm16);
+      const base64 = this.arrayBufferToBase64(pcmData);
       onAudioData(base64);
     };
   }
 
   stop() {
-    if (this.processor) {
-      this.processor.onaudioprocess = null;
+    if (this.workletNode) {
+      this.workletNode.port.onmessage = null;
       try {
-        this.processor.disconnect();
+        this.workletNode.disconnect();
       } catch (e) {}
-      this.processor = null;
+      this.workletNode = null;
     }
     if (this.analyser) {
       try {
@@ -135,18 +191,6 @@ export class AudioProcessor {
     this.dataArray = null;
   }
 
-  private floatTo16BitPCM(input: Float32Array): ArrayBuffer {
-    const buffer = new ArrayBuffer(input.length * 2);
-    const view = new DataView(buffer);
-    for (let i = 0; i < input.length; i++) {
-      // Soft clipping with tanh curve prevents digital distortion on high gain/loud input
-      let s = Math.tanh(input[i]);
-      s = Math.max(-1, Math.min(1, s));
-      view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-    }
-    return buffer;
-  }
-
   private arrayBufferToBase64(buffer: ArrayBuffer): string {
     let binary = '';
     const bytes = new Uint8Array(buffer);
@@ -163,6 +207,7 @@ export class AudioProcessor {
  */
 export class AudioPlayer {
   static globalContext: AudioContext | null = null;
+
   static unlockGlobal() {
     if (!AudioPlayer.globalContext) {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;

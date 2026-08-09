@@ -155,7 +155,7 @@ export const extractEstimatedLevel = (text: string): string | null => {
 };
 
 export const checkMasteryUnlocks = (reports: SavedReport[]): string[] => {
-  const sorted = [...reports].sort((a, b) => a.createdAtTime - b.createdAtTime);
+  const sorted = [...reports].sort((a, b) => a.createdAt - b.createdAt);
   const unlockedBadges: string[] = [];
 
   const checkConsecutiveImprovement = (keyword: string, badgeId: string) => {

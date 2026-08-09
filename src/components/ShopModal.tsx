@@ -8,10 +8,59 @@ interface ShopModalProps {
   isOpen: boolean;
   onClose: () => void;
   userStats: UserStats | null;
-  onPurchase: (item: (typeof SHOP_ITEMS)[0]) => void;
 }
 
-export function ShopModal({ isOpen, onClose, userStats, onPurchase }: ShopModalProps) {
+import { updateUserPurchase } from "../lib/firebase";
+import { useUserStore } from "../store/userStore";
+import { EmojiBurst } from "./EmojiBurst";
+
+export function ShopModal({ isOpen, onClose, userStats }: ShopModalProps) {
+  const [purchasedBadgeInfo, setPurchasedBadgeInfo] = React.useState<{ id: string; icon: string } | null>(null);
+  const { setUserStats } = useUserStore();
+
+  const handlePurchase = async (item: (typeof SHOP_ITEMS)[0]) => {
+    if (!userStats) return;
+
+    const unlocked = userStats.unlockedItems || [];
+    if (unlocked.includes(item.id)) {
+      let newBadge = userStats.equippedBadge || "";
+      let newOutfit = userStats.equippedOutfit || "outfit_default";
+
+      if (item.type === "badge") newBadge = item.id;
+      if (item.type === "outfit") newOutfit = item.id;
+
+      const newStats = await updateUserPurchase(
+        userStats.xp,
+        unlocked,
+        newBadge,
+        newOutfit
+      );
+      if (newStats) setUserStats(newStats);
+      return;
+    }
+
+    if (userStats.xp >= item.price) {
+      const newXp = userStats.xp - item.price;
+      const newUnlocked = [...unlocked, item.id];
+      let newBadge = userStats.equippedBadge || "";
+      let newOutfit = userStats.equippedOutfit || "outfit_default";
+
+      if (item.type === "badge") newBadge = item.id;
+      if (item.type === "outfit") newOutfit = item.id;
+
+      const newStats = await updateUserPurchase(
+        newXp,
+        newUnlocked,
+        newBadge,
+        newOutfit
+      );
+      if (newStats) setUserStats(newStats);
+      setPurchasedBadgeInfo({ id: item.id, icon: item.icon });
+    } else {
+      alert("Not enough points!");
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -63,7 +112,7 @@ export function ShopModal({ isOpen, onClose, userStats, onPurchase }: ShopModalP
                       return (
                         <button
                           key={item.id}
-                          onClick={() => onPurchase(item)}
+                          onClick={() => handlePurchase(item)}
                           disabled={isDisabled}
                           title={(item as any).description || ""}
                           className={`flex flex-col items-center p-4 rounded-2xl border transition-all relative overflow-hidden ${
@@ -119,6 +168,12 @@ export function ShopModal({ isOpen, onClose, userStats, onPurchase }: ShopModalP
               </div>
             )}
           </div>
+          {purchasedBadgeInfo && (
+            <EmojiBurst
+              icon={purchasedBadgeInfo.icon}
+              onComplete={() => setPurchasedBadgeInfo(null)}
+            />
+          )}
         </motion.div>
       )}
     </AnimatePresence>

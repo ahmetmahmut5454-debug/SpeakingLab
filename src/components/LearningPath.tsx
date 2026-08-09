@@ -13,7 +13,7 @@ interface Props {
 export const LearningPath: React.FC<Props> = ({ reports, userLevel, onSelectScenario }) => {
   const { focusArea, suggestedScenarios } = useMemo(() => {
     // Determine weakest area from last 5 reports
-    const recent = [...reports].sort((a, b) => b.createdAtTime - a.createdAtTime).slice(0, 5);
+    const recent = [...reports].sort((a, b) => b.createdAt - a.createdAt).slice(0, 5);
     
     let totalFluency = 0, totalGrammar = 0, totalVocab = 0;
     let countFluency = 0, countGrammar = 0, countVocab = 0;
