@@ -1,4 +1,4 @@
-import { LocalReport } from "./indexedDB";
+import { SavedReport } from "./firebase";
 
 export const extractScore = (text: string, keyword: string) => {
   if (!text) return null;
@@ -154,7 +154,7 @@ export const extractEstimatedLevel = (text: string): string | null => {
   return null;
 };
 
-export const checkMasteryUnlocks = (reports: LocalReport[]): string[] => {
+export const checkMasteryUnlocks = (reports: SavedReport[]): string[] => {
   const sorted = [...reports].sort((a, b) => a.createdAtTime - b.createdAtTime);
   const unlockedBadges: string[] = [];
 

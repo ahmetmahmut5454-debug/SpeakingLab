@@ -4,7 +4,7 @@ import { predefinedScenarios } from "./scenarios";
 import { calculateIELTSBandScore, processIELTSReportScores } from "./mastery";
 import { getUnmasteredErrorsForPrompt, addErrorItemsFromReport } from "./errorBank";
 
-const getApiKey = () => {
+export const getApiKey = () => {
   try {
     const local = localStorage.getItem("gemini_custom_key");
     if (local) return local;
@@ -80,6 +80,8 @@ export interface BotContext {
   icebreaker?: string;
   targetLanguage?: string;
   targetLanguageCode?: string;
+  vocabulary?: string[];
+  studentBriefing?: string;
 }
 
 export const isIELTSSession = (context: BotContext): boolean => {
@@ -246,6 +248,7 @@ Naturally test or gently guide the student to practice these structures in today
       Topic: ${context.topic}
       Goals: ${context.objective}
       Mode: ${context.mode}
+      ${context.vocabulary ? `Target Vocabulary (Expected to be used by student in ${targetLang}): ${context.vocabulary.join(", ")}` : ""}
       ${errorBankPromptSection}
       
       Rules:
@@ -538,7 +541,7 @@ Naturally test or gently guide the student to practice these structures in today
   ): Promise<string> {
     const transcriptToUse = externalTranscript || this.transcriptHistory;
     
-    const buildLocalReport = () => {
+    const buildSavedReport = () => {
       let studentTurns = 0;
       let botTurns = 0;
       let studentWordCount = 0;
@@ -644,7 +647,7 @@ Naturally test or gently guide the student to practice these structures in today
     };
 
     if (transcriptToUse.length === 0) {
-      return buildLocalReport();
+      return buildSavedReport();
     }
 
     let attempt = 0;
@@ -858,7 +861,7 @@ Naturally test or gently guide the student to practice these structures in today
       }
     }
 
-    return buildLocalReport();
+    return buildSavedReport();
   }
 
   stop() {

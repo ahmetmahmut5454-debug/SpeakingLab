@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { LocalReport } from "./indexedDB";
+import { SavedReport } from "./firebase";
 
 const getApiKey = () => {
   try {
@@ -17,7 +17,7 @@ const getApiKey = () => {
   return "";
 };
 
-export const generateProgressSummary = async (reports: LocalReport[]): Promise<{
+export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
   improvements: string[];
   persistentIssues: string[];
   summary: string;

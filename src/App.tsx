@@ -53,6 +53,7 @@ import { LeaderboardModal } from "./components/LeaderboardModal";
 import { HistoryModal } from "./components/HistoryModal";
 import { EltBot, ProficiencyLevel, BotContext, VoiceType, isIELTSSession } from "./lib/eltBot";
 import { predefinedScenarios, Scenario, extractCueCardFromScenario } from "./lib/scenarios";
+import { translateScenario } from "./lib/translationService";
 import {
   auth,
   loginWithGoogle,
@@ -67,15 +68,9 @@ import {
   updateUserPurchase,
   updateGamificationStats,
   getLeaderboard,
+  ensureAuth,
 } from "./lib/firebase";
-import {
-  saveLocalReport,
-  getLocalReports,
-  deleteLocalReport,
-  updateLocalReportText,
-  markReportAsSynced,
-  LocalReport,
-} from "./lib/indexedDB";
+
 import { checkMasteryUnlocks } from "./lib/mastery";
 import { SHOP_ITEMS } from "./lib/shopItems";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -190,10 +185,11 @@ export default function App() {
   const [showShop, setShowShop] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showScenarioSelector, setShowScenarioSelector] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<UserStats[]>([]);
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<"daily" | "monthly" | "allTime">("daily");
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [pastReports, setPastReports] = useState<LocalReport[]>([]);
+  const [pastReports, setPastReports] = useState<SavedReport[]>([]);
   const [historyLevelFilter, setHistoryLevelFilter] = useState<string>("All");
   const [historyModeFilter, setHistoryModeFilter] = useState<string>("All");
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -277,12 +273,12 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
       if (currentUser) {
+        setUser(currentUser);
         const stats = await getUserStats();
         setUserStats(stats);
       } else {
-        setUserStats(null);
+        await ensureAuth();
       }
     });
     return () => unsubscribe();
@@ -383,28 +379,29 @@ export default function App() {
     const sessionReport = await botRef.current.generateReport(context, currentTranscript);
     setGeneratingReport(false);
 
-    // Save to IndexedDB locally
+    // Save directly to Firestore
     const hasReport = sessionReport && !sessionReport.includes("❌");
     const isIELTS = isIELTSSession(context);
-    const newReport: LocalReport = {
+    const newReport: SavedReport = {
       id: Date.now().toString(),
       createdAt: new Date(),
-      createdAtTime: Date.now(),
+      
       level: isIELTS ? "IELTS" : context.level,
       mode: isIELTS ? "IELTS" : context.mode,
       topic: context.topic,
       scenarioId: context.scenarioId,
       reportText: hasReport ? sessionReport : "",
       transcript: currentTranscript,
-      synced: false,
+      
       durationMs: sessionStartTime ? Date.now() - sessionStartTime : undefined,
     };
-    await saveLocalReport(newReport);
+    const cloudId = await saveReportToDb(context, sessionReport || "", currentTranscript, sessionStartTime ? Date.now() - sessionStartTime : undefined); 
+    if (cloudId) newReport.id = cloudId;
     setPastReports((prev) => [newReport, ...prev]);
     setReport(newReport);
   };
 
-  const retryReportGeneration = async (report: LocalReport) => {
+  const retryReportGeneration = async (report: SavedReport) => {
     if (!botRef.current) return;
     if (!report.transcript || report.transcript.length === 0) {
       alert("No transcript found for this session.");
@@ -427,10 +424,11 @@ export default function App() {
       );
 
       if (newReport && !newReport.includes("❌")) {
-        const updated = await updateLocalReportText(report.id, newReport);
+        const updated = await updateReportInDb(report.id, newReport);
+        if (updated) { report.reportText = newReport; }
         if (updated) {
           setPastReports((prev) =>
-            prev.map((r) => (r.id === report.id ? updated : r))
+            prev.map((r) => (r.id === report.id ? report : r))
           );
         }
         alert("Feedback generated successfully!");
@@ -445,47 +443,7 @@ export default function App() {
     }
   };
 
-  const [syncing, setSyncing] = useState(false);
-
-  const handleSyncToCloud = async () => {
-    if (!user) {
-      alert("Please sign in to sync your feedbacks to the cloud.");
-      return;
-    }
-    setSyncing(true);
-    try {
-      const unsynced = pastReports.filter((r) => !r.synced);
-      if (unsynced.length === 0) {
-        alert("All feedbacks are already synced.");
-        setSyncing(false);
-        return;
-      }
-      
-      let syncCount = 0;
-      for (const rep of unsynced) {
-        if (!rep.reportText && !rep.transcript) continue;
-        const cloudId = await saveReportToDb(
-          { level: rep.level as any, mode: rep.mode as any, topic: rep.topic, objective: "", taskDurationMinutes: 5 },
-          rep.reportText,
-          rep.transcript
-        );
-        if (cloudId) {
-          await markReportAsSynced(rep.id, cloudId);
-          syncCount++;
-        }
-      }
-      
-      // Update local state
-      const updatedLocal = await getLocalReports();
-      setPastReports(updatedLocal);
-      alert(`Successfully synced ${syncCount} feedback(s) to the cloud.`);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to sync some feedbacks.");
-    } finally {
-      setSyncing(false);
-    }
-  };
+  
 
   const loadLeaderboard = async (period: "daily" | "monthly" | "allTime" = leaderboardPeriod) => {
     setLoadingLeaderboard(true);
@@ -534,14 +492,14 @@ export default function App() {
 
   const loadReports = async () => {
     setLoadingHistory(true);
-    // Load local reports from IndexedDB
-    const localReports = await getLocalReports();
+    // Load reports from Firestore
+    const localReports = await getUserReports();
     setPastReports(localReports);
     setLoadingHistory(false);
   };
 
   const handleDeleteReport = async (id: string) => {
-    await deleteLocalReport(id);
+    await deleteSavedReport(id);
     setPastReports((prev) => prev.filter((r) => r.id !== id));
   };
 
@@ -554,8 +512,9 @@ export default function App() {
       topic: scenario.topic,
       objective: scenario.objective,
       role: scenario.role,
-      icebreaker: scenario.icebreaker,
+      icebreaker: translated?.icebreaker || scenario.icebreaker,
       scenarioId: scenario.id,
+                vocabulary: scenario.vocabulary,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -770,7 +729,7 @@ export default function App() {
               >
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600 mb-2 font-extrabold">Key Vocabulary to Practice</p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  {predefinedScenarios.find(s => s.id === context.scenarioId)?.vocabulary?.map((word, idx) => (
+                  {context.vocabulary?.map((word, idx) => (
                     <span key={idx} className="px-3 py-1.5 bg-indigo-50/50 border border-indigo-100 rounded-lg text-xs font-bold text-indigo-700 shadow-sm transition-transform duration-200">
                       {word}
                     </span>
@@ -967,8 +926,7 @@ export default function App() {
                       Scenario Briefing
                     </h2>
                     <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-white/80 p-4 rounded-xl border border-slate-200 shadow-inner">
-                      {predefinedScenarios.find((s) => s.id === context.scenarioId)
-                        ?.studentBriefing ||
+                      {context.studentBriefing ||
                         "Get ready to solve the problem using your English skills!"}
                     </p>
                   </div>
@@ -996,7 +954,7 @@ export default function App() {
                             Key Vocabulary
                           </h3>
                           <div className="flex flex-wrap gap-2">
-                            {currentScen?.vocabulary?.map((word, i) => (
+                            {context.vocabulary?.map((word, i) => (
                               <span
                                 key={i}
                                 className="px-3 py-1 bg-slate-900/5 border border-slate-900/10 rounded-lg text-sm text-slate-600/80"
@@ -1123,30 +1081,41 @@ export default function App() {
               : context.scenarioId || null
           }
           currentTargetLanguageCode={context.targetLanguageCode}
-          onSelect={(scenario, language) => {
+          onSelect={async (scenario, language, freeLevel) => {
             if (scenario) {
+              setIsTranslating(true);
+              const translated = await translateScenario(scenario, language?.name || context.targetLanguage || "English");
+              setIsTranslating(false);
               const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS";
               setContext({
                 ...context,
                 mode: isIelts ? "IELTS" : "Task",
                 level: scenario.level === "B1-B2" ? "B2" : (scenario.level as any),
-                topic: scenario.topic,
+                topic: translated?.studentBriefing || scenario.topic,
                 objective: scenario.objective,
                 role: scenario.role,
-                icebreaker: scenario.icebreaker,
+                icebreaker: translated?.icebreaker || scenario.icebreaker,
                 scenarioId: scenario.id,
                 targetLanguage: language?.name || context.targetLanguage,
                 targetLanguageCode: language?.code || context.targetLanguageCode,
+                vocabulary: translated?.vocabulary || scenario.vocabulary,
+                studentBriefing: translated?.studentBriefing || scenario.studentBriefing,
               });
+              setShowPreTask(true);
             } else {
               setContext({ 
                 ...context, 
                 mode: "Practice", 
+                level: (freeLevel as any) || "B1",
                 scenarioId: undefined,
                 topic: "Friendly conversation on any topic you like.",
                 objective: "Speak whatever you like and practice natural conversation.",
+                role: "default",
+                icebreaker: undefined,
                 targetLanguage: language?.name || context.targetLanguage,
                 targetLanguageCode: language?.code || context.targetLanguageCode,
+                vocabulary: undefined,
+                studentBriefing: undefined,
               });
             }
           }}

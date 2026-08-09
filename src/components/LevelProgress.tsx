@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { LocalReport } from '../lib/indexedDB';
+import { SavedReport } from '../lib/firebase';
 import { extractEstimatedLevel } from '../lib/mastery';
 import { Trophy } from 'lucide-react';
 
 interface Props {
-  reports: LocalReport[];
+  reports: SavedReport[];
   unlockedItems: string[];
 }
 

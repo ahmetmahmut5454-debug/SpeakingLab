@@ -61,7 +61,7 @@ export function Header({
             <ProficiencyBadge level={userActualLevel} />
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 blur-md rounded-full group-hover:blur-xl group-hover:bg-blue-400/40 transition-all duration-500" />
             <div className="relative bg-blue-950 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/10 shadow-2xl transition-all duration-500 group-hover:bg-blue-900 group-hover:border-blue-400/50 overflow-hidden flex items-center justify-center">
-              {user?.photoURL ? (
+              {user && !user.isAnonymous && user.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt="User Profile"
@@ -244,7 +244,7 @@ export function Header({
             </button>
           </div>
         )}
-        {!user && (
+        {(!user || user.isAnonymous) && (
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3">
             <button
               onClick={() => {
@@ -263,11 +263,11 @@ export function Header({
               }}
               className="px-4 py-2 rounded-xl flex items-center gap-2 bg-white border border-indigo-200 text-indigo-500 hover:bg-indigo-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm"
             >
-              <History className="w-3 h-3" /> Local Feedbacks
+              <History className="w-3 h-3" /> Feedbacks
             </button>
           </div>
         )}
-        {user ? (
+        {user && !user.isAnonymous ? (
           <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3">
             <button
               onClick={() => {

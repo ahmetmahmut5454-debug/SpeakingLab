@@ -3,9 +3,9 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   signOut,
+  signInAnonymously,
+  linkWithPopup
 } from "firebase/auth";
 import {
   getFirestore,
@@ -29,16 +29,33 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 
-// Use Google Auth
 const googleProvider = new GoogleAuthProvider();
+
+export const ensureAuth = async () => {
+  if (!auth.currentUser) {
+    try {
+      await signInAnonymously(auth);
+    } catch (error) {
+      console.error("Anonymous auth failed", error);
+    }
+  }
+};
 
 export const loginWithGoogle = async () => {
   try {
     googleProvider.setCustomParameters({ prompt: "select_account" });
-    await signInWithPopup(auth, googleProvider);
-  } catch (error) {
-    console.error("Login failed", error);
-    throw error;
+    if (auth.currentUser && auth.currentUser.isAnonymous) {
+      await linkWithPopup(auth.currentUser, googleProvider);
+    } else {
+      await signInWithPopup(auth, googleProvider);
+    }
+  } catch (error: any) {
+    if (error.code === 'auth/credential-already-in-use') {
+      await signInWithPopup(auth, googleProvider);
+    } else {
+      console.error("Login failed", error);
+      throw error;
+    }
   }
 };
 
@@ -50,7 +67,6 @@ export const logout = async () => {
   }
 };
 
-// Test initial connection
 const testConnection = async () => {
   try {
     await getDoc(doc(db, "test", "connection"));
@@ -70,7 +86,7 @@ export interface UserStats {
   displayName?: string;
   photoURL?: string;
   streak: number;
-  lastActiveDate: string; // YYYY-MM-DD format
+  lastActiveDate: string;
   todaySessions: number;
   todayTaskSessions?: number;
   xp: number;
@@ -92,119 +108,10 @@ const getLocalMonthString = (): string => {
   return getLocalDateString().substring(0, 7);
 };
 
-const GUEST_STATS_KEY = "guest_user_stats";
-
-export const getGuestStats = (): UserStats => {
-  const today = getLocalDateString();
-  const currentMonth = getLocalMonthString();
-  const raw = typeof window !== "undefined" ? localStorage.getItem(GUEST_STATS_KEY) : null;
-  if (raw) {
-    try {
-      const stats: UserStats = JSON.parse(raw);
-      if (stats.lastActiveDate !== today) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
-        const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-        stats.todaySessions = 0;
-        stats.todayTaskSessions = 0;
-        if (stats.lastActiveDate !== yesterdayStr) {
-          stats.streak = 0;
-        }
-      }
-      return stats;
-    } catch (e) {
-      console.error("Error parsing guest stats", e);
-    }
-  }
-
-  const defaultStats: UserStats = {
-    userId: "guest",
-    displayName: "Guest Scholar",
-    photoURL: "",
-    streak: 0,
-    lastActiveDate: today,
-    todaySessions: 0,
-    todayTaskSessions: 0,
-    xp: 0,
-    daily: { [today]: 0 },
-    monthly: { [currentMonth]: 0 },
-    unlockedItems: ["outfit_default"],
-    equippedBadge: "",
-    equippedOutfit: "outfit_default",
-    updatedAt: new Date().toISOString(),
-  };
-  if (typeof window !== "undefined") {
-    localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(defaultStats));
-  }
-  return defaultStats;
-};
-
-export const updateGuestGamificationStats = (mode: "Practice" | "Task" | "IELTS" = "Practice"): UserStats => {
-  const stats = getGuestStats();
-  const today = getLocalDateString();
-  const currentMonth = getLocalMonthString();
-
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-  let lastDate = stats.lastActiveDate;
-  let newStreak = stats.streak || 0;
-  let newTodaySessions = stats.todaySessions || 0;
-  let newTodayTaskSessions = stats.todayTaskSessions || 0;
-  let xpGained = 50;
-
-  const isTaskOrIelts = mode === "Task" || mode === "IELTS";
-
-  if (lastDate === today) {
-    newTodaySessions += 1;
-    if (isTaskOrIelts) {
-      newTodayTaskSessions += 1;
-    }
-  } else if (lastDate === yesterdayStr) {
-    newStreak += 1;
-    newTodaySessions = 1;
-    newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
-  } else {
-    newStreak = 1;
-    newTodaySessions = 1;
-    newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
-  }
-
-  if (lastDate === today) {
-    if (newTodaySessions === 3) {
-      xpGained += 200;
-    }
-    if (isTaskOrIelts && newTodayTaskSessions === 2) {
-      xpGained += 300;
-    }
-  } else if (lastDate === yesterdayStr) {
-    if (newStreak === 3) xpGained += 150;
-    if (newStreak === 7) xpGained += 500;
-  }
-
-  stats.lastActiveDate = today;
-  stats.streak = newStreak;
-  stats.todaySessions = newTodaySessions;
-  stats.todayTaskSessions = newTodayTaskSessions;
-  stats.xp = (stats.xp || 0) + xpGained;
-  stats.daily = stats.daily || {};
-  stats.daily[today] = (stats.daily[today] || 0) + xpGained;
-  stats.monthly = stats.monthly || {};
-  stats.monthly[currentMonth] = (stats.monthly[currentMonth] || 0) + xpGained;
-  stats.updatedAt = new Date().toISOString();
-
-  if (typeof window !== "undefined") {
-    localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(stats));
-  }
-  return stats;
-};
-
 export const getUserStats = async (): Promise<UserStats | null> => {
-  if (!auth.currentUser) return getGuestStats();
+  if (!auth.currentUser) await ensureAuth();
+  if (!auth.currentUser) return null;
+  
   try {
     const docRef = doc(db, "userStats", auth.currentUser.uid);
     const snap = await getDoc(docRef);
@@ -215,24 +122,17 @@ export const getUserStats = async (): Promise<UserStats | null> => {
       const data = snap.data() as UserStats;
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      yesterday.setMinutes(
-        yesterday.getMinutes() - yesterday.getTimezoneOffset(),
-      );
+      yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      // Migration for old docs & Daily Reset
       let needsUpdate = false;
 
-      // If the last active date was not today, we might need to reset daily sessions or break streak
       if (data.lastActiveDate !== today) {
-        // Reset daily limits ONLY if they haven't been reset yet (or if date is old)
         if (data.todaySessions !== 0 || data.todayTaskSessions !== 0) {
           data.todaySessions = 0;
           data.todayTaskSessions = 0;
           needsUpdate = true;
         }
-
-        // Check if streak is broken (more than 1 day gap)
         if (data.lastActiveDate !== yesterdayStr && data.streak !== 0) {
           data.streak = 0;
           needsUpdate = true;
@@ -247,19 +147,19 @@ export const getUserStats = async (): Promise<UserStats | null> => {
         data.monthly = {};
         needsUpdate = true;
       }
-
       if (!data.unlockedItems) {
         data.unlockedItems = ["outfit_default"];
         needsUpdate = true;
       }
-      if (
-        !data.displayName ||
-        data.displayName !== auth.currentUser.displayName
-      ) {
-        data.displayName = auth.currentUser.displayName || "Unknown Scholar";
+      
+      const isAnon = auth.currentUser.isAnonymous;
+      const defaultName = isAnon ? "Guest Scholar" : "Unknown Scholar";
+      if (!data.displayName || (!isAnon && data.displayName === "Guest Scholar") || data.displayName !== (auth.currentUser.displayName || defaultName)) {
+        data.displayName = auth.currentUser.displayName || defaultName;
         data.photoURL = auth.currentUser.photoURL || "";
         needsUpdate = true;
       }
+      
       if (!data.equippedBadge) {
         data.equippedBadge = "";
         needsUpdate = true;
@@ -274,8 +174,11 @@ export const getUserStats = async (): Promise<UserStats | null> => {
       }
       return data;
     } else {
+      const isAnon = auth.currentUser.isAnonymous;
       const defaultStats: UserStats = {
         userId: auth.currentUser.uid,
+        displayName: auth.currentUser.displayName || (isAnon ? "Guest Scholar" : "Unknown Scholar"),
+        photoURL: auth.currentUser.photoURL || "",
         streak: 0,
         lastActiveDate: today,
         todaySessions: 0,
@@ -293,7 +196,7 @@ export const getUserStats = async (): Promise<UserStats | null> => {
     }
   } catch (error) {
     console.error("Failed to fetch user stats", error);
-    return getGuestStats();
+    return null;
   }
 };
 
@@ -303,18 +206,7 @@ export const updateUserPurchase = async (
   newBadge: string,
   newOutfit: string,
 ) => {
-  if (!auth.currentUser) {
-    const stats = getGuestStats();
-    stats.xp = newXp;
-    stats.unlockedItems = newUnlockedItems;
-    stats.equippedBadge = newBadge;
-    stats.equippedOutfit = newOutfit;
-    stats.updatedAt = new Date().toISOString();
-    if (typeof window !== "undefined") {
-      localStorage.setItem(GUEST_STATS_KEY, JSON.stringify(stats));
-    }
-    return stats;
-  }
+  if (!auth.currentUser) return null;
   try {
     const uid = auth.currentUser.uid;
     const docRef = doc(db, "userStats", uid);
@@ -338,13 +230,12 @@ export const updateUserPurchase = async (
   }
 };
 
-// Internal function to update user gamification stats
 export const updateGamificationStats = async (
   mode: "Practice" | "Task" | "IELTS" = "Practice",
 ) => {
-  if (!auth.currentUser) {
-    return updateGuestGamificationStats(mode);
-  }
+  if (!auth.currentUser) await ensureAuth();
+  if (!auth.currentUser) return null;
+  
   const uid = auth.currentUser.uid;
   const today = getLocalDateString();
   const currentMonth = getLocalMonthString();
@@ -353,9 +244,12 @@ export const updateGamificationStats = async (
 
   try {
     const snap = await getDoc(docRef);
+    const isAnon = auth.currentUser.isAnonymous;
+    const defaultName = auth.currentUser.displayName || (isAnon ? "Guest Scholar" : "Unknown Scholar");
+    
     let stats: UserStats = {
       userId: uid,
-      displayName: auth.currentUser.displayName || "Unknown Scholar",
+      displayName: defaultName,
       photoURL: auth.currentUser.photoURL || "",
       streak: 1,
       lastActiveDate: today,
@@ -376,9 +270,7 @@ export const updateGamificationStats = async (
 
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      yesterday.setMinutes(
-        yesterday.getMinutes() - yesterday.getTimezoneOffset(),
-      );
+      yesterday.setMinutes(yesterday.getMinutes() - yesterday.getTimezoneOffset());
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
       let newStreak = existing.streak || 0;
@@ -390,52 +282,30 @@ export const updateGamificationStats = async (
       
       let xpGained = 0;
 
-      console.log(`Gamification Update - Last Active: ${lastDate}, Today: ${today}, Yesterday: ${yesterdayStr}`);
-
       if (lastDate === today) {
-        console.log("Activity detected today. Incrementing daily counts.");
         newTodaySessions += 1;
         if (isTaskOrIelts) {
           newTodayTaskSessions += 1;
         }
         xpGained += 50; 
       } else if (lastDate === yesterdayStr) {
-        console.log("Activity detected on consecutive day. Incrementing streak.");
         newStreak += 1;
         newTodaySessions = 1;
         newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
         xpGained += 50;
       } else {
-        console.log("Streak broken or new user. Setting streak to 1.");
         newStreak = 1;
         newTodaySessions = 1;
         newTodayTaskSessions = isTaskOrIelts ? 1 : 0;
         xpGained += 50;
       }
 
-      // Bonus XP for new sessions
       if (lastDate === today) {
-        // Daily quest 1: 3 total conversations
-        if (newTodaySessions === 3) {
-          xpGained += 200; // Bonus 200 XP!
-          console.log("Daily quest completed! +200 XP");
-        }
-
-        // Daily quest 2: 2 TBLT (Task) / IELTS conversations
-        if (isTaskOrIelts && newTodayTaskSessions === 2) {
-          xpGained += 300; // Bonus 300 XP
-          console.log("Task quest completed! +300 XP");
-        }
+        if (newTodaySessions === 3) xpGained += 200;
+        if (isTaskOrIelts && newTodayTaskSessions === 2) xpGained += 300;
       } else if (lastDate === yesterdayStr) {
-        // Streak milestones
-        if (newStreak === 3) {
-          xpGained += 150;
-          console.log("Streak 3 days! +150 XP");
-        }
-        if (newStreak === 7) {
-          xpGained += 500;
-          console.log("Streak 7 days! +500 XP");
-        }
+        if (newStreak === 3) xpGained += 150;
+        if (newStreak === 7) xpGained += 500;
       }
 
       newDaily[today] = (newDaily[today] || 0) + xpGained;
@@ -443,10 +313,7 @@ export const updateGamificationStats = async (
 
       stats = {
         userId: uid,
-        displayName:
-          auth.currentUser.displayName ||
-          existing.displayName ||
-          "Unknown Scholar",
+        displayName: (!isAnon && existing.displayName === "Guest Scholar") ? defaultName : (existing.displayName || defaultName),
         photoURL: auth.currentUser.photoURL || existing.photoURL || "",
         streak: newStreak,
         lastActiveDate: today,
@@ -470,7 +337,6 @@ export const updateGamificationStats = async (
   }
 };
 
-// Fetch Top Users
 export const getLeaderboard = async (
   period: "daily" | "monthly" | "allTime" = "allTime",
   limitCount: number = 10,
@@ -508,13 +374,14 @@ export const getLeaderboard = async (
   }
 };
 
-// Save report or session session to database
 export const saveReportToDb = async (
   context: BotContext,
   reportText: string,
   transcript?: string[],
+  durationMs?: number,
 ) => {
-  if (!auth.currentUser) return;
+  if (!auth.currentUser) await ensureAuth();
+  if (!auth.currentUser) return null;
 
   try {
     const docRef = await addDoc(collection(db, "reports"), {
@@ -523,11 +390,11 @@ export const saveReportToDb = async (
       level: context.level || "",
       mode: context.mode || "",
       topic: context.topic || context.objective || "",
+      scenarioId: context.scenarioId || "",
       reportText: reportText || "",
       transcript: transcript || [],
+      durationMs: durationMs || 0,
     });
-    console.log("Report session saved successfully!");
-
     return docRef.id;
   } catch (error: any) {
     console.error("Failed to save report:", error);
@@ -535,9 +402,8 @@ export const saveReportToDb = async (
   }
 };
 
-// Update an existing report (usually adding reportText to a session that only had transcript)
 export const updateReportInDb = async (reportId: string, reportText: string) => {
-  if (!auth.currentUser) return;
+  if (!auth.currentUser) return false;
   try {
     await setDoc(
       doc(db, "reports", reportId),
@@ -563,20 +429,17 @@ export interface SavedReport {
   scenarioId?: string;
   reportText: string;
   transcript?: string[];
-  isLocal?: boolean;
   durationMs?: number;
 }
 
-// Fetch user's reports
 export const getUserReports = async (): Promise<SavedReport[]> => {
+  if (!auth.currentUser) await ensureAuth();
   if (!auth.currentUser) return [];
 
   try {
     const q = query(
       collection(db, "reports"),
       where("userId", "==", auth.currentUser.uid),
-      // Ordering requires an index in firestore if combined with where, but single equality where + order on another field often needs a composite index.
-      // Actually, wait - let's fetch without order and sort locally to avoid index errors initially.
     );
     const snapshot = await getDocs(q);
     const reports = snapshot.docs.map((doc) => ({
@@ -584,7 +447,6 @@ export const getUserReports = async (): Promise<SavedReport[]> => {
       ...doc.data(),
     })) as SavedReport[];
 
-    // Sort locally by creation date descending
     reports.sort((a, b) => {
       const timeA = (a.createdAt as any)?.seconds || 0;
       const timeB = (b.createdAt as any)?.seconds || 0;
@@ -598,7 +460,6 @@ export const getUserReports = async (): Promise<SavedReport[]> => {
   }
 };
 
-// Delete a report
 export const deleteReportFromDb = async (reportId: string) => {
   if (!auth.currentUser) return;
   try {

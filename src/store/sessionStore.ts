@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { BotContext } from '../lib/eltBot';
-import { LocalReport } from '../lib/indexedDB';
+import { SavedReport } from '../lib/firebase';
 
 interface SessionState {
   isRunning: boolean;
@@ -19,8 +19,8 @@ interface SessionState {
   setIsErrorBankOpen: (open: boolean) => void;
   context: BotContext;
   setContext: (context: BotContext) => void;
-  report: LocalReport | null;
-  setReport: (report: LocalReport | null) => void;
+  report: SavedReport | null;
+  setReport: (report: SavedReport | null) => void;
   generatingReport: boolean;
   setGeneratingReport: (generating: boolean) => void;
   cueCardTopic: string | null;

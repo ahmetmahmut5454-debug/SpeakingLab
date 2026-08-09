@@ -15,7 +15,7 @@ const LANGUAGES = [
 interface ScenarioSelectorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (scenario: Scenario | null, language?: {name: string, code: string}) => void;
+  onSelect: (scenario: Scenario | null, language?: {name: string, code: string}, freeLevel?: string) => void;
   currentScenarioId: string | null;
   currentTargetLanguageCode?: string;
 }
@@ -29,6 +29,7 @@ export const ScenarioSelector = ({
 }: ScenarioSelectorProps) => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [selectedScenarioForLang, setSelectedScenarioForLang] = useState<Scenario | "FREE" | null>(null);
+  const [freePracticeLevel, setFreePracticeLevel] = useState<string>("B1");
   const [selectedLang, setSelectedLang] = useState(() => {
     return LANGUAGES.find(l => l.code === currentTargetLanguageCode) || LANGUAGES[0];
   });
@@ -58,7 +59,7 @@ export const ScenarioSelector = ({
 
   const handleStart = () => {
     if (selectedScenarioForLang === "FREE") {
-      onSelect(null, selectedLang);
+      onSelect(null, selectedLang, freePracticeLevel);
     } else {
       onSelect(selectedScenarioForLang, selectedLang);
     }
@@ -162,6 +163,29 @@ export const ScenarioSelector = ({
                       </div>
                     </div>
 
+
+                    {selectedScenarioForLang === "FREE" && (
+                      <div className="mb-4">
+                        <h4 className="font-bold text-sm uppercase tracking-widest text-slate-400 mb-3 px-1">
+                          Select Practice Level
+                        </h4>
+                        <div className="grid grid-cols-5 gap-2">
+                          {["A1", "A2", "B1", "B2", "C1"].map((lvl) => (
+                            <button
+                              key={lvl}
+                              onClick={() => setFreePracticeLevel(lvl)}
+                              className={`py-3 rounded-xl border-2 font-bold transition-all text-center ${
+                                freePracticeLevel === lvl
+                                  ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                  : "border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/30"
+                              }`}
+                            >
+                              {lvl}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <h4 className="font-bold text-sm uppercase tracking-widest text-slate-400 mb-3 px-1">
                         Select Target Language

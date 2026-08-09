@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { History, LayoutDashboard, Calendar, Trash2, AudioLines, Mic, Sparkles } from 'lucide-react';
-import { LocalReport } from '../store/sessionStore';
+import { SavedReport } from '../store/sessionStore';
 import { FeedbackMarkdown } from './FeedbackMarkdown';
 import { FluencyHeatmap } from './FluencyHeatmap';
 
@@ -12,11 +12,11 @@ interface HistoryModalProps {
   setHistoryLevelFilter: (filter: string) => void;
   historyModeFilter: string;
   setHistoryModeFilter: (filter: string) => void;
-  pastReports: LocalReport[];
+  pastReports: SavedReport[];
   loadingHistory: boolean;
   setPronunciationWord: (word: string | null) => void;
   handleDeleteReport: (id: string) => void;
-  retryReportGeneration: (report: LocalReport) => void;
+  retryReportGeneration: (report: SavedReport) => void;
 }
 
 export function HistoryModal({

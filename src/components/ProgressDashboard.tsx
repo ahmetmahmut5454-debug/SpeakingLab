@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { LocalReport } from '../lib/indexedDB';
+import { SavedReport } from '../lib/firebase';
 import {
   extractFluencyScore,
   extractGrammarScore,
@@ -11,8 +11,8 @@ import {
 import { TrendingUp, TrendingDown, Target, Award, ShieldCheck, BarChart3, Layers, Calendar, ChevronRight } from 'lucide-react';
 
 interface Props {
-  reports: LocalReport[];
-  onSelectReport?: (report: LocalReport) => void;
+  reports: SavedReport[];
+  onSelectReport?: (report: SavedReport) => void;
 }
 
 export const ProgressDashboard: React.FC<Props> = ({ reports, onSelectReport }) => {

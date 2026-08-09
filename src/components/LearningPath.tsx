@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import { LocalReport } from '../lib/indexedDB';
+import { SavedReport } from '../lib/firebase';
 import { extractScore } from '../lib/mastery';
 import { predefinedScenarios, Scenario } from '../lib/scenarios';
 import { Map, ArrowRight, BookOpen, MessageSquare, BookA } from 'lucide-react';
 
 interface Props {
-  reports: LocalReport[];
+  reports: SavedReport[];
   userLevel: string;
   onSelectScenario: (scenario: Scenario) => void;
 }

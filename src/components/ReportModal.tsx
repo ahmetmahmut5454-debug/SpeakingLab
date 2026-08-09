@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, AudioLines, Mic } from 'lucide-react';
-import { LocalReport } from '../store/sessionStore';
+import { SavedReport } from '../store/sessionStore';
 import { FeedbackMarkdown } from './FeedbackMarkdown';
 import { FluencyHeatmap } from './FluencyHeatmap';
 import { isIELTSSession } from '../lib/eltBot';
 
 interface ReportModalProps {
-  report: LocalReport | null;
-  setReport: (report: LocalReport | null) => void;
+  report: SavedReport | null;
+  setReport: (report: SavedReport | null) => void;
   setPronunciationWord: (word: string | null) => void;
   transcript: any[];
 }

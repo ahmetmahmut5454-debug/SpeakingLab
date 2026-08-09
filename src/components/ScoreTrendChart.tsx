@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { LocalReport } from '../lib/indexedDB';
+import { SavedReport } from '../lib/firebase';
 import { extractOverallScore, extractFluencyScore, extractGrammarScore, extractVocabScore } from '../lib/mastery';
 import {
   LineChart,
@@ -13,7 +13,7 @@ import {
 import { TrendingUp } from 'lucide-react';
 
 interface Props {
-  reports: LocalReport[];
+  reports: SavedReport[];
 }
 
 export const ScoreTrendChart: React.FC<Props> = ({ reports }) => {

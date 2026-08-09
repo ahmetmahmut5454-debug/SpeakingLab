@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { LocalReport } from '../lib/indexedDB';
+import { SavedReport } from '../lib/firebase';
 import { generateProgressSummary } from '../lib/geminiInsights';
 import { Sparkles, TrendingUp, AlertCircle, Loader2 } from 'lucide-react';
 
 interface Props {
-  reports: LocalReport[];
+  reports: SavedReport[];
 }
 
 export const AIProgressInsights: React.FC<Props> = ({ reports }) => {
