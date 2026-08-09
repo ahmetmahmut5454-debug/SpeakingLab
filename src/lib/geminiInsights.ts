@@ -33,7 +33,7 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
   const sortedReports = [...reports].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
   
   const promptText = `
-    Analyze the following recent speaking practice session reports for an English learner.
+    Analyze the following recent speaking practice session reports for a language learner.
     Provide a structured summary of their progress.
     Identify:
     1. improvements: 2-3 specific areas they have improved in recently.
@@ -53,7 +53,7 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: promptText,
       config: {
         responseMimeType: "application/json",

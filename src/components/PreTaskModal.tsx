@@ -51,7 +51,7 @@ export const PreTaskModal: React.FC<PreTaskModalProps> = ({
                 </h2>
                 <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-white/80 p-4 rounded-xl border border-slate-200 shadow-inner">
                   {context.studentBriefing ||
-                    "Get ready to solve the problem using your English skills!"}
+                    "Get ready to solve the problem using your language skills!"}
                 </p>
               </div>
               {(() => {

@@ -63,7 +63,7 @@ export class AudioProcessor {
 class PCMProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.bufferSize = 2048;
+    this.bufferSize = 4096;
     this.buffer = new Float32Array(this.bufferSize);
     this.bytesWritten = 0;
   }

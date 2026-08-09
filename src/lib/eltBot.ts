@@ -38,7 +38,7 @@ export const cleanTranscript = (text: string) => {
     cleaned = cleaned.replace(/\b([\w\u00C0-\u017F]+)\s+\1\b/gi, "$1");
   } while (cleaned !== prev);
 
-  const fillers = ["yani", "şey", "işte", "ıı", "eee", "ee", "hmm", "öhm", "aa", "hı hı", "he", "heh", "I mean", "um", "uh", "like", "you know", "aslında", "ne bileyim", "nasıl desem"];
+  const fillers = ["ıı", "eee", "ee", "hmm", "öhm", "aa", "hı hı", "heh", "um", "uh", "uhh", "umm"];
   const regex = new RegExp(`\\b(${fillers.join('|')})\\b`, 'gi');
   cleaned = cleaned.replace(regex, "");
 

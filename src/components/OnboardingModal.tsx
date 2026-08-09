@@ -42,7 +42,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </h2>
               <p className="text-slate-600/70 font-medium text-sm leading-relaxed mb-6">
                 Pick a scenario from the selector below, review your briefing, and
-                start speaking. I'll track your English level and reward you
+                start speaking. I'll track your language level and reward you
                 with Points and cool new items!
               </p>
               <button
