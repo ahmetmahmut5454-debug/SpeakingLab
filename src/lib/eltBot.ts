@@ -318,9 +318,10 @@ Naturally test or gently guide the student to practice these structures in today
             setTimeout(() => {
               if (this.session && this.isConnected) {
                 try {
+                  const targetLangForTrigger = context.targetLanguage || "English";
                   const triggerMessage = context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
-                    ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLang}.`
-                    : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLang}.`;
+                    ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLangForTrigger}.`
+                    : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
                   this.session.sendRealtimeInput({
                     text: triggerMessage,
                   });

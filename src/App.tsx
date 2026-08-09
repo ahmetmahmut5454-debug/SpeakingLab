@@ -780,9 +780,11 @@ export default function App() {
           }
           currentTargetLanguageCode={context.targetLanguageCode}
           onSelect={async (scenario, language, freeLevel) => {
+            const targetLangStr = language?.name || context.targetLanguage || "English";
+            setIsTranslating(true);
+            
             if (scenario) {
-              setIsTranslating(true);
-              const translated = await translateScenario(scenario, language?.name || context.targetLanguage || "English");
+              const translated = await translateScenario(scenario, targetLangStr);
               setIsTranslating(false);
               const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS";
               setContext({
@@ -801,12 +803,20 @@ export default function App() {
               });
               setShowPreTask(true);
             } else {
+              const freeScenario = {
+                id: "free",
+                topic: "Friendly conversation on any topic you like.",
+                studentBriefing: "Friendly conversation on any topic you like."
+              } as any;
+              const translated = await translateScenario(freeScenario, targetLangStr);
+              setIsTranslating(false);
+              
               setContext({ 
                 ...context, 
                 mode: "Practice", 
                 level: (freeLevel as any) || "B1",
                 scenarioId: undefined,
-                topic: "Friendly conversation on any topic you like.",
+                topic: translated?.studentBriefing || freeScenario.topic,
                 objective: "Speak whatever you like and practice natural conversation.",
                 role: "default",
                 icebreaker: undefined,
