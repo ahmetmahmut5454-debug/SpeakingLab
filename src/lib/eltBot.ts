@@ -322,8 +322,9 @@ Naturally test or gently guide the student to practice these structures in today
                   const triggerMessage = context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
                     ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLangForTrigger}.`
                     : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
-                  this.session.sendRealtimeInput({
-                    text: triggerMessage,
+                  this.session.sendClientContent({
+                    turns: [{ role: "user", parts: [{ text: triggerMessage }] }],
+                    turnComplete: true,
                   });
                 } catch (e) {}
               }
@@ -334,8 +335,9 @@ Naturally test or gently guide the student to practice these structures in today
               if (this.session && this.isConnected) {
                 try {
                   const historyContext = `SYSTEM NOTE: Our network connection dropped, and we just reconnected. Here is the transcript of our conversation so far:\n\n${this.transcriptHistory.join("\n")}\n\nPlease smoothly continue the conversation from where we left off without explicitly mentioning the disconnect unless necessary.`;
-                  this.session.sendRealtimeInput({
-                    text: historyContext,
+                  this.session.sendClientContent({
+                    turns: [{ role: "user", parts: [{ text: historyContext }] }],
+                    turnComplete: true,
                   });
                 } catch (e) {}
               }
@@ -523,8 +525,9 @@ Naturally test or gently guide the student to practice these structures in today
     if (this.session && this.isConnected) {
       try {
         console.log("Sending hint request to bot...");
-        this.session.sendRealtimeInput({
-          text: "System Note: The student has been silent for a long time and might be struggling to find the right words. Without breaking character, give a very short, friendly hint, encourage them, or ask a simpler variation of your last question to keep the conversation going.",
+        this.session.sendClientContent({
+          turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent for a long time and might be struggling to find the right words. Without breaking character, give a very short, friendly hint, encourage them, or ask a simpler variation of your last question to keep the conversation going." }] }],
+          turnComplete: true,
         });
       } catch (e) {
         console.error("Failed to send hint request:", e);
