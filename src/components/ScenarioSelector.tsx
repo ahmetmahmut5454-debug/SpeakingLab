@@ -248,7 +248,19 @@ export const ScenarioSelector = ({
                       getScenariosForGroup(selectedGroup).map((scenario) => (
                         <div
                           key={scenario.id}
-                          onClick={() => setSelectedScenarioForLang(scenario)}
+                          onClick={() => {
+                            if (selectedGroup === "IELTS") {
+                              const englishLang = LANGUAGES.find(l => l.code === "en-US") || LANGUAGES[0];
+                              onSelect(scenario, englishLang);
+                              onClose();
+                              setTimeout(() => {
+                                setSelectedGroup(null);
+                                setSelectedScenarioForLang(null);
+                              }, 300);
+                            } else {
+                              setSelectedScenarioForLang(scenario);
+                            }
+                          }}
                           className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all group flex gap-4 items-center"
                         >
                           {scenario.imageUrl && (

@@ -262,7 +262,7 @@ Naturally test or gently guide the student to practice these structures in today
       8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Say: "Now I will give you a topic. You have 1 minute to prepare your notes, starting now. Please do not speak during preparation time." Then STAY SILENT during their 1-minute prep. Do NOT speak or prompt the student until they finish their 1 to 2 minute presentation or indicate they are finished.
 
       ${
-        context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner")
+        context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
           ? `Examiner: Speak first with an icebreaker in ${targetLang}: "${context.icebreaker || "Hello. Let's start the speaking test."}". Stay in character as a strict examiner.`
           : context.mode === "Task" && context.icebreaker
           ? `Character: Speak first with an icebreaker in ${targetLang}: "${context.icebreaker}". Stay in character.`
@@ -318,9 +318,9 @@ Naturally test or gently guide the student to practice these structures in today
             setTimeout(() => {
               if (this.session && this.isConnected) {
                 try {
-                  const triggerMessage = context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner")
-                    ? "The student has connected. Please start the IELTS speaking test now by asking the first question."
-                    : "The student has connected. Please introduce yourself and start the conversation naturally.";
+                  const triggerMessage = context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
+                    ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLang}.`
+                    : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLang}.`;
                   this.session.sendRealtimeInput({
                     text: triggerMessage,
                   });
