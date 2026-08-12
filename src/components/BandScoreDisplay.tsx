@@ -21,9 +21,9 @@ interface BandScoreDisplayProps {
 const getCEFRDescriptor = (band: number): { label: string; cefr: string; color: string; badgeBg: string } => {
   if (band >= 8.5) return { label: 'Expert / Native Proficiency', cefr: 'C2', color: 'text-amber-400', badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-500/30' };
   if (band >= 7.0) return { label: 'Good / Operational User', cefr: 'C1', color: 'text-emerald-400', badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
-  if (band >= 5.5) return { label: 'Competent / Independent User', cefr: 'B2', color: 'text-blue-400', badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/30' };
-  if (band >= 4.0) return { label: 'Modest / Basic User', cefr: 'B1', color: 'text-indigo-400', badgeBg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' };
-  if (band >= 3.0) return { label: 'Extremely Limited User', cefr: 'A2', color: 'text-purple-400', badgeBg: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
+  if (band >= 6.5) return { label: 'Competent / Independent User', cefr: 'B2', color: 'text-blue-400', badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/30' };
+  if (band >= 5.5) return { label: 'Modest / Basic User', cefr: 'B1', color: 'text-indigo-400', badgeBg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' };
+  if (band >= 4.0) return { label: 'Extremely Limited User', cefr: 'A2', color: 'text-purple-400', badgeBg: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
   return { label: 'Non User / Beginner', cefr: 'A1', color: 'text-slate-400', badgeBg: 'bg-slate-500/20 text-slate-300 border-slate-500/30' };
 };
 

@@ -183,7 +183,7 @@ registerProcessor('pcm-processor', PCMProcessor);
       this.mediaStream = null;
     }
     if (this.audioContext) {
-      if (this.audioContext.state !== 'closed') {
+      if (false) {
         this.audioContext.close().catch(() => {});
       }
       this.audioContext = null;
@@ -329,7 +329,7 @@ export class AudioPlayer {
       this.analyser = null;
     }
     if (this.audioContext) {
-      if (this.audioContext.state !== 'closed') {
+      if (false) {
         this.audioContext.close().catch(() => {});
       }
       this.audioContext = null;

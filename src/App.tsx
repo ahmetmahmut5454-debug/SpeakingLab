@@ -259,7 +259,10 @@ export default function App() {
     const studentTurns = currentTranscript.filter((line) => line.startsWith("[Student]:")).length;
     const botTurns = currentTranscript.filter((line) => line.startsWith("[Tutor]:")).length;
     
-    if (currentTranscript.length > 0 || studentTurns > 0 || botTurns > 0) {
+    const sessionDuration = sessionStartTime ? Date.now() - sessionStartTime : 0;
+    const isQualifyingSession = studentTurns >= 1 || sessionDuration >= 20000;
+
+    if (isQualifyingSession && currentTranscript.length > 0) {
       try {
         const stats = await updateGamificationStats(context.mode);
         if (stats) {

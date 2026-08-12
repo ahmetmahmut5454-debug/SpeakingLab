@@ -134,11 +134,11 @@ export const extractEstimatedLevel = (text: string): string | null => {
   if (bandScore !== null) {
     // If it's 0-9 IELTS band score
     if (bandScore <= 9) {
-      if (bandScore >= 8.0) return "C2";
+      if (bandScore >= 8.5) return "C2";
       if (bandScore >= 7.0) return "C1";
-      if (bandScore >= 5.5) return "B2";
-      if (bandScore >= 4.0) return "B1";
-      if (bandScore >= 3.0) return "A2";
+      if (bandScore >= 6.5) return "B2";
+      if (bandScore >= 5.5) return "B1";
+      if (bandScore >= 4.0) return "A2";
       return "A1";
     } else {
       // 0-100 percentage
