@@ -34,45 +34,66 @@ export const RoleAvatar = ({
       aria-label={role ? `Role avatar: ${role}` : "AI Tutor Avatar"}
       animate={{
         boxShadow: isActive
-          ? "0 0 40px rgba(96, 165, 250, 0.4)"
+          ? "0 0 50px rgba(96, 165, 250, 0.6)"
           : "0 0 0px rgba(96, 165, 250, 0)",
-        scale: isActive ? 1.05 : 1,
+        scale: isActive ? 1.1 : 1,
       }}
-      className={`relative rounded-full p-4 border flex items-center justify-center transition-colors duration-500 ${role ? "border-blue-500/30 bg-blue-500/10 text-blue-400" : "border-slate-900/10 bg-slate-900/5 text-slate-600/40"}`}
+      className={`relative rounded-full p-4 border flex items-center justify-center transition-colors duration-500 z-20 ${role ? "border-blue-500/50 bg-blue-500/20 text-blue-300" : "border-slate-700/30 bg-slate-800/50 text-slate-400"}`}
     >
       {renderIcon()}
     </motion.div>
   );
 };
 
-export const VoiceBar = React.memo(({
+export const SmoothWaveform = React.memo(({
   level,
-  color,
+  isUser,
   isActive = false,
 }: {
   level: number;
-  color: string;
+  isUser: boolean;
   isActive?: boolean;
-  delayOffset?: number;
 }) => {
-  const bars = [1, 2, 3, 4, 5, 6, 7, 8];
+  const numBars = 5;
+  const clampedLevel = Math.max(0, Math.min(100, level));
+  
   return (
-    <div className="flex flex-col gap-1 items-center justify-end h-32 w-4" aria-hidden="true">
-      {bars.map((i) => {
-        const threshold = i * 12;
-        const active = level > threshold;
-        const isBreathing = isActive && level <= 12 && i <= 2;
+    <div className="flex items-center justify-center gap-1.5 md:gap-2 h-32 w-24 md:w-32" aria-hidden="true">
+      {Array.from({ length: numBars }).map((_, i) => {
+        // Bell curve: highest in the middle
+        const distance = Math.abs(i - Math.floor(numBars / 2));
+        const bellFactor = 1 - (distance * 0.3);
+        
+        // Add a fixed but distinct multiplier per bar so they don't all move identically
+        const noiseMultiplier = [0.8, 1.2, 1.0, 1.3, 0.7][i];
+        
+        // Base minimum height when active but silent, and reactive height when talking
+        const minHeight = isActive ? 8 : 4;
+        const activeHeight = Math.max(minHeight, clampedLevel * bellFactor * noiseMultiplier * 1.5);
+        
+        // Determine colors for gradient/glow
+        const color = isUser 
+           ? (i % 2 === 0 ? "#34d399" : "#facc15") // emerald / yellow for user
+           : (i % 2 === 0 ? "#60a5fa" : "#c084fc"); // blue / purple for bot
 
         return (
-          <div
+          <motion.div
             key={i}
-            style={{
-              backgroundColor: active ? color : "#1e1e1e",
-              opacity: active ? 1 : isBreathing ? 0.4 : 0.2,
-              boxShadow: active ? `0 0 10px ${color}` : "none",
-              transition: "all 75ms ease-out",
+            animate={{ 
+              height: isActive ? activeHeight : 4,
+              opacity: isActive ? (clampedLevel > 5 ? 1 : 0.5) : 0.1
             }}
-            className="w-full h-2 rounded-sm"
+            transition={{ 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 25, 
+              mass: 0.5 
+            }}
+            className="w-2 md:w-3 rounded-full"
+            style={{
+              backgroundColor: color,
+              boxShadow: isActive && clampedLevel > 5 ? `0 0 16px ${color}, 0 0 32px ${color}` : "none",
+            }}
           />
         );
       })}
@@ -95,6 +116,7 @@ export const AudioStageVisualizer = React.memo(({
   useEffect(() => {
     const unsubUser = audioLevelEmitter.subscribeUser((lvl) => setUserLevel(lvl));
     const unsubBot = audioLevelEmitter.subscribeBot((lvl) => setBotLevel(lvl));
+
     return () => {
       unsubUser();
       unsubBot();
@@ -117,28 +139,32 @@ export const AudioStageVisualizer = React.memo(({
       </div>
 
       {/* Central Unified Synergy Visualizer */}
-      <div className="relative z-10 flex items-end justify-center gap-12 h-40" aria-hidden="true">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex gap-[6px]">
-            <VoiceBar level={userLevel} color="#34d399" isActive={isRunning} delayOffset={0} />
-            <VoiceBar level={userLevel * 0.9} color="#34d399" isActive={isRunning} delayOffset={0.2} />
-            <VoiceBar level={userLevel * 1.1} color="#34d399" isActive={isRunning} delayOffset={0.4} />
-          </div>
+      <div className="relative z-10 flex items-center justify-center gap-4 md:gap-12 h-40 w-full" aria-hidden="true">
+        {/* User Waveform */}
+        <div className="flex-1 flex justify-end">
+           <SmoothWaveform level={userLevel} isUser={true} isActive={isRunning} />
         </div>
 
-        <div className="mx-2 md:mx-6 self-center shrink-0">
+        {/* Central Avatar */}
+        <div className="shrink-0 relative">
           <RoleAvatar
             role={mode === "Task" ? role : undefined}
             isActive={botLevel > 15}
           />
+          {/* Central ambient glow behind avatar based on conversation intensity */}
+          <motion.div 
+            className="absolute inset-0 rounded-full -z-10 mix-blend-screen"
+            animate={{
+              boxShadow: (userLevel > 10 || botLevel > 10) ? "0 0 80px 20px rgba(255,255,255,0.1)" : "0 0 0px 0px rgba(255,255,255,0)",
+              scale: (userLevel > 10 || botLevel > 10) ? 1.5 : 1
+            }}
+            transition={{ duration: 0.5 }}
+          />
         </div>
 
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex gap-[6px]">
-            <VoiceBar level={botLevel * 1.1} color="#60a5fa" isActive={isRunning} delayOffset={0.4} />
-            <VoiceBar level={botLevel} color="#60a5fa" isActive={isRunning} delayOffset={0} />
-            <VoiceBar level={botLevel * 0.9} color="#60a5fa" isActive={isRunning} delayOffset={0.2} />
-          </div>
+        {/* Bot Waveform */}
+        <div className="flex-1 flex justify-start">
+           <SmoothWaveform level={botLevel} isUser={false} isActive={isRunning} />
         </div>
       </div>
 
@@ -150,12 +176,12 @@ export const AudioStageVisualizer = React.memo(({
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className={`absolute left-10 bottom-10 flex flex-col gap-1 transition-opacity duration-300 ${userLevel > botLevel + 5 ? "opacity-100" : "opacity-40"}`}
+              className={`absolute left-6 md:left-10 bottom-6 md:bottom-10 flex flex-col gap-1 transition-opacity duration-500 ${userLevel > botLevel + 5 ? "opacity-100" : "opacity-40"}`}
             >
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-400">
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-emerald-400">
                 Human
               </span>
-              <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
+              <span className="text-[9px] md:text-xs uppercase tracking-widest text-emerald-200/50 font-medium">
                 Transmitting
               </span>
             </motion.div>
@@ -164,12 +190,12 @@ export const AudioStageVisualizer = React.memo(({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className={`absolute right-10 bottom-10 flex flex-col items-end gap-1 transition-opacity duration-300 ${botLevel > userLevel + 5 ? "opacity-100" : "opacity-40"}`}
+              className={`absolute right-6 md:right-10 bottom-6 md:bottom-10 flex flex-col items-end gap-1 transition-opacity duration-500 ${botLevel > userLevel + 5 ? "opacity-100" : "opacity-40"}`}
             >
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
                 AI Core
               </span>
-              <span className="text-xs uppercase tracking-widest text-blue-200/50 font-medium">
+              <span className="text-[9px] md:text-xs uppercase tracking-widest text-blue-200/50 font-medium">
                 Processing
               </span>
             </motion.div>
