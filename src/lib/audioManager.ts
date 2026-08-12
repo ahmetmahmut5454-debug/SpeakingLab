@@ -3,6 +3,7 @@
  */
 export class AudioProcessor {
   static globalContext: AudioContext | null = null;
+  static workletLoaded: boolean = false;
   
   static unlockGlobal() {
     if (!AudioProcessor.globalContext) {
@@ -110,10 +111,13 @@ registerProcessor('pcm-processor', PCMProcessor);
     }
 
     try {
-      await this.audioContext.audioWorklet.addModule(this.workletUrl);
+      if (!AudioProcessor.workletLoaded) {
+        await this.audioContext.audioWorklet.addModule(this.workletUrl);
+        AudioProcessor.workletLoaded = true;
+      }
     } catch (e) {
-      console.error("Failed to load AudioWorklet", e);
-      return;
+      console.warn("AudioWorklet load issue (might be already registered):", e);
+      AudioProcessor.workletLoaded = true;
     }
 
     this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-processor');
