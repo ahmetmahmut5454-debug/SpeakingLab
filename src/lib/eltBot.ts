@@ -634,13 +634,15 @@ Naturally test or gently guide the student to practice these structures in today
       }
 
       if (studentTurns === 0 && botTurns > 0) {
-        overall = `Görüşmeniz tamamlandı. Hedef seviyeniz **${targetLevel}**. Cihazınızda (örn. iPhone Safari) sesten metne dönüştürme API'si bulunmadığı için doğrudan AI değerlendirmesi yapılamadı ancak yapay zeka ile başarıyla pratik yaptınız (${botTurns} tur).`;
+        overall = `Görüşmeniz tamamlandı. Hedef seviyeniz **${targetLevel}**. Sizinle harika bir pratik yaptık (${botTurns} tur). Ancak arka planda cihazınızın "Sesten Metne" aktarım sistemi anlık olarak durakladığı için cümlelerinizi metin olarak kaydedemedim.`;
+        if (lastErr) overall += `\n\n(Hata Detayı: ${lastErr?.message || lastErr})`;
         fluency = `Dinleme ve anlama konusunda gayet iyiydiniz. Yanıtlarınızı verirken özgüvenli olmaya devam edin.`;
-        grammar = `Daha uzun cümleler kurmaya ve gramer yapılarını pratik etmeye devam edin.`;
-        nextsteps = `- Daha detaylı analiz için Chrome (Android/PC) tercih edin.\n- Kelime dağarcığınızı geliştirmeye devam edin.\n- "${context.topic}" konusunda yeni pratikler yapın.`;
+        grammar = `Sohbetin gidişatından anladığım kadarıyla konuları yakalayabiliyorsunuz. Daha uzun cümleler kurmaya ve gramer yapılarını pratik etmeye devam edin.`;
+        nextsteps = `- Daha detaylı analiz için sesinizin tamamen yazıya dökülebildiğinden emin olun.\n- Kelime dağarcığınızı geliştirmeye devam edin.\n- "${context.topic}" konusunda yeni pratikler yapın.`;
       } else {
         const avgWords = studentTurns > 0 ? (studentWordCount / studentTurns) : 0;
         overall = `Görüşme başarıyla tamamlandı. Hedef seviye: **${targetLevel}**. Toplam ${studentTurns} karşılıklı dialog kurdunuz.`;
+        if (lastErr) overall += `\n\n(Hata Detayı: ${lastErr?.message || lastErr})`;
         if (avgWords > 12) {
              fluency = "Akıcılığınız gayet iyi! Uzun cümleler kurarak kendinizi net bir şekilde ifade ediyorsunuz.";
              grammar = "Gramer yapılarını doğal bir şekilde kullanabiliyorsunuz.";
@@ -808,16 +810,16 @@ Naturally test or gently guide the student to practice these structures in today
           config: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: "OBJECT",
+                type: Type.OBJECT,
                 properties: {
-                    markdownReport: { type: "STRING" },
+                    markdownReport: { type: Type.STRING },
                     detectedErrors: {
-                        type: "ARRAY",
+                        type: Type.ARRAY,
                         items: {
-                            type: "OBJECT",
+                            type: Type.OBJECT,
                             properties: {
-                                original: { type: "STRING" },
-                                correction: { type: "STRING" }
+                                original: { type: Type.STRING },
+                                correction: { type: Type.STRING }
                             },
                             required: ["original", "correction"]
                         }
