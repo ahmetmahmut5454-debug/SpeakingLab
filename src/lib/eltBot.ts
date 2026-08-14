@@ -605,13 +605,19 @@ Naturally test or gently guide the student to practice these structures in today
 
         const calculatedBand = calculateIELTSBandScore(fluencyScore, lexicalScore, grammarScore, pronScore);
 
-        const rep = `### 🎯 IELTS Mock Assessment
+        let rep = `### 🎯 IELTS Mock Assessment
 * **Estimated Band Score:** ${calculatedBand.toFixed(1)}
 * **Fluency & Coherence Score:** ${fluencyScore.toFixed(1)}
 * **Lexical Resource Score:** ${lexicalScore.toFixed(1)}
 * **Grammatical Range & Accuracy Score:** ${grammarScore.toFixed(1)}
 * **Pronunciation Score:** ${pronScore.toFixed(1)}
-* **General Impression:** ${studentTurns > 3 ? 'Good overall attempt addressing the IELTS speaking prompt with sustained turns.' : 'Short attempt addressing the IELTS speaking prompt. Try to elaborate on your answers.'}
+* **General Impression:** ${studentTurns > 3 ? 'Good overall attempt addressing the IELTS speaking prompt with sustained turns.' : 'Short attempt addressing the IELTS speaking prompt. Try to elaborate on your answers.'}`;
+
+        if (lastErr) {
+            rep += `\n\n*(Error Details: ${lastErr?.message || lastErr})*`;
+        }
+
+        rep += `
 
 ### 🗣️ Fluency & Coherence
 * Spoke with ${fluencyScore >= 6.5 ? 'good fluency and minimal hesitations.' : 'acceptable flow and coherence.'}
@@ -668,10 +674,12 @@ Naturally test or gently guide the student to practice these structures in today
     // We will no longer force the hardcoded report if we have at least 1 turn. We want dynamic feedback always.
     
     let attempt = 0;
-    const maxRetries = 2;
     const modelsToTry = [
-      "gemini-3.1-pro-preview"
+      "gemini-3.1-pro-preview",
+      "gemini-3.5-flash",
+      "gemini-2.5-flash"
     ];
+    const maxRetries = modelsToTry.length;
     let lastErr: any;
 
     while (attempt < maxRetries) {
