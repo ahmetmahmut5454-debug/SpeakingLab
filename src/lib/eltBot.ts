@@ -740,6 +740,15 @@ Naturally test or gently guide the student to practice these structures in today
         const ieltsFormat = `
             Provide a realistic, professional, and well-calibrated feedback report strictly aligned with official IELTS Speaking Band Descriptors (0-9).
 
+            >>> CRITICAL FOR ADVANCED STUDENTS (AIMING FOR BAND 8.0 - 9.0) <<<
+            If the student is performing at a high level (Band 7.0+), your feedback MUST heavily focus on pushing them to the absolute maximum scores (Band 8.0 and 9.0).
+            To achieve Band 8.0 - 9.0, a student must demonstrate:
+            - Lexical Resource: Skillful use of uncommon lexical items, idiomatic language, phrasal verbs, and precise collocations with native-like flair.
+            - Grammatical Range: A wide range of complex structures used flexibly and naturally (e.g., cleft sentences, inversions, mixed conditionals) with almost no errors.
+            - Fluency: Seamless, effortless use of cohesive devices (avoiding mechanical linking words like "firstly", "moreover").
+            You MUST provide AT LEAST TWO highly specific "Advanced Structure/Idiom Upgrades" showing exactly how they could have rephrased their sentences to a Band 9.0 native level.
+            >>> END CRITICAL FOR ADVANCED STUDENTS <<<
+
             ${accuracyRules}
 
             Use the following exact Markdown format:
@@ -755,29 +764,30 @@ Naturally test or gently guide the student to practice these structures in today
             ### 🗣️ Fluency & Coherence
             * [Feedback on speaking at length, hesitation, and linking words]
             * **Fillers & Hesitations:** [Identify thinking noises or filler words]
+            * **Native-Like Cohesion:** [Suggest natural discourse markers instead of mechanical ones]
 
             ### 📚 Lexical Resource
             * [Feedback on vocabulary range and word choice]
-            * **Strong words used:** [Exact words from transcript]
-            * **To improve:** [Examples of advanced vocabulary]
+            * **Idioms & Collocations:** [Provide 1-2 highly specific idiomatic expressions or phrasal verbs they could have used for their exact topic to push towards Band 9]
 
             ### 📝 Grammatical Range & Accuracy
             * [Feedback on sentence structures and accuracy]
             * **Corrections:** [Exact student quote -> Corrected version]
+            * **Complexity Upgrade (Band 8-9):** [Take a simple sentence the student said and rewrite it using an advanced structure like inversion, a relative clause, or a conditional]
 
             ### 🎤 Pronunciation
             * [Feedback on clarity, intonation, chunking]
             * **Struggled Sounds/Words:** [Specific words from transcript]
 
-            ### 🚀 Next Steps
-            * [Actionable tip 1]
-            * [Actionable tip 2]
-            * [Actionable tip 3]
+            ### 🚀 Next Steps to Mastery
+            * [Actionable tip 1 - Focus on idiomatic/natural flow]
+            * [Actionable tip 2 - Focus on complex grammar flexibility]
+            * [Actionable tip 3 - Focus on pronunciation chunking/rhythm]
 
             ### 🏋️ 1-Minute Actionable Drills
-            * **Drill 1 (Grammar Fix):** Re-say your sentence: "Mistake" -> "Corrected Version"
-            * **Drill 2 (Band-Booster Vocab):** Practice using <u>collocation</u> in a response.
-            * **Drill 3 (Fluency Sprint):** Speak continuously for 30 seconds on a follow-up topic.
+            * **Drill 1 (Grammar Upgrade):** Say this aloud: "Original sentence" -> "Band 9 Advanced Rewrite"
+            * **Drill 2 (Idiom Integration):** Practice using <u>[Advanced Idiom/Collocation]</u> in a response about [Topic].
+            * **Drill 3 (Fluency Sprint):** Speak continuously for 30 seconds on a follow-up topic without using "um" or repetitive linking words.
         `;
 
         const response = await ai.models.generateContent({
