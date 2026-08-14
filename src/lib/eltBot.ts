@@ -771,8 +771,8 @@ Naturally test or gently guide the student to practice these structures in today
             * **General Impression:** [Balanced summary aligned with official Band Descriptors]
 
             ### ✅ Task Response & Topic Relevance
-            * [Did they answer all parts of the question? Did they expand their answers or give short/off-topic responses? If the student's text is garbled/missing, deduce this purely from how the Tutor responded to them.]
-            * **Missed Opportunities:** [Mention if they forgot to answer a specific part of a cue card, e.g., "You explained what it was, but forgot to say why it was important."]
+            * **Semantic Sub-prompt Analysis:** [Compare the student's answer against the specific requirements of the topic/prompt. Did they address EVERY sub-prompt?]
+            * **Task Response Deficiency:** [If they missed any part of a multi-part question or cue card, explicitly flag it here (e.g., "You forgot to explain why it was important"). If they answered all parts, write "None - all prompt requirements addressed."]
 
             ### 🗣️ Fluency & Coherence
             * [Feedback on speaking at length, hesitation, and linking words]
@@ -819,7 +819,8 @@ Naturally test or gently guide the student to practice these structures in today
                DO NOT penalize the student for obvious speech recognition hallucinations if the context makes it clear what they actually meant. Evaluate their language skills based on the likely intended meaning.
             3. STRICTLY NO INVENTED WORDS: When highlighting errors or quoting the student, you MUST ONLY use words that actually appear in the [Student] lines of the transcript. Do not invent or hallucinate mistakes.
             4. INFERRING TASK ACHIEVEMENT ON GARBLED/MISSING STT: If the transcript is missing [Student] lines or heavily garbled due to STT failure, you MUST deduce whether they answered the prompt (Task Achievement) based entirely on how the [Tutor] responded to them (e.g., if the tutor says "You mentioned the color red", infer they talked about red).
-            ${studentTurnsCount === 0 ? `5. MISSING STUDENT TRANSCRIPT: The transcript contains NO [Student] lines because the user's device did not support text transcription, even though they spoke. You MUST infer the conversation context from the Tutor's responses. Provide a helpful report based on what the Tutor said, and explicitly mention in the overall assessment that their exact words couldn't be transcribed.` : ""}
+            5. SEMANTIC COMPARISON FOR TASK RESPONSE: Carefully compare the student's transcript to the "Topic" prompts (e.g. bullet points in an IELTS Cue Card). You MUST verify that the student actually addressed every single sub-prompt. Explicitly flag omissions under "Task Response Deficiency".
+            ${studentTurnsCount === 0 ? `6. MISSING STUDENT TRANSCRIPT: The transcript contains NO [Student] lines because the user's device did not support text transcription, even though they spoke. You MUST infer the conversation context from the Tutor's responses. Provide a helpful report based on what the Tutor said, and explicitly mention in the overall assessment that their exact words couldn't be transcribed.` : ""}
 
             --- CONVERSATION TRANSCRIPT ---
             ${transcriptToUse.join("\n")}
