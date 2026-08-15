@@ -97,6 +97,150 @@ Keep questions focused on one single piece of information at a time.`
 - End the conversation warmly.`
   },
   {
+    id: "a1_classroom",
+    category: "General",
+    title: "In the Classroom",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A teacher. Speak simply. Never break character.",
+    icebreaker: "You need a pencil. What do you say to me?",
+    vocabulary: ["Pencil", "Please", "Notebook", "Big", "Small", "Subject"],
+    studentBriefing: "Senaryo 6: Sınıfta\nSınıfta öğretmeninizden bir şey istiyorsunuz. İzin/rica kalıplarını kullanın ve sınıf eşyalarıyla ilgili soruları yanıtlayın.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "You need a pencil. What do you say to me (your teacher)?". Wait for the answer.
+- Say "Here you are. Do you have a notebook?". Wait for the answer.
+- Ask "Is your classroom big or small?". Wait for the answer.
+- Ask "What's your favorite school subject?". Wait for the answer.`
+  },
+  {
+    id: "a1_phone",
+    category: "General",
+    title: "Talking on the Phone",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friend named Emma calling on the phone. Speak simply. Never break character.",
+    icebreaker: "Ring ring! Answer the phone. What do you say?",
+    vocabulary: ["Hello", "Speak", "Minute", "Free", "Afternoon"],
+    studentBriefing: "Senaryo 7: Telefonda Konuşma\nTelefon çalıyor, açıyorsunuz. Arayan arkadaşınız Emma ile müsaitlik durumunuz hakkında konuşun.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Say "Ring ring! Answer the phone. What do you say?". Wait for the answer.
+- Say "Hi, this is Emma. Can I speak to you for a minute?". Wait for the answer.
+- Ask "Are you free this afternoon?". Wait for the answer.
+- Ask "Do you like talking on the phone?". Wait for the answer.`
+  },
+  {
+    id: "a1_birthday",
+    category: "General",
+    title: "Birthday Party",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friend at a birthday party. Speak simply. Never break character.",
+    icebreaker: "Happy birthday! How old are you today?",
+    vocabulary: ["Birthday", "Presents", "Cake", "Ice cream", "Prefer"],
+    studentBriefing: "Senaryo 8: Doğum Günü Partisi\nDoğum günü partinizdesiniz. Arkadaşınızla yaşınız, hediyeleriniz ve pasta/dondurma tercihleriniz hakkında konuşun.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Say "Happy birthday! How old are you today?". Wait for the answer.
+- Ask "Do you like your presents?". Wait for the answer.
+- Ask "Do you prefer cake or ice cream?". Wait for the answer.
+- Ask "Who is at your party?". Wait for the answer.`
+  },
+  {
+    id: "a1_directions",
+    category: "General",
+    title: "Asking for Directions",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A pedestrian in the street. Speak simply. Never break character.",
+    icebreaker: "Excuse me, where is the park?",
+    vocabulary: ["Where", "Park", "Near", "Far", "Welcome"],
+    studentBriefing: "Senaryo 9: Yol Tarifi Sorma\nYolda biri size parkın nerede olduğunu soruyor. Parkın okulun yanında olduğunu ve uzak olmadığını söyleyin.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "Excuse me, where is the park?". Wait for the answer.
+- Ask "Is it far from here?". Wait for the answer.
+- Say "Thank you very much!". Wait for the answer.
+- Ask "Is your house near your school?". Wait for the answer.`
+  },
+  {
+    id: "a1_pets",
+    category: "General",
+    title: "Talking about Pets",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friend asking about pets. Speak simply. Never break character.",
+    icebreaker: "Do you have a pet?",
+    vocabulary: ["Pet", "Cat", "Dog", "Big", "Small", "Color"],
+    studentBriefing: "Senaryo 10: Evcil Hayvanlar Hakkında Konuşma\nArkadaşınızla evcil hayvanınız hakkında konuşuyorsunuz. Türünü, adını, büyüklüğünü ve rengini anlatın.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "Do you have a pet?". Wait for the answer.
+- Ask "What's your pet's name?". Wait for the answer.
+- Ask "Is it big or small?". Wait for the answer.
+- Ask "What color is your pet?". Wait for the answer.`
+  },
+  {
+    id: "a1_school",
+    category: "General",
+    title: "Talking about School",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A new classmate. Speak simply. Never break character.",
+    icebreaker: "Do you like your school?",
+    vocabulary: ["School", "Pencil case", "Classroom", "Big", "Small", "Math", "English"],
+    studentBriefing: "Bölüm 3: Okul\nOkulunuz, sınıfınız ve sevdiğiniz dersler hakkında konuşun.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "Do you like your school?". Wait for the answer.
+- Ask "Do you have a pencil case?". Wait for the answer.
+- Ask "Is your classroom big or small?". Wait for the answer.
+- Ask "Do you like Math or English more?". Wait for the answer.`
+  },
+  {
+    id: "a1_clothes",
+    category: "General",
+    title: "Clothes and Colors",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friend. Speak simply. Never break character.",
+    icebreaker: "Complete the sentence: Today I am wearing...",
+    vocabulary: ["Wear", "Color", "Winter", "Blue", "Favorite"],
+    studentBriefing: "Bölüm 3: Kıyafetler ve Renkler\nGiydiğiniz kıyafetleri ve sevdiğiniz renkleri anlatın. Soruları cümle tamamlayarak yanıtlayın.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Say "Complete the sentence: Today I am wearing...". Wait for the answer.
+- Say "Complete the sentence: My favorite color is...". Wait for the answer.
+- Say "Complete the sentence: In winter, I wear...". Wait for the answer.
+- Say "Complete the sentence: I have a blue...". Wait for the answer.`
+  },
+  {
+    id: "a1_home",
+    category: "General",
+    title: "House and Rooms",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friend visiting your house. Speak simply. Never break character.",
+    icebreaker: "Tell me about your bedroom. What color is it?",
+    vocabulary: ["Bedroom", "Color", "Kitchen", "Rooms", "House", "Garden"],
+    studentBriefing: "Bölüm 3: Ev ve Odalar\nEvinizdeki odaları, mutfağınızı ve bahçenizi tarif edin.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "Tell me about your bedroom. What color is it?". Wait for the answer.
+- Ask "Imagine your kitchen. What's in it?". Wait for the answer.
+- Ask "How many rooms are in your house?". Wait for the answer.
+- Ask "Do you have a garden?". Wait for the answer.`
+  },
+  {
+    id: "a1_numbers",
+    category: "General",
+    title: "Numbers and Time",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friendly tutor. Speak simply. Never break character.",
+    icebreaker: "Count from one to ten.",
+    vocabulary: ["Count", "One", "Ten", "Time", "Lunch", "Numbers", "Today"],
+    studentBriefing: "Bölüm 3: Sayılar ve Saat\nSayıları sayın, öğle yemeği saatinizi söyleyin ve günlerden ne olduğunu belirtin.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Say "Count from one to ten.". Wait for the answer.
+- Ask "What time do you have lunch?". Wait for the answer.
+- Say "Say three numbers you like.". Wait for the answer.
+- Ask "What day is it today?". Wait for the answer.`
+  },
+  {
     id: "s1",
     category: "General",
     title: "The Broken Ticket (Train Station)",
