@@ -88,26 +88,24 @@ export const isIELTSSession = (context: BotContext): boolean => {
   if (!context) return false;
   if (context.mode === "IELTS" || (context.level as string) === "IELTS") return true;
 
-  const scenario = context.scenarioId ? predefinedScenarios.find(s => s.id === context.scenarioId) : null;
-  if (scenario?.category === "IELTS Preparation" || (scenario?.level as string) === "IELTS") return true;
+  if (context.scenarioId) {
+    const scenario = predefinedScenarios.find(s => s.id === context.scenarioId);
+    if (scenario) {
+      if (scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS") return true;
+      // If it's a known scenario and it's NOT IELTS, return false to prevent false positives from generic keywords
+      if (scenario.category && scenario.category !== "IELTS Preparation") return false;
+    }
+  }
 
   const textToSearch = [
     context.topic,
     context.objective,
     context.scenarioId,
-    scenario?.title,
-    scenario?.topic,
-    scenario?.studentBriefing,
   ].filter(Boolean).join(" ").toLowerCase();
 
   return (
     textToSearch.includes("ielts") ||
     textToSearch.includes("cue card") ||
-    textToSearch.includes("speaking test") ||
-    textToSearch.includes("speaking part 1") ||
-    textToSearch.includes("speaking part 2") ||
-    textToSearch.includes("speaking part 3") ||
-    textToSearch.includes("examiner") ||
     textToSearch.includes("band score")
   );
 };
@@ -262,9 +260,10 @@ Naturally test or gently guide the student to practice these structures in today
       8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Say: "Now I will give you a topic. You have 1 minute to prepare your notes, starting now. Please do not speak during preparation time." Then STAY SILENT during their 1-minute prep. Do NOT speak or prompt the student until they finish their 1 to 2 minute presentation or indicate they are finished.
       ${["A1", "A2"].includes(context.level || "") ? `
       CRITICAL RULES FOR A1/A2 LEARNERS:
-      - Ask ONLY ONE short question at a time. DO NOT ask multiple questions back-to-back, as this ruins their comprehension.
-      - If they struggle or are silent, DO NOT give long explanations. Provide EXACTLY ONE simple example sentence to help them, then stop.
-      - Keep your sentences very short and simple to not overwhelm their comprehension.` : ""}
+      - NEVER ask multiple questions back-to-back. You MUST ask ONLY ONE short question and wait for the student to answer. Asking multiple questions ruins their comprehension process.
+      - If the student is silent, struggles, or does not answer, you MUST help them.
+      - When helping, DO NOT give long explanations. Provide EXACTLY ONE example sentence they can use, and then STOP. Extending the help ruins their comprehension and natural speaking perception.
+      - Keep all your sentences extremely short and simple.` : ""}
       
       ${
         context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
@@ -707,7 +706,110 @@ Naturally test or gently guide the student to practice these structures in today
             >>> END CRITICAL DIRECTIVE <<<
         `;
 
-        const standardFormat = `
+        let promptContents = "";
+
+        if (isIELTS) {
+            promptContents = `
+            The following transcript is an official IELTS Speaking practice test between a student and an examiner.
+            
+            Target Exam: IELTS Speaking
+            Topic: ${context.topic}
+            Goal: ${context.objective}
+
+            CRITICAL DIRECTIVES:
+            1. DYNAMIC & SPECIFIC FEEDBACK: The feedback MUST be unique, highly specific to this exact transcript, and avoid repetitive generic advice. Do not use boilerplate praise. Cite exact, interesting things the student said.
+            2. STT HALLUCINATION AWARENESS: DO NOT penalize the student for obvious speech recognition hallucinations if the context makes it clear what they actually meant. Evaluate their language skills based on the likely intended meaning.
+            3. STRICTLY NO INVENTED WORDS: When highlighting errors or quoting the student, you MUST ONLY use words that actually appear in the [Student] lines of the transcript. Do not invent or hallucinate mistakes.
+            4. INFERRING TASK ACHIEVEMENT ON GARBLED/MISSING STT: If the transcript is heavily garbled due to STT failure, deduce whether they answered the prompt based entirely on how the [Tutor] responded to them.
+            5. SEMANTIC COMPARISON FOR TASK RESPONSE: Carefully compare the student's transcript to the "Topic" prompts (e.g. bullet points in an IELTS Cue Card). You MUST verify that the student actually addressed every single sub-prompt. Explicitly flag omissions under "Task Response Deficiency".
+            ${studentTurnsCount === 0 ? `6. MISSING STUDENT TRANSCRIPT: Provide a helpful report based on what the Tutor said, and explicitly mention that their exact words couldn't be transcribed.` : ""}
+
+            --- CONVERSATION TRANSCRIPT ---
+            ${transcriptToUse.join("\n")}
+            -------------------------------
+
+            Provide a realistic, professional, and well-calibrated feedback report strictly aligned with official IELTS Speaking Band Descriptors (0-9).
+            NEVER mention CEFR levels (like A1, A2, B1, B2) in this report. This is strictly IELTS.
+
+            >>> CRITICAL FOR ADVANCED STUDENTS (AIMING FOR BAND 8.0 - 9.0) <<<
+            If the student is performing at a high level (Band 7.0+), your feedback MUST heavily focus on pushing them to the absolute maximum scores (Band 8.0 and 9.0).
+            To achieve Band 8.0 - 9.0, a student must demonstrate:
+            - Lexical Resource: Skillful use of uncommon lexical items, idiomatic language, phrasal verbs, and precise collocations with native-like flair.
+            - Grammatical Range: A wide range of complex structures used flexibly and naturally (e.g., cleft sentences, inversions, mixed conditionals) with almost no errors.
+            - Fluency: Seamless, effortless use of cohesive devices (avoiding mechanical linking words like "firstly", "moreover").
+            You MUST provide AT LEAST TWO highly specific "Advanced Structure/Idiom Upgrades" showing exactly how they could have rephrased their sentences to a Band 9.0 native level.
+            >>> END CRITICAL FOR ADVANCED STUDENTS <<<
+
+            ${accuracyRules}
+
+            Use the following exact Markdown format:
+
+            ### 🎯 IELTS Mock Assessment
+            * **Estimated Band Score:** [Score 0.0 - 9.0 calculated accurately from sub-scores]
+            * **Task Response Score:** [Sub-score 0.0 - 9.0]
+            * **Fluency & Coherence Score:** [Sub-score 0.0 - 9.0]
+            * **Lexical Resource Score:** [Sub-score 0.0 - 9.0]
+            * **Grammatical Range & Accuracy Score:** [Sub-score 0.0 - 9.0]
+            * **Pronunciation Score:** [Sub-score 0.0 - 9.0]
+            * **General Impression:** [Balanced summary aligned with official Band Descriptors]
+
+            ### ✅ Task Response & Topic Relevance
+            * **Semantic Sub-prompt Analysis:** [Compare the student's answer against the specific requirements of the topic/prompt. Did they address EVERY sub-prompt?]
+            * **Task Response Deficiency:** [If they missed any part of a multi-part question or cue card, explicitly flag it here. If they answered all parts, write "None - all prompt requirements addressed."]
+
+            ### 🗣️ Fluency & Coherence
+            * [Feedback on speaking at length, hesitation, and linking words]
+            * **Fillers & Hesitations:** [Identify thinking noises or filler words]
+            * **Native-Like Cohesion:** [Suggest natural discourse markers instead of mechanical ones]
+
+            ### 📚 Lexical Resource
+            * [Feedback on vocabulary range and word choice]
+            * **Idioms & Collocations:** [Provide 1-2 highly specific idiomatic expressions or phrasal verbs they could have used for their exact topic to push towards Band 9]
+
+            ### 📝 Grammatical Range & Accuracy
+            * [Feedback on sentence structures and accuracy]
+            * **Corrections:** [Exact student quote -> Corrected version]
+            * **Complexity Upgrade (Band 8-9):** [Take a simple sentence the student said and rewrite it using an advanced structure like inversion, a relative clause, or a conditional]
+
+            ### 🎤 Pronunciation
+            * [Feedback on clarity, intonation, chunking]
+            * **Struggled Sounds/Words:** [Specific words from transcript]
+
+            ### 🚀 Next Steps to Mastery
+            * [Actionable tip 1 - Focus on idiomatic/natural flow]
+            * [Actionable tip 2 - Focus on complex grammar flexibility]
+            * [Actionable tip 3 - Focus on pronunciation chunking/rhythm]
+
+            ### 🏋️ 1-Minute Actionable Drills
+            * **Drill 1 (Grammar Upgrade):** Say this aloud: "Original sentence" -> "Band 9 Advanced Rewrite"
+            * **Drill 2 (Idiom Integration):** Practice using <u>[Advanced Idiom/Collocation]</u> in a response about [Topic].
+            * **Drill 3 (Fluency Sprint):** Speak continuously for 30 seconds on a follow-up topic without using "um" or repetitive linking words.
+
+            CRITICAL: Return the response as a JSON object with two fields:
+            1. "markdownReport": A string containing the EXACT Markdown report requested above.
+            2. "detectedErrors": An array of objects, each containing "original" (the student's mistake) and "correction" (the corrected version). Include ONLY the most critical 3-5 mistakes.
+            `;
+        } else {
+            promptContents = `
+            The following transcript is a practice session between a ${context.targetLanguage || 'English'} language student and an AI tutor.
+            
+            Target CEFR Level: ${context.level}
+            Target Language: ${context.targetLanguage || 'English'}
+            Topic: ${context.topic}
+            Student's Goal: ${context.objective}
+
+            CRITICAL DIRECTIVES:
+            1. DYNAMIC & SPECIFIC FEEDBACK: The feedback MUST be unique, highly specific to this exact transcript, and avoid repetitive generic advice. Do not use boilerplate praise. Cite exact, interesting things the student said.
+            2. STT HALLUCINATION AWARENESS: DO NOT penalize the student for obvious speech recognition hallucinations if the context makes it clear what they actually meant. Evaluate their language skills based on the likely intended meaning.
+            3. STRICTLY NO INVENTED WORDS: When highlighting errors or quoting the student, you MUST ONLY use words that actually appear in the [Student] lines of the transcript. Do not invent or hallucinate mistakes.
+            4. INFERRING TASK ACHIEVEMENT ON GARBLED/MISSING STT: If the transcript is missing [Student] lines or heavily garbled due to STT failure, you MUST deduce whether they answered the prompt (Task Achievement) based entirely on how the [Tutor] responded to them (e.g., if the tutor says "You mentioned the color red", infer they talked about red).
+            5. SEMANTIC COMPARISON FOR TASK RESPONSE: Carefully compare the student's transcript to the "Topic" prompts. You MUST verify that the student actually addressed every single sub-prompt. Explicitly flag omissions under "Task Response Deficiency".
+            ${studentTurnsCount === 0 ? `6. MISSING STUDENT TRANSCRIPT: The transcript contains NO [Student] lines because the user's device did not support text transcription, even though they spoke. You MUST infer the conversation context from the Tutor's responses. Provide a helpful report based on what the Tutor said, and explicitly mention in the overall assessment that their exact words couldn't be transcribed.` : ""}
+
+            --- CONVERSATION TRANSCRIPT ---
+            ${transcriptToUse.join("\n")}
+            -------------------------------
+
             Provide a highly structured, strict, and completely objective feedback report for a general language practice session based strictly on Cambridge ESOL CEFR Speaking Criteria (CEFR Levels A1 to C2). 
             Do NOT mix or use IELTS Band Scores (0-9) for this general practice session. Evaluate strictly using CEFR levels (A1, A2, B1, B2, C1, C2) and Cambridge ESOL's 5 Oral Assessment Criteria: Range, Accuracy, Fluency, Interaction, and Coherence.
 
@@ -752,95 +854,16 @@ Naturally test or gently guide the student to practice these structures in today
             * **Drill 1 (Sentence Correction):** Practice repeating: "Exact student mistake" -> "Corrected version"
             * **Drill 2 (Pronunciation/Vocab):** Practice saying <u>word</u> out loud 3 times.
             * **Drill 3 (Fluency Builder):** Express your opinion in 2 complete sentences without filler words.
-        `;
-
-        const ieltsFormat = `
-            Provide a realistic, professional, and well-calibrated feedback report strictly aligned with official IELTS Speaking Band Descriptors (0-9).
-
-            >>> CRITICAL FOR ADVANCED STUDENTS (AIMING FOR BAND 8.0 - 9.0) <<<
-            If the student is performing at a high level (Band 7.0+), your feedback MUST heavily focus on pushing them to the absolute maximum scores (Band 8.0 and 9.0).
-            To achieve Band 8.0 - 9.0, a student must demonstrate:
-            - Lexical Resource: Skillful use of uncommon lexical items, idiomatic language, phrasal verbs, and precise collocations with native-like flair.
-            - Grammatical Range: A wide range of complex structures used flexibly and naturally (e.g., cleft sentences, inversions, mixed conditionals) with almost no errors.
-            - Fluency: Seamless, effortless use of cohesive devices (avoiding mechanical linking words like "firstly", "moreover").
-            You MUST provide AT LEAST TWO highly specific "Advanced Structure/Idiom Upgrades" showing exactly how they could have rephrased their sentences to a Band 9.0 native level.
-            >>> END CRITICAL FOR ADVANCED STUDENTS <<<
-
-            ${accuracyRules}
-
-            Use the following exact Markdown format:
-
-            ### 🎯 IELTS Mock Assessment
-            * **Estimated Band Score:** [Score 0.0 - 9.0 calculated accurately from sub-scores]
-            * **Task Response Score:** [Sub-score 0.0 - 9.0]
-            * **Fluency & Coherence Score:** [Sub-score 0.0 - 9.0]
-            * **Lexical Resource Score:** [Sub-score 0.0 - 9.0]
-            * **Grammatical Range & Accuracy Score:** [Sub-score 0.0 - 9.0]
-            * **Pronunciation Score:** [Sub-score 0.0 - 9.0]
-            * **General Impression:** [Balanced summary aligned with official Band Descriptors]
-
-            ### ✅ Task Response & Topic Relevance
-            * **Semantic Sub-prompt Analysis:** [Compare the student's answer against the specific requirements of the topic/prompt. Did they address EVERY sub-prompt?]
-            * **Task Response Deficiency:** [If they missed any part of a multi-part question or cue card, explicitly flag it here (e.g., "You forgot to explain why it was important"). If they answered all parts, write "None - all prompt requirements addressed."]
-
-            ### 🗣️ Fluency & Coherence
-            * [Feedback on speaking at length, hesitation, and linking words]
-            * **Fillers & Hesitations:** [Identify thinking noises or filler words]
-            * **Native-Like Cohesion:** [Suggest natural discourse markers instead of mechanical ones]
-
-            ### 📚 Lexical Resource
-            * [Feedback on vocabulary range and word choice]
-            * **Idioms & Collocations:** [Provide 1-2 highly specific idiomatic expressions or phrasal verbs they could have used for their exact topic to push towards Band 9]
-
-            ### 📝 Grammatical Range & Accuracy
-            * [Feedback on sentence structures and accuracy]
-            * **Corrections:** [Exact student quote -> Corrected version]
-            * **Complexity Upgrade (Band 8-9):** [Take a simple sentence the student said and rewrite it using an advanced structure like inversion, a relative clause, or a conditional]
-
-            ### 🎤 Pronunciation
-            * [Feedback on clarity, intonation, chunking]
-            * **Struggled Sounds/Words:** [Specific words from transcript]
-
-            ### 🚀 Next Steps to Mastery
-            * [Actionable tip 1 - Focus on idiomatic/natural flow]
-            * [Actionable tip 2 - Focus on complex grammar flexibility]
-            * [Actionable tip 3 - Focus on pronunciation chunking/rhythm]
-
-            ### 🏋️ 1-Minute Actionable Drills
-            * **Drill 1 (Grammar Upgrade):** Say this aloud: "Original sentence" -> "Band 9 Advanced Rewrite"
-            * **Drill 2 (Idiom Integration):** Practice using <u>[Advanced Idiom/Collocation]</u> in a response about [Topic].
-            * **Drill 3 (Fluency Sprint):** Speak continuously for 30 seconds on a follow-up topic without using "um" or repetitive linking words.
-        `;
-
-        const response = await ai.models.generateContent({
-          model: modelName,
-          contents: `
-            The following transcript is a practice session between a ${context.targetLanguage || 'English'} language student and an AI tutor.
-            
-            Target CEFR Level: ${context.level}
-            Target Language: ${context.targetLanguage || 'English'}
-            Topic: ${context.topic}
-            Student's Goal: ${context.objective}
-
-            CRITICAL DIRECTIVES:
-            1. DYNAMIC & SPECIFIC FEEDBACK: The feedback MUST be unique, highly specific to this exact transcript, and avoid repetitive generic advice. Do not use boilerplate praise. Cite exact, interesting things the student said.
-            2. STT HALLUCINATION AWARENESS: The student's part of this transcript was generated by browser speech recognition, which is prone to homophone errors (e.g. "I bought a sheep" instead of "I bought a ship"). 
-               DO NOT penalize the student for obvious speech recognition hallucinations if the context makes it clear what they actually meant. Evaluate their language skills based on the likely intended meaning.
-            3. STRICTLY NO INVENTED WORDS: When highlighting errors or quoting the student, you MUST ONLY use words that actually appear in the [Student] lines of the transcript. Do not invent or hallucinate mistakes.
-            4. INFERRING TASK ACHIEVEMENT ON GARBLED/MISSING STT: If the transcript is missing [Student] lines or heavily garbled due to STT failure, you MUST deduce whether they answered the prompt (Task Achievement) based entirely on how the [Tutor] responded to them (e.g., if the tutor says "You mentioned the color red", infer they talked about red).
-            5. SEMANTIC COMPARISON FOR TASK RESPONSE: Carefully compare the student's transcript to the "Topic" prompts (e.g. bullet points in an IELTS Cue Card). You MUST verify that the student actually addressed every single sub-prompt. Explicitly flag omissions under "Task Response Deficiency".
-            ${studentTurnsCount === 0 ? `6. MISSING STUDENT TRANSCRIPT: The transcript contains NO [Student] lines because the user's device did not support text transcription, even though they spoke. You MUST infer the conversation context from the Tutor's responses. Provide a helpful report based on what the Tutor said, and explicitly mention in the overall assessment that their exact words couldn't be transcribed.` : ""}
-
-            --- CONVERSATION TRANSCRIPT ---
-            ${transcriptToUse.join("\n")}
-            -------------------------------
-
-            ${isIELTS ? ieltsFormat : standardFormat}
 
             CRITICAL: Return the response as a JSON object with two fields:
             1. "markdownReport": A string containing the EXACT Markdown report requested above.
             2. "detectedErrors": An array of objects, each containing "original" (the student's mistake) and "correction" (the corrected version). Include ONLY the most critical 3-5 mistakes.
-          `,
+            `;
+        }
+
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: promptContents,
           config: {
             responseMimeType: "application/json",
             responseSchema: {

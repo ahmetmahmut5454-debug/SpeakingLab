@@ -188,7 +188,7 @@ registerProcessor('pcm-processor', PCMProcessor);
     }
     if (this.audioContext) {
       if (false) {
-        this.audioContext.close().catch(() => {});
+        this.audioContext?.close().catch(() => {});
       }
       this.audioContext = null;
     }
@@ -334,7 +334,7 @@ export class AudioPlayer {
     }
     if (this.audioContext) {
       if (false) {
-        this.audioContext.close().catch(() => {});
+        this.audioContext?.close().catch(() => {});
       }
       this.audioContext = null;
     }
