@@ -720,6 +720,10 @@ Naturally test or gently guide the student to practice these structures in today
             * **Coherence Rating:** [CEFR Level: A1, A2, B1, B2, C1, or C2]
             * **General Impression:** [Summary of overall performance based on Cambridge ESOL descriptors]
 
+            ### ✅ Task Response & Topic Relevance
+            * **Semantic Sub-prompt Analysis:** [Compare the student's answer against the specific requirements of the topic/prompt. Did they address EVERY sub-prompt or question asked by the tutor?]
+            * **Task Response Deficiency:** [If they missed any part of the scenario's objective or ignored the tutor's questions, explicitly flag it here. If they answered everything, write "None - all prompt requirements addressed."]
+
             ### 🗣️ Fluency & Coherence
             * [Strict feedback on clarity, pacing, hesitations, and cohesive linking devices]
             * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes or actual words from transcript]

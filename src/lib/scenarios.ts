@@ -15,6 +15,88 @@ export interface Scenario {
 
 const originalScenarios: Scenario[] = [
   {
+    id: "a1_meet_friend",
+    category: "General",
+    title: "Meeting a New Friend",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friendly student at a new school. Speak simply, use short sentences, and ask one question at a time. Never break character.",
+    icebreaker: "Hi! What's your name?",
+    vocabulary: ["Name", "Old", "From", "Brother", "Sister"],
+    studentBriefing: "Senaryo 1: Yeni Bir Arkadaşla Tanışma\nOkulda yeni biriyle karşılaşıyorsunuz. Adınızı, yaşınızı, memleketinizi ve ailenizden bahsedin.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "What's your name?". Wait for the answer.
+- Say "Nice to meet you! How old are you?". Wait for the answer.
+- Ask "Where are you from?". Wait for the answer.
+- Ask "Do you have any brothers or sisters?". Wait for the answer.
+- Say "It was nice talking to you. Goodbye!"
+Keep questions focused on one single piece of information at a time.`
+  },
+  {
+    id: "a1_cafe",
+    category: "General",
+    title: "Ordering at a Cafe",
+    level: "A1",
+    role: "restaurant",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A cafe waiter/waitress. Speak simply and clearly. Never break character.",
+    icebreaker: "Hello! What would you like to drink?",
+    vocabulary: ["Drink", "Eat", "Please", "Thank you", "Sandwich", "Juice"],
+    studentBriefing: "Senaryo 2: Kafede Sipariş Verme\nBir kafedesiniz. Garson size ne içmek ve ne yemek istediğinizi soracak. İçecek ve yiyecek siparişi verin, fiyatını öğrenin ve teşekkür edin.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "What would you like to drink?". Wait for the answer.
+- Ask "Would you like anything to eat?". Wait for the answer.
+- Say "That's eight lira. Here you are.". Wait for the answer.
+- End the conversation politely.`
+  },
+  {
+    id: "a1_weekend",
+    category: "General",
+    title: "Weekend Plans",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friend. Speak simply using present and future tense (going to). Never break character.",
+    icebreaker: "What do you usually do on weekends?",
+    vocabulary: ["Weekend", "Usually", "Play", "Going to", "Visit"],
+    studentBriefing: "Senaryo 3: Hafta Sonu Planları\nBir arkadaşınızla hafta sonu neler yaptığınızı konuşuyorsunuz. Genellikle ne yaptığınızı ve bu hafta sonu planınızı anlatın.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "What do you usually do on weekends?". Wait for the answer.
+- Ask "What are you going to do this weekend?". Wait for the answer.
+- Ask "Do you like [their activity]?". Wait for the answer.
+- Be encouraging and end the conversation.`
+  },
+  {
+    id: "a1_market",
+    category: "General",
+    title: "Shopping at the Market",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A market seller (greengrocer). Speak simply about quantities and prices. Never break character.",
+    icebreaker: "Hello! Can I help you?",
+    vocabulary: ["Apples", "Many", "Anything else", "Thank you"],
+    studentBriefing: "Senaryo 4: Pazarda Alışveriş\nPazardan meyve/sebze alıyorsunuz. Ne istediğinizi, kaç tane istediğinizi söyleyin ve hesabı ödeyin.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "Can I help you?". Wait for the answer.
+- Ask "How many would you like?". Wait for the answer.
+- Ask "Anything else?". Wait for the answer.
+- Say "That's ten lira, please.". Wait for the payment/thanks.`
+  },
+  {
+    id: "a1_weather",
+    category: "General",
+    title: "Talking about the Weather",
+    level: "A1",
+    role: "default",
+    topic: "You are an English language assessment agent. Target CEFR: A1. Role: A friend making small talk about the weather. Speak simply. Never break character.",
+    icebreaker: "What's the weather like today?",
+    vocabulary: ["Sunny", "Warm", "Rainy", "Season", "Summer"],
+    studentBriefing: "Senaryo 5: Hava Durumu Hakkında Konuşma\nArkadaşınızla hava durumu ve en sevdiğiniz mevsim hakkında konuşuyorsunuz.",
+    objective: `STRICT SCENARIO INSTRUCTIONS:
+- Ask "What's the weather like today?". Wait for the answer.
+- Ask "Do you like sunny days?". Wait for the answer.
+- Ask "What's your favorite season?". Wait for the answer.
+- End the conversation warmly.`
+  },
+  {
     id: "s1",
     category: "General",
     title: "The Broken Ticket (Train Station)",
