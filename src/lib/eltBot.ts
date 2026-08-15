@@ -260,7 +260,12 @@ Naturally test or gently guide the student to practice these structures in today
       6. KEEP GOING: If the student stops speaking or is quiet, you MUST encourage them in ${targetLang} to continue or ask a follow-up question in ${targetLang}. Do NOT remain silent.
       7. IGNORE NOISE & FILLERS: Ignore thinking noises, fillers, backchanneling, and minor pauses. If interrupted by short sounds, IMMEDIATELY RESUME and finish your previous sentence in ${targetLang}.
       8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Say: "Now I will give you a topic. You have 1 minute to prepare your notes, starting now. Please do not speak during preparation time." Then STAY SILENT during their 1-minute prep. Do NOT speak or prompt the student until they finish their 1 to 2 minute presentation or indicate they are finished.
-
+      ${["A1", "A2"].includes(context.level || "") ? `
+      CRITICAL RULES FOR A1/A2 LEARNERS:
+      - Ask ONLY ONE short question at a time. DO NOT ask multiple questions back-to-back, as this ruins their comprehension.
+      - If they struggle or are silent, DO NOT give long explanations. Provide EXACTLY ONE simple example sentence to help them, then stop.
+      - Keep your sentences very short and simple to not overwhelm their comprehension.` : ""}
+      
       ${
         context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
           ? `Examiner: Speak first with an icebreaker in ${targetLang}: "${context.icebreaker || "Hello. Let's start the speaking test."}". Stay in character as a strict examiner.`
@@ -526,7 +531,7 @@ Naturally test or gently guide the student to practice these structures in today
       try {
         console.log("Sending hint request to bot...");
         this.session.sendClientContent({
-          turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent for a long time and might be struggling to find the right words. Without breaking character, give a very short, friendly hint, encourage them, or ask a simpler variation of your last question to keep the conversation going." }] }],
+          turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent. Without breaking character, provide EXACTLY ONE short example sentence of what they could say to help them, and then stop. Do NOT give long explanations. Do NOT ask multiple questions. Keep it extremely brief so you do not interrupt their thinking process." }] }],
           turnComplete: true,
         });
       } catch (e) {
