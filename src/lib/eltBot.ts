@@ -257,7 +257,7 @@ Naturally test or gently guide the student to practice these structures in today
       5. Terminate: Call endConversation tool when session ends.
       6. KEEP GOING: If the student stops speaking or is quiet, you MUST encourage them in ${targetLang} to continue or ask a follow-up question in ${targetLang}. Do NOT remain silent.
       7. IGNORE NOISE & FILLERS: Ignore thinking noises, fillers, backchanneling, and minor pauses. If interrupted by short sounds, IMMEDIATELY RESUME and finish your previous sentence in ${targetLang}.
-      8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Say: "Now I will give you a topic. You have 1 minute to prepare your notes, starting now. Please do not speak during preparation time." Then STAY SILENT during their 1-minute prep. Do NOT speak or prompt the student until they finish their 1 to 2 minute presentation or indicate they are finished.
+      8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Immediately after calling the tool, introduce the topic verbally and tell them they have 1 minute to prepare and 1-2 minutes to speak. Tell them to say 'I am ready' when they want to start. Once they start speaking, listen until they finish. If they stop speaking or finish their presentation, YOU MUST respond and move on to Part 3. Do not remain silent.
       ${["A1", "A2"].includes(context.level || "") ? `
       CRITICAL RULES FOR A1/A2 LEARNERS:
       - NEVER ask multiple questions back-to-back. You MUST ask ONLY ONE short question and wait for the student to answer. Asking multiple questions ruins their comprehension process.
@@ -395,7 +395,7 @@ Naturally test or gently guide the student to practice these structures in today
                         functionResponse: {
                           name: "showCueCard",
                           id: fc.id,
-                          response: { success: true, instruction: "Tool successful. The cue card is now visible to the student. YOU MUST IMMEDIATELY SPEAK." },
+                          response: { success: true, instruction: "Tool successful. The cue card is now visible on the screen. Now briefly tell the student to take 1 minute to prepare, and to say 'I am ready' when they want to begin their 1-2 minute presentation." },
                         },
                       },
                     ]);
@@ -679,9 +679,9 @@ Naturally test or gently guide the student to practice these structures in today
     
     let attempt = 0;
     const modelsToTry = [
-      "gemini-3.1-pro-preview",
       "gemini-3.5-flash",
-      "gemini-2.5-flash"
+      "gemini-2.5-flash",
+      "gemini-3.1-pro-preview"
     ];
     const maxRetries = modelsToTry.length;
     let lastErr: any;
@@ -689,7 +689,7 @@ Naturally test or gently guide the student to practice these structures in today
     while (attempt < maxRetries) {
       try {
         const ai = getAiClient();
-        const modelName = modelsToTry[attempt] || "gemini-3.1-pro-preview";
+        const modelName = modelsToTry[attempt] || "gemini-3.5-flash";
         console.log(`Generating report with model: ${modelName}`);
         
         const isIELTS = isIELTSSession(context);
@@ -700,7 +700,7 @@ Naturally test or gently guide the student to practice these structures in today
                - DO NOT penalize the student or cite STT transcript typos/phonetic misrecognitions as student grammar or vocabulary errors.
                - Evaluate the student's TRUE linguistic intent and underlying competence.
             2. EXACT VERBATIM QUOTING: When quoting what the student said, ONLY quote words appearing verbatim in [Student]: lines.
-            3. NO HALLUCINATED OR MADE-UP WORDS: Do not invent words that the student did NOT actually say.
+            3. STRICTLY NO HALLUCINATED WORDS: Do not invent words that the student did NOT actually say. Do NOT suggest a word as a "pronunciation error" if the student never attempted to say it in the transcript.
             4. EXACT MATCH FORMATTING: Format corrections as: "Exact Student Quote" -> "Suggested Correction".
             5. CLICKABLE VOCABULARY: Wrap advanced words in <u> tags (e.g. <u>resilience</u>).
             >>> END CRITICAL DIRECTIVE <<<
@@ -731,14 +731,9 @@ Naturally test or gently guide the student to practice these structures in today
             Provide a realistic, professional, and well-calibrated feedback report strictly aligned with official IELTS Speaking Band Descriptors (0-9).
             NEVER mention CEFR levels (like A1, A2, B1, B2) in this report. This is strictly IELTS.
 
-            >>> CRITICAL FOR ADVANCED STUDENTS (AIMING FOR BAND 8.0 - 9.0) <<<
-            If the student is performing at a high level (Band 7.0+), your feedback MUST heavily focus on pushing them to the absolute maximum scores (Band 8.0 and 9.0).
-            To achieve Band 8.0 - 9.0, a student must demonstrate:
-            - Lexical Resource: Skillful use of uncommon lexical items, idiomatic language, phrasal verbs, and precise collocations with native-like flair.
-            - Grammatical Range: A wide range of complex structures used flexibly and naturally (e.g., cleft sentences, inversions, mixed conditionals) with almost no errors.
-            - Fluency: Seamless, effortless use of cohesive devices (avoiding mechanical linking words like "firstly", "moreover").
-            You MUST provide AT LEAST TWO highly specific "Advanced Structure/Idiom Upgrades" showing exactly how they could have rephrased their sentences to a Band 9.0 native level.
-            >>> END CRITICAL FOR ADVANCED STUDENTS <<<
+            >>> FAIR SCORING DIRECTIVE <<<
+            Do NOT artificially deflate or lower the student's score. If a student speaks fluently, uses complex structures, and answers all prompts, you MUST award them the appropriate high band score (e.g., 7.0, 7.5, 8.0, or 8.5) they deserve according to the official IELTS criteria. Be objective and fair. 
+            >>> END FAIR SCORING DIRECTIVE <<<
 
             ${accuracyRules}
 
@@ -773,7 +768,7 @@ Naturally test or gently guide the student to practice these structures in today
 
             ### 🎤 Pronunciation
             * [Feedback on clarity, intonation, chunking]
-            * **Struggled Sounds/Words:** [Specific words from transcript]
+            * **Struggled Sounds/Words:** [Only list specific words the student ACTUALLY said in the transcript. If none, write "None".]
 
             ### 🚀 Next Steps to Mastery
             * [Actionable tip 1 - Focus on idiomatic/natural flow]
@@ -833,7 +828,7 @@ Naturally test or gently guide the student to practice these structures in today
 
             ### 🗣️ Fluency & Coherence
             * [Strict feedback on clarity, pacing, hesitations, and cohesive linking devices]
-            * **Struggled Sounds/Words:** [Highlight 2-3 specific phonemes or actual words from transcript]
+            * **Struggled Sounds/Words:** [Only list specific words the student ACTUALLY said in the transcript. If none, write "None".]
             * **Fillers & Hesitations:** [Identify thinking noises or filler words]
             * **Cohesive Connectors Used:** [Linking words used or missed]
 
