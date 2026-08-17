@@ -584,27 +584,33 @@ Naturally test or gently guide the student to practice these structures in today
       }
 
       if (isIELTS) {
+        if (studentTurns < 3) {
+           return `### 🎯 IELTS Mock Assessment (Incomplete Session)
+* **Status:** Incomplete
+* **General Impression:** The session was prematurely disconnected or too short (only ${studentTurns} turns recorded). An accurate official IELTS Band Score cannot be calculated from this limited data. Please try a full session to receive a detailed 0-9 evaluation across all criteria.`;
+        }
+
         const avgWords = studentTurns > 0 ? (studentWordCount / studentTurns) : 0;
         let fluencyScore = 6.0;
         let lexicalScore = 6.0;
         let grammarScore = 6.0;
         let pronScore = 6.5;
 
-        if (studentTurns >= 4 && avgWords > 10) {
+        if (studentTurns >= 6 && avgWords > 15) {
+          fluencyScore = 7.5;
+          lexicalScore = 7.0;
+          grammarScore = 7.0;
+          pronScore = 7.5;
+        } else if (studentTurns >= 4 && avgWords > 10) {
           fluencyScore = 7.0;
           lexicalScore = 6.5;
           grammarScore = 6.5;
           pronScore = 7.0;
-        } else if (studentTurns >= 2 && avgWords > 5) {
+        } else if (studentTurns >= 3 && avgWords > 5) {
           fluencyScore = 6.5;
           lexicalScore = 6.0;
           grammarScore = 6.0;
           pronScore = 6.5;
-        } else if (studentTurns > 0) {
-          fluencyScore = 6.0;
-          lexicalScore = 6.0;
-          grammarScore = 5.5;
-          pronScore = 6.0;
         }
 
         const calculatedBand = calculateIELTSBandScore(fluencyScore, lexicalScore, grammarScore, pronScore);
@@ -731,8 +737,10 @@ Naturally test or gently guide the student to practice these structures in today
             Provide a realistic, professional, and well-calibrated feedback report strictly aligned with official IELTS Speaking Band Descriptors (0-9).
             NEVER mention CEFR levels (like A1, A2, B1, B2) in this report. This is strictly IELTS.
 
-            >>> FAIR SCORING DIRECTIVE <<<
-            Do NOT artificially deflate or lower the student's score. If a student speaks fluently, uses complex structures, and answers all prompts, you MUST award them the appropriate high band score (e.g., 7.0, 7.5, 8.0, or 8.5) they deserve according to the official IELTS criteria. Be objective and fair. 
+            >>> FAIR SCORING & INCOMPLETE SESSION DIRECTIVE <<<
+            1. OBJECTIVE GRADING: Do NOT artificially deflate or lower the student's score. If a student speaks fluently, uses complex structures, and answers all prompts, you MUST award them the appropriate high band score (e.g., 7.0, 7.5, 8.0, or 8.5) they deserve according to the official IELTS criteria.
+            2. INCOMPLETE SESSIONS: If the transcript is extremely short or abruptly cut off (e.g., the user dropped out early), DO NOT penalize their score for being short. Evaluate ONLY the language they actually produced. If they produced Band 7.0 level English for 2 sentences before disconnecting, give them a 7.0, NOT a 3.0. Just mention in the General Impression that the session was short.
+            3. MATHEMATICAL ACCURACY: The 'Estimated Band Score' MUST be the exact mathematical average of the 4 sub-scores (Task Response, Fluency, Lexical, Grammar, Pronunciation), rounded to the nearest 0.5 according to official IELTS rules. Do not hallucinate an overall score that doesn't match the sub-scores.
             >>> END FAIR SCORING DIRECTIVE <<<
 
             ${accuracyRules}
@@ -741,14 +749,13 @@ Naturally test or gently guide the student to practice these structures in today
 
             ### 🎯 IELTS Mock Assessment
             * **Estimated Band Score:** [Score 0.0 - 9.0 calculated accurately from sub-scores]
-            * **Task Response Score:** [Sub-score 0.0 - 9.0]
             * **Fluency & Coherence Score:** [Sub-score 0.0 - 9.0]
             * **Lexical Resource Score:** [Sub-score 0.0 - 9.0]
             * **Grammatical Range & Accuracy Score:** [Sub-score 0.0 - 9.0]
             * **Pronunciation Score:** [Sub-score 0.0 - 9.0]
             * **General Impression:** [Balanced summary aligned with official Band Descriptors]
 
-            ### ✅ Task Response & Topic Relevance
+            ### ✅ Topic Relevance & Task Achievement
             * **Semantic Sub-prompt Analysis:** [Compare the student's answer against the specific requirements of the topic/prompt. Did they address EVERY sub-prompt?]
             * **Task Response Deficiency:** [If they missed any part of a multi-part question or cue card, explicitly flag it here. If they answered all parts, write "None - all prompt requirements addressed."]
 
