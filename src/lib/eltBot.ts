@@ -770,8 +770,8 @@ Naturally test or gently guide the student to practice these structures in today
 
             ### 📝 Grammatical Range & Accuracy
             * [Feedback on sentence structures and accuracy]
-            * **Corrections:** [Exact student quote -> Corrected version]
-            * **Complexity Upgrade (Band 8-9):** [Take a simple sentence the student said and rewrite it using an advanced structure like inversion, a relative clause, or a conditional]
+            * **Corrections:** [If there are grammar errors, provide Exact student quote -> Corrected version. If NO errors were made, write "None - Excellent accuracy". STRICTLY DO NOT invent quotes.]
+            * **Complexity Upgrade (Band 8-9):** [Take a simple sentence the student ACTUALLY said in the transcript and rewrite it using an advanced structure like inversion, a relative clause, or a conditional. If none available, write "None".]
 
             ### 🎤 Pronunciation
             * [Feedback on clarity, intonation, chunking]
@@ -789,7 +789,7 @@ Naturally test or gently guide the student to practice these structures in today
 
             CRITICAL: Return the response as a JSON object with two fields:
             1. "markdownReport": A string containing the EXACT Markdown report requested above.
-            2. "detectedErrors": An array of objects, each containing "original" (the student's mistake) and "correction" (the corrected version). Include ONLY the most critical 3-5 mistakes.
+            2. "detectedErrors": An array of objects, each containing "original" (the student's exact quote from transcript) and "correction" (the corrected version). Include ONLY the most critical 1-3 mistakes THAT ACTUALLY APPEAR IN THE TRANSCRIPT. If no mistakes exist, return an empty array [].
             `;
         } else {
             promptContents = `
@@ -841,7 +841,7 @@ Naturally test or gently guide the student to practice these structures in today
 
             ### 📚 Range & Accuracy
             * [Strict feedback on range of vocabulary and grammatical accuracy]
-            * **Corrections:** [Exact student quote -> Corrected version]
+            * **Corrections:** [If there are grammar errors, provide Exact student quote -> Corrected version. If NO errors were made, write "None - Excellent accuracy". STRICTLY DO NOT invent quotes.]
             * **New words to learn:** [2-3 useful advanced words/phrases for next time]
 
             ### 🤝 Interactive Communication
@@ -859,7 +859,7 @@ Naturally test or gently guide the student to practice these structures in today
 
             CRITICAL: Return the response as a JSON object with two fields:
             1. "markdownReport": A string containing the EXACT Markdown report requested above.
-            2. "detectedErrors": An array of objects, each containing "original" (the student's mistake) and "correction" (the corrected version). Include ONLY the most critical 3-5 mistakes.
+            2. "detectedErrors": An array of objects, each containing "original" (the student's exact quote from transcript) and "correction" (the corrected version). Include ONLY the most critical 1-3 mistakes THAT ACTUALLY APPEAR IN THE TRANSCRIPT. If no mistakes exist, return an empty array [].
             `;
         }
 
