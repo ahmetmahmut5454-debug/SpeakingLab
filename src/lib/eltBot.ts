@@ -584,10 +584,10 @@ Naturally test or gently guide the student to practice these structures in today
       }
 
       if (isIELTS) {
-        if (studentTurns < 3) {
+        if (studentTurns < 3 && studentWordCount < 40) {
            return `### 🎯 IELTS Mock Assessment (Incomplete Session)
 * **Status:** Incomplete
-* **General Impression:** The session was prematurely disconnected or too short (only ${studentTurns} turns recorded). An accurate official IELTS Band Score cannot be calculated from this limited data. Please try a full session to receive a detailed 0-9 evaluation across all criteria.`;
+* **General Impression:** The session was prematurely disconnected or too short (only ${studentTurns} turns and ${studentWordCount} words recorded). An accurate official IELTS Band Score cannot be calculated from this limited data. Please try a full session to receive a detailed 0-9 evaluation across all criteria.`;
         }
 
         let rep = `### 🎯 IELTS Mock Assessment (Connection Error)
@@ -844,14 +844,15 @@ Please do not worry, this is a technical issue and does not reflect your speakin
                      const currentBank = getErrorBank();
                      let addedCount = 0;
                      
-                     // HARD-CODED FILTER: Check if the exact quote actually exists in the transcript
-                     const fullTranscriptStr = transcriptToUse.join(" ").toLowerCase();
+                     // HARD-CODED FILTER: Check if the exact quote actually exists in the transcript (Ignore punctuation)
+                     const normalizeText = (t: string) => t.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ").trim();
+                     const fullTranscriptNormalized = normalizeText(transcriptToUse.join(" "));
                      
                      parsed.detectedErrors.forEach((err: any) => {
                          const original = err.original?.trim();
                          const correction = err.correction?.trim();
                          if (original && correction && original.toLowerCase() !== correction.toLowerCase()) {
-                             const actuallySaid = fullTranscriptStr.includes(original.toLowerCase());
+                             const actuallySaid = fullTranscriptNormalized.includes(normalizeText(original));
                              const exists = currentBank.some((item) => item.original.toLowerCase() === original.toLowerCase());
                              
                              if (!exists && actuallySaid) {

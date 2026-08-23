@@ -101,11 +101,16 @@ export const processIELTSReportScores = (reportText: string): string => {
   const grammar = extractGrammarScore(reportText);
   const pronunciation = extractPronunciationScore(reportText);
 
-  if (fluency !== null && lexical !== null && grammar !== null && pronunciation !== null) {
-    const calculatedBand = calculateIELTSBandScore(fluency, lexical, grammar, pronunciation);
-    const formattedBand = calculatedBand.toFixed(1);
-    
-    // Very robust replacement of the overall score
+  // Default to 6.0 or the average of others if some are missing to ALWAYS enforce math.
+  const f = fluency ?? 6.0;
+  const l = lexical ?? 6.0;
+  const g = grammar ?? 6.0;
+  const p = pronunciation ?? 6.0;
+  
+  const calculatedBand = calculateIELTSBandScore(f, l, g, p);
+  const formattedBand = calculatedBand.toFixed(1);
+  
+  // Very robust replacement of the overall score
     const aggressiveRegex = /((?:\*?\*?(?:Estimated\s+|Overall\s+)?Band(?: Score)?\*?\*?\s*:\s*\*?\*?\s*))([0-9.]+)/i;
     if (aggressiveRegex.test(reportText)) {
       return reportText.replace(aggressiveRegex, `$1${formattedBand}`);
@@ -120,9 +125,6 @@ export const processIELTSReportScores = (reportText: string): string => {
         }
         return lines.join('\n');
     }
-  }
-
-  return reportText;
 };
 
 export const extractOverallScore = (text: string): number | null => {
