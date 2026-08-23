@@ -590,62 +590,16 @@ Naturally test or gently guide the student to practice these structures in today
 * **General Impression:** The session was prematurely disconnected or too short (only ${studentTurns} turns recorded). An accurate official IELTS Band Score cannot be calculated from this limited data. Please try a full session to receive a detailed 0-9 evaluation across all criteria.`;
         }
 
-        const avgWords = studentTurns > 0 ? (studentWordCount / studentTurns) : 0;
-        let fluencyScore = 6.0;
-        let lexicalScore = 6.0;
-        let grammarScore = 6.0;
-        let pronScore = 6.5;
+        let rep = `### 🎯 IELTS Mock Assessment (Connection Error)
+* **Status:** AI Analysis Failed
+* **General Impression:** You successfully completed ${studentTurns} turns of dialogue. However, our AI evaluation server timed out or encountered an error while generating your detailed IELTS report. 
 
-        if (studentTurns >= 6 && avgWords > 15) {
-          fluencyScore = 7.5;
-          lexicalScore = 7.0;
-          grammarScore = 7.0;
-          pronScore = 7.5;
-        } else if (studentTurns >= 4 && avgWords > 10) {
-          fluencyScore = 7.0;
-          lexicalScore = 6.5;
-          grammarScore = 6.5;
-          pronScore = 7.0;
-        } else if (studentTurns >= 3 && avgWords > 5) {
-          fluencyScore = 6.5;
-          lexicalScore = 6.0;
-          grammarScore = 6.0;
-          pronScore = 6.5;
-        }
-
-        const calculatedBand = calculateIELTSBandScore(fluencyScore, lexicalScore, grammarScore, pronScore);
-
-        let rep = `### 🎯 IELTS Mock Assessment
-* **Estimated Band Score:** ${calculatedBand.toFixed(1)}
-* **Fluency & Coherence Score:** ${fluencyScore.toFixed(1)}
-* **Lexical Resource Score:** ${lexicalScore.toFixed(1)}
-* **Grammatical Range & Accuracy Score:** ${grammarScore.toFixed(1)}
-* **Pronunciation Score:** ${pronScore.toFixed(1)}
-* **General Impression:** ${studentTurns > 3 ? 'Good overall attempt addressing the IELTS speaking prompt with sustained turns.' : 'Short attempt addressing the IELTS speaking prompt. Try to elaborate on your answers.'}`;
+Please do not worry, this is a technical issue and does not reflect your speaking skills. Please try another session or check your internet connection.`;
 
         if (lastErr) {
             rep += `\n\n*(Error Details: ${lastErr?.message || lastErr})*`;
         }
-
-        rep += `
-
-### 🗣️ Fluency & Coherence
-* Spoke with ${fluencyScore >= 6.5 ? 'good fluency and minimal hesitations.' : 'acceptable flow and coherence.'}
-* **Fillers & Hesitations:** ${studentTurns > 0 ? 'Occasional minor pauses while organizing thoughts.' : 'Limited speech data recorded.'}
-
-### 📚 Lexical Resource
-* Used appropriate vocabulary for the scenario.
-
-### 📝 Grammatical Range & Accuracy
-* Sentence structure was ${grammarScore >= 6.0 ? 'generally complex with good control.' : 'mostly simple and generally clear.'}
-
-### 🎤 Pronunciation
-* Pronunciation was clear and intelligible.
-
-### 🚀 Next Steps
-- Practice answering Part 1 and Part 2 questions with longer responses.
-- Use more varied connective words and advanced vocabulary.`;
-        addErrorItemsFromReport(rep);
+        
         return rep;
       }
 
@@ -654,25 +608,15 @@ Naturally test or gently guide the student to practice these structures in today
         if (lastErr) overall += `\n\n(Hata Detayı: ${lastErr?.message || lastErr})`;
         fluency = `Dinleme ve anlama konusunda gayet iyiydiniz. Yanıtlarınızı verirken özgüvenli olmaya devam edin.`;
         grammar = `Sohbetin gidişatından anladığım kadarıyla konuları yakalayabiliyorsunuz. Daha uzun cümleler kurmaya ve gramer yapılarını pratik etmeye devam edin.`;
-        nextsteps = `- Daha detaylı analiz için sesinizin tamamen yazıya dökülebildiğinden emin olun.\n- Kelime dağarcığınızı geliştirmeye devam edin.\n- "${context.topic}" konusunda yeni pratikler yapın.`;
-      } else {
-        const avgWords = studentTurns > 0 ? (studentWordCount / studentTurns) : 0;
-        overall = `Görüşme başarıyla tamamlandı. Hedef seviye: **${targetLevel}**. Toplam ${studentTurns} karşılıklı dialog kurdunuz.`;
-        if (lastErr) overall += `\n\n(Hata Detayı: ${lastErr?.message || lastErr})`;
-        if (avgWords > 12) {
-             fluency = "Akıcılığınız gayet iyi! Uzun cümleler kurarak kendinizi net bir şekilde ifade ediyorsunuz.";
-             grammar = "Gramer yapılarını doğal bir şekilde kullanabiliyorsunuz.";
-        } else if (avgWords > 5) {
-             fluency = "İyi iş çıkardınız. Sorulara makul uzunlukta yanıtlar verdiniz, konuşurken ritminiz güzeldi.";
-             grammar = "Temel kurallara hakimsiniz, ancak daha kompleks bağlaçlar kullanmayı deneyebilirsiniz.";
-        } else {
-             fluency = "Kendinizi ifade etmeye çabalıyorsunuz ancak cevaplarınız biraz kısa kalıyor. Hata yapmaktan çekinmeyin!";
-             grammar = "Kelime düzeyinde anlaşılabiliyorsunuz, cümle kurma pratiğinizi artırmalısınız.";
-        }
-        nextsteps = `- Sesli pratiklerinizi sıklaştırın.\n- Kısa cevaplar yerine sebep-sonuç belirten (because, so) cümleler kurun.\n- "${context.topic}" konusunu tekrar çalışın.`;
+        nextsteps = `- Daha detaylı analiz için sesinizin tamamen yazıya dökülebildiğinden emin olun.\n- Kelime dağarcığınızı geliştirmeye devam edin.`;      } else {
+        overall = `**Status:** AI Analysis Failed\n\nGörüşme tamamlandı. Toplam ${studentTurns} karşılıklı diyalog kurdunuz. Ancak arka plandaki yapay zeka analiz sunucularımız anlık olarak yanıt veremedi veya zaman aşımına uğradı.`;
+        if (lastErr) overall += `\n\n*(Hata Detayı: ${lastErr?.message || lastErr})*`;
+
+        fluency = `Lütfen endişelenmeyin, bu sizin konuşma becerinizle ilgili değil, tamamen teknik bir sunucu gecikmesidir.`;
+        grammar = `Sistem gecikmesi nedeniyle kelime ve gramer analizi yapılamadı.`; nextsteps = `- Lütfen internet bağlantınızı kontrol edin.\n- Birazdan yeni bir oturum başlatmayı deneyin.`;
       }
 
-      const rep = `### 1. Overall & CEFR Assessment\n${overall}\n\n### 2. Pronunciation & Fluency\n${fluency}\n\n### 3. Grammar & Vocabulary\n${grammar}\n\n### 4. Next Steps\n${nextsteps}`;
+      const rep = `### 🚨 Bağlantı Hatası (Connection Error)\n\n${overall}\n\n### 🗣️ Durum\n${fluency}\n\n### 📝 Analiz\n${grammar}\n\n### 🚀 Ne Yapmalı?\n${nextsteps}`;
       addErrorItemsFromReport(rep);
       return rep;
     };
@@ -899,12 +843,18 @@ Naturally test or gently guide the student to practice these structures in today
                  import("./errorBank").then(({ getErrorBank, saveErrorBank }) => {
                      const currentBank = getErrorBank();
                      let addedCount = 0;
+                     
+                     // HARD-CODED FILTER: Check if the exact quote actually exists in the transcript
+                     const fullTranscriptStr = transcriptToUse.join(" ").toLowerCase();
+                     
                      parsed.detectedErrors.forEach((err: any) => {
                          const original = err.original?.trim();
                          const correction = err.correction?.trim();
                          if (original && correction && original.toLowerCase() !== correction.toLowerCase()) {
+                             const actuallySaid = fullTranscriptStr.includes(original.toLowerCase());
                              const exists = currentBank.some((item) => item.original.toLowerCase() === original.toLowerCase());
-                             if (!exists) {
+                             
+                             if (!exists && actuallySaid) {
                                  currentBank.unshift({
                                      id: `err_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
                                      original,
