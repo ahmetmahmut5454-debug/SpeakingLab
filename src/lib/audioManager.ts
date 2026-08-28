@@ -64,7 +64,7 @@ export class AudioProcessor {
 class PCMProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.bufferSize = 4096;
+    this.bufferSize = 2048;
     this.buffer = new Float32Array(this.bufferSize);
     this.bytesWritten = 0;
   }
@@ -142,13 +142,7 @@ registerProcessor('pcm-processor', PCMProcessor);
         if (onLevel) onLevel(avgLevel);
       }
 
-      // Echo / Self-Interruption Guard:
-      if (isAudioPlaying && isAudioPlaying()) {
-        if (avgLevel < 25) {
-          return;
-        }
-      }
-
+      // Echo / Self-Interruption Guard removed: We rely on echoCancellation: true from getUserMedia.
       const base64 = this.arrayBufferToBase64(pcmData);
       onAudioData(base64);
     };
@@ -283,8 +277,9 @@ export class AudioPlayer {
     };
 
     const currentTime = this.audioContext.currentTime;
-    if (this.startTime < currentTime) {
-      this.startTime = currentTime;
+    const margin = 0.05; // 50ms safety margin for jitter and JS execution
+    if (this.startTime < currentTime + margin) {
+      this.startTime = currentTime + margin;
     }
     
     source.start(this.startTime);

@@ -102,10 +102,15 @@ export const processIELTSReportScores = (reportText: string): string => {
   const pronunciation = extractPronunciationScore(reportText);
 
   // Default to 6.0 or the average of others if some are missing to ALWAYS enforce math.
-  const f = fluency ?? 6.0;
-  const l = lexical ?? 6.0;
-  const g = grammar ?? 6.0;
-  const p = pronunciation ?? 6.0;
+  const valid = [fluency, lexical, grammar, pronunciation].filter((x) => x !== null) as number[];
+  let avg = 6.0;
+  if (valid.length > 0) {
+     avg = valid.reduce((a, b) => a + b, 0) / valid.length;
+  }
+  const f = fluency ?? avg;
+  const l = lexical ?? avg;
+  const g = grammar ?? avg;
+  const p = pronunciation ?? avg;
   
   const calculatedBand = calculateIELTSBandScore(f, l, g, p);
   const formattedBand = calculatedBand.toFixed(1);

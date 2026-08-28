@@ -672,7 +672,8 @@ Please do not worry, this is a technical issue and does not reflect your speakin
             3. STRICTLY NO INVENTED WORDS: When highlighting errors or quoting the student, you MUST ONLY use words that actually appear in the [Student] lines of the transcript. Do not invent or hallucinate mistakes.
             4. INFERRING TASK ACHIEVEMENT ON GARBLED/MISSING STT: If the transcript is heavily garbled due to STT failure, deduce whether they answered the prompt based entirely on how the [Tutor] responded to them.
             5. SEMANTIC COMPARISON FOR TASK RESPONSE: Carefully compare the student's transcript to the "Topic" prompts (e.g. bullet points in an IELTS Cue Card). You MUST verify that the student actually addressed every single sub-prompt. Explicitly flag omissions under "Task Response Deficiency".
-            ${studentTurnsCount === 0 ? `6. MISSING STUDENT TRANSCRIPT: Provide a helpful report based on what the Tutor said, and explicitly mention that their exact words couldn't be transcribed.` : ""}
+            6. BAN ON CLICHES & MANDATORY QUOTING: NEVER use generic phrases like "expand your vocabulary", "work on your grammar", "good effort", or "practice more". You MUST quote specific phrases the student actually said in EVERY single feedback bullet point to prove you listened.
+            ${studentTurnsCount === 0 ? `7. MISSING STUDENT TRANSCRIPT: Provide a helpful report based on what the Tutor said, and explicitly mention that their exact words couldn't be transcribed.` : ""}
 
             --- CONVERSATION TRANSCRIPT ---
             ${transcriptToUse.join("\n")}
@@ -682,7 +683,7 @@ Please do not worry, this is a technical issue and does not reflect your speakin
             NEVER mention CEFR levels (like A1, A2, B1, B2) in this report. This is strictly IELTS.
 
             >>> FAIR SCORING & INCOMPLETE SESSION DIRECTIVE <<<
-            1. OBJECTIVE GRADING: Do NOT artificially deflate or lower the student's score. If a student speaks fluently, uses complex structures, and answers all prompts, you MUST award them the appropriate high band score (e.g., 7.0, 7.5, 8.0, or 8.5) they deserve according to the official IELTS criteria.
+            1. GENEROUS & FAIR GRADING: AI models are historically too harsh on IELTS students. Do NOT artificially deflate or lower the student's score. A Band 7.0 does NOT require native-like perfection; it allows for occasional errors. A Band 6.0 is for a competent speaker who makes some mistakes. Grade generously and realistically based on their ability to communicate, NOT on minor flaws. If they communicate effectively and answer the prompt, DO NOT hesitate to award 7.0, 7.5, 8.0, or 8.5.
             2. INCOMPLETE SESSIONS: If the transcript is extremely short or abruptly cut off (e.g., the user dropped out early), DO NOT penalize their score for being short. Evaluate ONLY the language they actually produced. If they produced Band 7.0 level English for 2 sentences before disconnecting, give them a 7.0, NOT a 3.0. Just mention in the General Impression that the session was short.
             3. MATHEMATICAL ACCURACY: The 'Estimated Band Score' MUST be the exact mathematical average of the 4 sub-scores (Task Response, Fluency, Lexical, Grammar, Pronunciation), rounded to the nearest 0.5 according to official IELTS rules. Do not hallucinate an overall score that doesn't match the sub-scores.
             >>> END FAIR SCORING DIRECTIVE <<<
@@ -721,10 +722,10 @@ Please do not worry, this is a technical issue and does not reflect your speakin
             * [Feedback on clarity, intonation, chunking]
             * **Struggled Sounds/Words:** [Only list specific words the student ACTUALLY said in the transcript. If none, write "None".]
 
-            ### 🚀 Next Steps to Mastery
-            * [Actionable tip 1 - Focus on idiomatic/natural flow]
-            * [Actionable tip 2 - Focus on complex grammar flexibility]
-            * [Actionable tip 3 - Focus on pronunciation chunking/rhythm]
+            ### 🚀 Next Steps
+            * [Actionable tip 1 - MUST cite a specific word/phrase they used and how to fix it. NO generic advice.]
+            * [Actionable tip 2 - MUST suggest a specific advanced grammar structure for a sentence they actually said. NO generic advice.]
+            * [Actionable tip 3 - MUST give a specific pronunciation or chunking drill using their exact words. NO generic advice.]
 
             ### 🏋️ 1-Minute Actionable Drills
             * **Drill 1 (Grammar Upgrade):** Say this aloud: "Original sentence" -> "Band 9 Advanced Rewrite"
@@ -748,9 +749,10 @@ Please do not worry, this is a technical issue and does not reflect your speakin
             1. DYNAMIC & SPECIFIC FEEDBACK: The feedback MUST be unique, highly specific to this exact transcript, and avoid repetitive generic advice. Do not use boilerplate praise. Cite exact, interesting things the student said.
             2. STT HALLUCINATION AWARENESS: DO NOT penalize the student for obvious speech recognition hallucinations if the context makes it clear what they actually meant. Evaluate their language skills based on the likely intended meaning.
             3. STRICTLY NO INVENTED WORDS: When highlighting errors or quoting the student, you MUST ONLY use words that actually appear in the [Student] lines of the transcript. Do not invent or hallucinate mistakes.
-            4. INFERRING TASK ACHIEVEMENT ON GARBLED/MISSING STT: If the transcript is missing [Student] lines or heavily garbled due to STT failure, you MUST deduce whether they answered the prompt (Task Achievement) based entirely on how the [Tutor] responded to them (e.g., if the tutor says "You mentioned the color red", infer they talked about red).
-            5. SEMANTIC COMPARISON FOR TASK RESPONSE: Carefully compare the student's transcript to the "Topic" prompts. You MUST verify that the student actually addressed every single sub-prompt. Explicitly flag omissions under "Task Response Deficiency".
-            ${studentTurnsCount === 0 ? `6. MISSING STUDENT TRANSCRIPT: The transcript contains NO [Student] lines because the user's device did not support text transcription, even though they spoke. You MUST infer the conversation context from the Tutor's responses. Provide a helpful report based on what the Tutor said, and explicitly mention in the overall assessment that their exact words couldn't be transcribed.` : ""}
+            4. INFERRING TASK ACHIEVEMENT ON GARBLED/MISSING STT: If the transcript is heavily garbled due to STT failure, deduce whether they answered the prompt based entirely on how the [Tutor] responded to them.
+            5. SEMANTIC COMPARISON FOR TASK RESPONSE: Carefully compare the student's transcript to the "Topic" prompts (e.g. bullet points in an IELTS Cue Card). You MUST verify that the student actually addressed every single sub-prompt. Explicitly flag omissions under "Task Response Deficiency".
+            6. BAN ON CLICHES & MANDATORY QUOTING: NEVER use generic phrases like "expand your vocabulary", "work on your grammar", "good effort", or "practice more". You MUST quote specific phrases the student actually said in EVERY single feedback bullet point to prove you listened.
+            ${studentTurnsCount === 0 ? `7. MISSING STUDENT TRANSCRIPT: Provide a helpful report based on what the Tutor said, and explicitly mention that their exact words couldn't be transcribed.` : ""}
 
             --- CONVERSATION TRANSCRIPT ---
             ${transcriptToUse.join("\n")}
