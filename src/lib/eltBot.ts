@@ -190,14 +190,14 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-3.1-flash-live-preview",
+        model: "gemini-3.8-flash-live-preview",
         config: {
           systemInstruction: { parts: [{ text: systemInstruction }] },
           responseModalities: ["AUDIO"],
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: {
-                voiceName: "Aoede"
+                voiceName: context.voice || "Puck" // Using 'Puck' for a very natural, conversational tone
               }
             }
           }
@@ -214,10 +214,10 @@ export class EltBot {
                 if (this.session && this.isConnected) {
                   try {
                     this.session.sendRealtimeInput({
-                      mediaChunks: [{
+                      audio: {
                         data,
                         mimeType: "audio/pcm;rate=16000",
-                      }],
+                      },
                     });
                   } catch (e) {
                     console.error("Error sending audio frame:", e);
@@ -238,6 +238,7 @@ export class EltBot {
                     ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLangForTrigger}.`
                     : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
                   
+                  console.log("SENDING SYSTEM TRIGGER MESSAGE");
                   this.session.sendClientContent({
                     turns: [{ role: "user", parts: [{ text: triggerMessage }] }],
                     turnComplete: true,
