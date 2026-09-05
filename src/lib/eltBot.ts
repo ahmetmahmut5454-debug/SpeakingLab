@@ -205,8 +205,7 @@ export class EltBot {
         callbacks: {
           onopen: () => {
             console.log("Gemini Live session opened.");
-            alert("Gemini Live session opened successfully!");
-            this.isConnected = true;
+                        this.isConnected = true;
             this.reconnectAttempts = 0;
             this.audioProcessor.start(
               stream,
@@ -239,10 +238,7 @@ export class EltBot {
                     : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
                   
                   console.log("SENDING SYSTEM TRIGGER MESSAGE");
-                  this.session.sendClientContent({
-                    turns: [{ role: "user", parts: [{ text: triggerMessage }] }],
-                    turnComplete: true,
-                  });
+                  this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: triggerMessage }] }], turnComplete: true });
                 } catch (e) {}
               }
             }, 500);
@@ -251,10 +247,7 @@ export class EltBot {
               if (this.session && this.isConnected) {
                 try {
                   const historyContext = `SYSTEM NOTE: Our network connection dropped, and we just reconnected. Here is the transcript of our conversation so far:\n\n${this.transcriptHistory.join("\n")}\n\nPlease smoothly continue the conversation from where we left off without explicitly mentioning the disconnect unless necessary.`;
-                  this.session.sendClientContent({
-                    turns: [{ role: "user", parts: [{ text: historyContext }] }],
-                    turnComplete: true,
-                  });
+                  this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: historyContext }] }], turnComplete: true });
                 } catch (e) {}
               }
             }, 500);
