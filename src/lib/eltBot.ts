@@ -190,18 +190,7 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-3.8-flash-live-preview",
-        config: {
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          responseModalities: ["AUDIO"],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: {
-                voiceName: context.voice || "Puck" // Using 'Puck' for a very natural, conversational tone
-              }
-            }
-          }
-        },
+        model: "gemini-2.0-flash-exp",
         callbacks: {
           onopen: () => {
             console.log("Gemini Live session opened.");
@@ -372,9 +361,7 @@ export class EltBot {
         speechConfig: {
           voiceConfig: {
             prebuiltVoiceConfig: {
-              voiceName:
-                context.voice ||
-                (context.level === "C1" ? "Charon" : "Zephyr"),
+              voiceName: context.voice || "Puck",
             },
           },
         },
