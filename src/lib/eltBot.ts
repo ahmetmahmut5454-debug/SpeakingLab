@@ -161,13 +161,8 @@ export class EltBot {
       const stream = this.currentStream;
 
       if (!this.audioProcessor) {
-        this.audioProcessor = new AudioProcessor(
-          stream,
-          () => this.audioPlayer.isPlaying
-        );
+        this.audioProcessor = new AudioProcessor();
       }
-
-      await this.audioProcessor.initialize();
 
       let systemInstruction = `
         You are an IELTS Speaking Examiner and English Tutor.
@@ -418,8 +413,9 @@ export class EltBot {
         ],
       },
     });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to start ELT Bot session:", e);
+      alert("Hata detayı: " + (e.message || e.toString()));
       if (this.callbacks.onBotFinished) this.callbacks.onBotFinished();
     }
   }

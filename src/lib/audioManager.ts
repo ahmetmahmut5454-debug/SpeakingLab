@@ -120,7 +120,7 @@ registerProcessor('pcm-processor', PCMProcessor);
     // Audio Pipeline: Source -> Dynamics Compressor -> Analyser -> AudioWorklet -> Destination
     this.source.connect(this.analyser);
     this.analyser.connect(this.workletNode);
-    this.workletNode.connect(this.audioContext.destination);
+    // this.workletNode.connect(this.audioContext.destination);
 
     this.workletNode.port.onmessage = (e) => {
       if (!this.audioContext || this.audioContext.state === 'closed') return;
