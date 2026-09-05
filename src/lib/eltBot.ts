@@ -14,14 +14,7 @@ export const getApiKey = () => {
     }
 
     // @ts-ignore
-    if (
-      typeof process !== "undefined" &&
-      process.env &&
-      process.env.GEMINI_API_KEY
-    ) {
-      // @ts-ignore
-      return process.env.GEMINI_API_KEY;
-    }
+    try { return process.env.GEMINI_API_KEY; } catch(e) {}
   } catch (e) {}
   return "";
 };
@@ -161,163 +154,74 @@ export class EltBot {
     try {
       this.currentStream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
           channelCount: 1,
           sampleRate: 16000,
         },
       });
+      const stream = this.currentStream;
 
-      this.setupSpeechRecognition(context);
-      await this.connectLiveSession(context, this.currentStream);
-    } catch (err) {
-      console.error("Failed to start ELT Bot:", err);
-      this.callbacks.onError?.(err);
-      this.stop();
-      throw err;
-    }
-  }
-
-  private setupSpeechRecognition(context: BotContext) {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      this.recognition = new SpeechRecognition();
-      this.recognition.continuous = true;
-      this.recognition.interimResults = false;
-      this.recognition.lang = context.targetLanguageCode || "en-US";
-      this.recognition.onresult = (event: any) => {
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            const text = event.results[i][0].transcript;
-            if (text.trim()) {
-              this.transcriptHistory.push(`[Student]: ${text}`);
-              this.callbacks.onTranscription?.(cleanTranscript(text), false);
-            }
-          }
-        }
-      };
-      let hasError = false;
-      this.recognition.onerror = (event: any) => {
-        console.error("Speech recognition error:", event.error);
-        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-          hasError = true;
-        }
-      };
-      this.recognition.onend = () => {
-        if (this.isConnected && this.isUserActiveSession && !hasError) {
-          try {
-            this.recognition.start();
-          } catch (e) {}
-        }
-      };
-      try {
-        this.recognition.start();
-      } catch (e) {}
-    }
-  }
-
-  private async connectLiveSession(context: BotContext, stream: MediaStream) {
-    const targetLang = context.targetLanguage || "English";
-    const isEnglish = targetLang.toLowerCase() === "english";
-
-    // Load unmastered error bank items for Spaced Repetition testing
-    const unmasteredErrors = getUnmasteredErrorsForPrompt();
-    const errorBankPromptSection = unmasteredErrors.length > 0
-      ? `\n\nSPACED REPETITION / ERROR BANK INSTRUCTION:
-The student has previously made these specific errors:
-${unmasteredErrors.map((err) => `- ${err}`).join("\n")}
-Naturally test or gently guide the student to practice these structures in today's conversation.`
-      : "";
-
-    let systemInstruction = `
-      CRITICAL TARGET LANGUAGE MANDATE:
-      - THE TARGET LANGUAGE FOR THIS PRACTICE SESSION IS: **${targetLang.toUpperCase()}**.
-      - YOU MUST SPEAK 100% EXCLUSIVELY IN **${targetLang.toUpperCase()}**.
-      - ALL YOUR RESPONSES, GREETINGS, QUESTIONS, ICEBREAKERS, AND FEEDBACK MUST BE IN **${targetLang.toUpperCase()}**.
-      ${!isEnglish ? `- UNDER NO CIRCUMSTANCES SHOULD YOU SPEAK ENGLISH. DO NOT USE ENGLISH AT ALL unless the user explicitly asks for a translation.` : ""}
-
-      You are SpeakingBuddy, an intelligent speaking partner designed by Ahmet M. Oturak. All rights reserved.
-      You provide task-based speaking practices, IELTS scenarios, and free practice modes to help users improve their ${targetLang} speaking skills.
-      
-      ${getPromptTarget(context)}
-      Topic: ${context.topic}
-      Goals: ${context.objective}
-      Mode: ${context.mode}
-      ${context.vocabulary ? `Target Vocabulary (Expected to be used by student in ${targetLang}): ${context.vocabulary.join(", ")}` : ""}
-      ${errorBankPromptSection}
-      
-      Rules:
-      1. VOICE ONLY. Speak naturally in ${targetLang}. No text formatting.
-      2. BE PATIENT. Learners pause. Wait extra 3-5s before replying.
-      3. 70/30 Ratio: Student speaks 70%, you 30%.
-      4. Culture: Handle cultural references and names correctly.
-      5. Terminate: Call endConversation tool when session ends.
-      6. KEEP GOING: If the student stops speaking or is quiet, you MUST encourage them in ${targetLang} to continue or ask a follow-up question in ${targetLang}. Do NOT remain silent.
-      7. IGNORE NOISE & FILLERS: Ignore thinking noises, fillers, backchanneling, and minor pauses. If interrupted by short sounds, IMMEDIATELY RESUME and finish your previous sentence in ${targetLang}.
-      8. IELTS PART 2 CUE CARD PREPARATION: When presenting Part 2, FIRST invoke showCueCard tool. Immediately after calling the tool, introduce the topic verbally and tell them they have 1 minute to prepare and 1-2 minutes to speak. Tell them to say 'I am ready' when they want to start. Once they start speaking, listen until they finish. If they stop speaking or finish their presentation, YOU MUST respond and move on to Part 3. Do not remain silent.
-      ${["A1", "A2"].includes(context.level || "") ? `
-      CRITICAL RULES FOR A1/A2 LEARNERS:
-      - NEVER ask multiple questions back-to-back. You MUST ask ONLY ONE short question and wait for the student to answer. Asking multiple questions ruins their comprehension process.
-      - If the student is silent, struggles, or does not answer, you MUST help them.
-      - When helping, DO NOT give long explanations. Provide EXACTLY ONE example sentence they can use, and then STOP. Extending the help ruins their comprehension and natural speaking perception.
-      - Keep all your sentences extremely short and simple.` : ""}
-      
-      ${
-        context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
-          ? `Examiner: Speak first with an icebreaker in ${targetLang}: "${context.icebreaker || "Hello. Let's start the speaking test."}". Stay in character as a strict examiner.`
-          : context.mode === "Task" && context.icebreaker
-          ? `Character: Speak first with an icebreaker in ${targetLang}: "${context.icebreaker}". Stay in character.`
-          : `Practice: Speak first. Greet the student and introduce yourself in ${targetLang}, then ask their name or how they are doing in ${targetLang}. Build rapport.`
+      if (!this.audioProcessor) {
+        this.audioProcessor = new AudioProcessor(
+          stream,
+          () => this.audioPlayer.isPlaying
+        );
       }
-    `;
 
-    if (context.pronunciationPracticeWord) {
-      systemInstruction = `
-        You are a supportive pronunciation coach. The user wants to practice the word "${context.pronunciationPracticeWord}".
-        
-        CRITICAL INSTRUCTIONS FOR THIS SESSION:
-        1. Your very first response must be to simply say the word "${context.pronunciationPracticeWord}" clearly and slowly, and then ask the user to "Repeat after me". Do not say anything else in the first turn.
-        2. Listen carefully to their pronunciation.
-        3. Give immediate, specific feedback on how to improve, or praise them if they get it right.
-        4. Keep your responses very brief, supportive, and focused only on this word.
-        5. Call the endConversation tool when the user successfully pronounces the word or after 3 attempts.
+      await this.audioProcessor.initialize();
+
+      let systemInstruction = `
+        You are an IELTS Speaking Examiner and English Tutor.
+        You are talking with a student at CEFR ${context.level}.
+        Keep your responses conversational and natural.
       `;
-    }
+      
+      if (context.mode === "IELTS") {
+        systemInstruction = `
+          You are an official IELTS Speaking Examiner. Conduct a strict but fair IELTS speaking test.
+          The user's target level is roughly ${context.level}.
+          DO NOT type out your instructions or internal thoughts. Speak naturally.
+        `;
+      } else if (context.mode === "Pronunciation" && context.pronunciationPracticeWord) {
+        systemInstruction = `
+          You are an English pronunciation tutor. The student wants to practice pronouncing the word "${context.pronunciationPracticeWord}".
+          CRITICAL INSTRUCTIONS FOR THIS SESSION:
+          1. Your very first response must be to simply say the word "${context.pronunciationPracticeWord}" clearly and slowly, and then ask the user to "Repeat after me". Do not say anything else in the first turn.
+          2. Listen carefully to their pronunciation.
+          3. Give immediate, specific feedback on how to improve, or praise them if they get it right.
+          4. Keep your responses very brief, supportive, and focused only on this word.
+          5. Call the endConversation tool when the user successfully pronounces the word or after 3 attempts.
+        `;
+      }
 
-    const ai = getAiClient();
-    this.session = await ai.live.connect({
-      model: "gemini-3.1-flash-live-preview",
-      callbacks: {
-        onopen: () => {
-          console.log("Gemini Live session opened.");
-          this.isConnected = true;
-          this.reconnectAttempts = 0;
-
-          this.audioProcessor.start(
-            stream,
-            (data) => {
-              if (this.session && this.isConnected) {
-                try {
-                  this.session.sendRealtimeInput({
-                    audio: {
-                      data,
-                      mimeType: "audio/pcm;rate=16000",
-                    },
-                  });
-                } catch (e) {
-                  console.error("Error sending audio frame:", e);
+      const ai = getAiClient();
+      this.session = await ai.live.connect({
+        model: "gemini-3.1-flash-live-preview",
+        callbacks: {
+          onopen: () => {
+            console.log("Gemini Live session opened.");
+            this.isConnected = true;
+            this.reconnectAttempts = 0;
+            this.audioProcessor.start(
+              stream,
+              (data) => {
+                if (this.session && this.isConnected) {
+                  try {
+                    this.session.sendRealtimeInput({
+                      mediaChunks: [{
+                        data,
+                        mimeType: "audio/pcm;rate=16000",
+                      }],
+                    });
+                  } catch (e) {
+                    console.error("Error sending audio frame:", e);
+                  }
                 }
-              }
-            },
-            (level) => {
-              this.callbacks.onUserLevel?.(level);
-            },
-            () => this.audioPlayer.isPlaying
-          );
-
+              },
+              (level) => {
+                this.callbacks.onUserLevel?.(level);
+              },
+              () => this.audioPlayer.isPlaying
+            );
           if (this.transcriptHistory.length === 0) {
             setTimeout(() => {
               if (this.session && this.isConnected) {
@@ -443,6 +347,12 @@ Naturally test or gently guide the student to practice these structures in today
         },
         onerror: (error) => {
           console.error("Live session error:", error);
+          if (error && error.message) {
+            alert("Connection error: " + error.message);
+          } else {
+            alert("Connection error occurred. AI might not be available right now.");
+          }
+          console.error("Live session error:", error);
           this.isConnected = false;
           this.stop(); if (this.callbacks.onBotFinished) this.callbacks.onBotFinished();
         },
@@ -464,7 +374,7 @@ Naturally test or gently guide the student to practice these structures in today
             },
           },
         },
-        systemInstruction: systemInstruction,
+        systemInstruction: { parts: [{ text: systemInstruction }] },
         tools: [
           {
             functionDeclarations: [
@@ -497,6 +407,10 @@ Naturally test or gently guide the student to practice these structures in today
         ],
       },
     });
+    } catch (e) {
+      console.error("Failed to start ELT Bot session:", e);
+      if (this.callbacks.onBotFinished) this.callbacks.onBotFinished();
+    }
   }
 
   sendHintRequest() {
