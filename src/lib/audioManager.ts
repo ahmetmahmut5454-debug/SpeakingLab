@@ -137,12 +137,18 @@ registerProcessor('pcm-processor', PCMProcessor);
       let avgLevel = 0;
       if (this.analyser && this.dataArray) {
         this.analyser.getByteFrequencyData(this.dataArray as any);
-        const sum = this.dataArray.reduce((a: number, b: number) => a + b, 0);
+        const sum = this.dataArray.reduce((a, b) => a + b, 0);
         avgLevel = sum / this.dataArray.length;
         if (onLevel) onLevel(avgLevel);
       }
 
-      // Echo / Self-Interruption Guard removed: We rely on echoCancellation: true from getUserMedia.
+      // Echo / Self-Interruption Guard:
+      // If the bot is speaking, we drop low-volume packets to prevent the microphone from picking up the speakers and causing self-interruption.
+      if (isAudioPlaying && isAudioPlaying()) {
+        if (avgLevel < 15) {
+          return;
+        }
+      }
       const base64 = this.arrayBufferToBase64(pcmData);
       onAudioData(base64);
     };
