@@ -326,6 +326,7 @@ Naturally test or gently guide the student to practice these structures in today
                   const triggerMessage = context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
                     ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLangForTrigger}.`
                     : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
+                  
                   this.session.sendClientContent({
                     turns: [{ role: "user", parts: [{ text: triggerMessage }] }],
                     turnComplete: true,
@@ -334,7 +335,6 @@ Naturally test or gently guide the student to practice these structures in today
               }
             }, 500);
           } else {
-             // We are reconnecting and have previous conversation history. Inject it!
              setTimeout(() => {
               if (this.session && this.isConnected) {
                 try {
@@ -348,7 +348,7 @@ Naturally test or gently guide the student to practice these structures in today
             }, 500);
           }
         },
-        onmessage: async (message: LiveServerMessage) => {
+        onmessage: async (message) => {
           const functionCalls = message.toolCall?.functionCalls || [];
           const altParts = message.serverContent?.modelTurn?.parts || [];
           for (const p of altParts) {
@@ -440,22 +440,16 @@ Naturally test or gently guide the student to practice these structures in today
               this.currentBotSubtitle = "";
             }
           }
-
-          if (message.serverContent?.turnComplete) {
-            if (this.currentBotSubtitle.trim().length > 0) {
-              this.transcriptHistory.push(`[Tutor]: ${this.currentBotSubtitle}`);
-              this.currentBotSubtitle = "";
-            }
-          }
         },
-        onerror: (err) => {
-          console.error("Gemini Live error callback:", err);
-          this.handleUnexpectedDisconnect();
+        onerror: (error) => {
+          console.error("Live session error:", error);
+          this.isConnected = false;
+          this.stop(); if (this.callbacks.onBotFinished) this.callbacks.onBotFinished();
         },
         onclose: () => {
           console.log("Gemini Live session closed.");
           this.isConnected = false;
-          this.handleUnexpectedDisconnect();
+          this.stop(); if (this.callbacks.onBotFinished) this.callbacks.onBotFinished();
         },
       },
       config: {
@@ -470,7 +464,7 @@ Naturally test or gently guide the student to practice these structures in today
             },
           },
         },
-        systemInstruction: { parts: [{ text: systemInstruction }] },
+        systemInstruction: systemInstruction,
         tools: [
           {
             functionDeclarations: [
@@ -478,51 +472,31 @@ Naturally test or gently guide the student to practice these structures in today
                 name: "endConversation",
                 description:
                   "Call this when the conversation naturally concludes or when the user explicitly requests to end it, say goodbye, or finish the task.",
+                parameters: {
+                  type: Type.OBJECT,
+                  properties: {},
+                },
               },
               {
                 name: "showCueCard",
-                description: "Call this EXACTLY when you are transitioning to IELTS Part 2 and about to present the cue card to the student. Pass the complete text of the cue card as the topic argument.",
+                description:
+                  "Call this function to show the Part 2 cue card to the student. ONLY call this when you have just introduced Part 2 and are ready to give the student their topic. Provide a short, generic topic string like 'A memorable holiday'. Do not put the whole instructions here.",
                 parameters: {
                   type: Type.OBJECT,
                   properties: {
                     topic: {
                       type: Type.STRING,
-                      description: "The complete text of the cue card task (e.g. 'Describe a job that you consider highly important. You should say: ...')",
-                    }
+                      description: "A short phrase describing the topic, e.g., 'A book you enjoyed reading recently'",
+                    },
                   },
                   required: ["topic"],
-                }
+                },
               },
             ],
           },
         ],
       },
     });
-  }
-
-  private async handleUnexpectedDisconnect() {
-    if (!this.isUserActiveSession) return;
-
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      console.log(`Attempting exponential backoff auto-reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-      this.callbacks.onReconnecting?.(this.reconnectAttempts);
-
-      const delay = Math.pow(2, this.reconnectAttempts) * 1000;
-      await new Promise((resolve) => setTimeout(resolve, delay));
-
-      if (this.isUserActiveSession && this.savedContext && this.currentStream) {
-        try {
-          await this.connectLiveSession(this.savedContext, this.currentStream);
-          return;
-        } catch (e) {
-          console.error("Reconnection attempt failed:", e);
-        }
-      }
-    }
-
-    // If max retries exceeded
-    this.stop();
   }
 
   sendHintRequest() {

@@ -48,12 +48,7 @@ export class AudioProcessor {
     this.source = this.audioContext.createMediaStreamSource(stream);
     
     // DynamicsCompressorNode to prevent integer overflow & hard clipping distortion
-    this.compressor = this.audioContext.createDynamicsCompressor();
-    this.compressor.threshold.setValueAtTime(-12, this.audioContext.currentTime);
-    this.compressor.knee.setValueAtTime(10, this.audioContext.currentTime);
-    this.compressor.ratio.setValueAtTime(12, this.audioContext.currentTime);
-    this.compressor.attack.setValueAtTime(0.003, this.audioContext.currentTime);
-    this.compressor.release.setValueAtTime(0.25, this.audioContext.currentTime);
+    // Compressor removed for debugging
 
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 256;
@@ -123,8 +118,7 @@ registerProcessor('pcm-processor', PCMProcessor);
     this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-processor');
 
     // Audio Pipeline: Source -> Dynamics Compressor -> Analyser -> AudioWorklet -> Destination
-    this.source.connect(this.compressor);
-    this.compressor.connect(this.analyser);
+    this.source.connect(this.analyser);
     this.analyser.connect(this.workletNode);
     this.workletNode.connect(this.audioContext.destination);
 
@@ -144,11 +138,7 @@ registerProcessor('pcm-processor', PCMProcessor);
 
       // Echo / Self-Interruption Guard:
       // If the bot is speaking, we drop low-volume packets to prevent the microphone from picking up the speakers and causing self-interruption.
-      if (isAudioPlaying && isAudioPlaying()) {
-        if (avgLevel < 15) {
-          return;
-        }
-      }
+      // Echo Guard removed for stability.
       const base64 = this.arrayBufferToBase64(pcmData);
       onAudioData(base64);
     };
