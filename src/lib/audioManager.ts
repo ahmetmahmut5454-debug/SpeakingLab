@@ -11,7 +11,7 @@ export class AudioProcessor {
       AudioProcessor.globalContext = new AudioContextClass({ sampleRate: 16000 });
     }
     if (AudioProcessor.globalContext.state === 'suspended') {
-      AudioProcessor.globalContext.resume().catch(() => {});
+      AudioProcessor.globalContext.resume().then(() => console.log('Mic AudioContext unlocked')).catch(() => {});
     }
   }
 
@@ -111,8 +111,8 @@ registerProcessor('pcm-processor', PCMProcessor);
         AudioProcessor.workletLoaded = true;
       }
     } catch (e) {
-      console.warn("AudioWorklet load issue (might be already registered):", e);
-      AudioProcessor.workletLoaded = true;
+      console.warn("AudioWorklet load issue:", e);
+      AudioProcessor.workletLoaded = true; // Assume it's loaded if it throws
     }
 
     this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-processor');
@@ -208,7 +208,7 @@ export class AudioPlayer {
       AudioPlayer.globalContext = new AudioContextClass({ sampleRate: 24000 });
     }
     if (AudioPlayer.globalContext.state === 'suspended') {
-      AudioPlayer.globalContext.resume().catch(() => {});
+      AudioPlayer.globalContext.resume().then(() => console.log('Player AudioContext unlocked')).catch(() => {});
     }
   }
 

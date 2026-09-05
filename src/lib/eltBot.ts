@@ -205,6 +205,7 @@ export class EltBot {
         callbacks: {
           onopen: () => {
             console.log("Gemini Live session opened.");
+            alert("Gemini Live session opened successfully!");
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.audioProcessor.start(
@@ -319,9 +320,12 @@ export class EltBot {
             this.audioPlayer.clear();
           }
 
+          console.log("Raw message from server:", JSON.stringify(message).substring(0, 500));
           const parts = message.serverContent?.modelTurn?.parts;
+          console.log("Received parts from server: ", parts?.length);
           if (parts && parts.length > 0) {
             for (const part of parts) {
+              console.log("Playing audio chunk...");
               if (part.inlineData?.data) {
                 this.audioPlayer.playChunk(part.inlineData.data, (level) => {
                   this.callbacks.onBotLevel?.(level / 1.5);
