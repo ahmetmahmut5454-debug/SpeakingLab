@@ -282,7 +282,13 @@ export class EltBot {
         },
         config: {
           responseModalities: ["AUDIO"] as any,
-          speechConfig: context.voice || (context.level === "C1" ? "Charon" : "Puck"),
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: context.voice || (context.level === "C1" ? "Charon" : "Puck"),
+              }
+            }
+          },
           systemInstruction: { parts: [{ text: systemInstruction }] },
           tools: [
             {
@@ -309,6 +315,9 @@ export class EltBot {
 
   handleUnexpectedDisconnect() {
     console.log("Unexpected disconnect.");
+    if (this.callbacks.onBotFinished) {
+      this.callbacks.onBotFinished();
+    }
   }
 
   stop() {
