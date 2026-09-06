@@ -134,7 +134,7 @@ export class EltBot {
                 if (this.session && this.isConnected) {
                   try {
                     this.session.sendRealtimeInput({
-                      mediaChunks: [{
+                      media: [{
                         data,
                         mimeType: "audio/pcm;rate=16000",
                       }],
