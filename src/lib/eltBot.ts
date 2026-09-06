@@ -190,7 +190,7 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-3.1-flash-live-preview",
         callbacks: {
           onopen: () => {
             console.log("Gemini Live session opened.");
@@ -349,8 +349,11 @@ export class EltBot {
           this.isConnected = false;
           this.stop(); if (this.callbacks.onBotFinished) this.callbacks.onBotFinished();
         },
-        onclose: () => {
-          console.log("Gemini Live session closed.");
+        onclose: (e: any) => {
+          console.log("Gemini Live session closed.", e);
+          if (e && e.code && e.code !== 1000) {
+              alert("Connection closed unexpectedly. Code: " + e.code + " Reason: " + e.reason);
+          }
           this.isConnected = false;
           this.stop(); if (this.callbacks.onBotFinished) this.callbacks.onBotFinished();
         },
