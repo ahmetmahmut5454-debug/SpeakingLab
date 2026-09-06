@@ -134,10 +134,10 @@ export class EltBot {
                 if (this.session && this.isConnected) {
                   try {
                     this.session.sendRealtimeInput({
-                      media: [{
+                      audio: {
                         data,
                         mimeType: "audio/pcm;rate=16000",
-                      }],
+                      }
                     });
                   } catch (e) {
                     console.error("Error sending audio frame:", e);
