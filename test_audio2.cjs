@@ -1,16 +1,14 @@
 const fs = require('fs');
 let code = fs.readFileSync('src/lib/audioManager.ts', 'utf8');
 
-code = code.replace(
-    /\/\/ Audio Pipeline: Source -> Dynamics Compressor -> Analyser -> AudioWorklet -> Destination\n\s*this\.source\s*\.connect\(this\.compressor\);\n\s*this\.compressor\s*\.connect\(this\.analyser\);\n\s*this\.analyser\s*\.connect\(this\.workletNode\);\n\s*this\.workletNode\.connect\(this\.audioContext\.destination\);/g,
-    `// Audio Pipeline: Source -> Analyser -> AudioWorklet
-    this.source
-      .connect(this.analyser);
-    this.analyser
-      .connect(this.workletNode);
-    // WorkletNode should NOT connect to destination to prevent feedback loop
-    // this.workletNode.connect(this.audioContext.destination);`
-);
+code = code.replace('const pcmData = new Int16Array(bytes.buffer);', `
+    if (bytes.length % 2 !== 0) {
+        console.warn("Odd byte length:", bytes.length);
+    }
+    // safely create Int16Array
+    const bufferLength = Math.floor(bytes.length / 2) * 2;
+    const pcmData = new Int16Array(bytes.buffer, 0, bufferLength / 2);
+`);
 
 fs.writeFileSync('src/lib/audioManager.ts', code);
-console.log("Patched audio manager 2");
+console.log("Injected safe pcm");

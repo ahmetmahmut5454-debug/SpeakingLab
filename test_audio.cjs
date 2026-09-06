@@ -1,15 +1,16 @@
 const fs = require('fs');
 let code = fs.readFileSync('src/lib/audioManager.ts', 'utf8');
 
-code = code.replace(
-    /this\.source \.connect\(this\.compressor\);\n\s*this\.compressor\s*\.connect\(this\.analyser\);\n\s*this\.analyser\s*\.connect\(this\.workletNode\);\n\s*this\.workletNode\.connect\(this\.audioContext\.destination\);/,
-    `this.source
-      .connect(this.analyser);
-    this.analyser
-      .connect(this.workletNode);
-    // WorkletNode should NOT connect to destination to prevent feedback loop
-    // this.workletNode.connect(this.audioContext.destination);`
-);
+code = code.replace('const binary = window.atob(base64Data);', `
+    console.log("Received chunk length:", base64Data.length);
+    let binary;
+    try {
+        binary = window.atob(base64Data);
+    } catch(e) {
+        console.error("Failed to decode base64 audio chunk:", e);
+        return;
+    }
+`);
 
 fs.writeFileSync('src/lib/audioManager.ts', code);
-console.log("Patched audio manager");
+console.log("Injected audio logs");

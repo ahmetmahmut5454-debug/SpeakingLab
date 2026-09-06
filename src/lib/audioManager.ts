@@ -248,13 +248,29 @@ export class AudioPlayer {
     }
     if (this.audioContext.state === 'closed') return;
 
-    const binary = window.atob(base64Data);
+    
+    console.log("Received chunk length:", base64Data.length);
+    let binary;
+    try {
+        binary = window.atob(base64Data);
+    } catch(e) {
+        console.error("Failed to decode base64 audio chunk:", e);
+        return;
+    }
+
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
     }
     
-    const pcmData = new Int16Array(bytes.buffer);
+    
+    if (bytes.length % 2 !== 0) {
+        console.warn("Odd byte length:", bytes.length);
+    }
+    // safely create Int16Array
+    const bufferLength = Math.floor(bytes.length / 2) * 2;
+    const pcmData = new Int16Array(bytes.buffer, 0, bufferLength / 2);
+
     const floatData = new Float32Array(pcmData.length);
     for (let i = 0; i < pcmData.length; i++) {
       floatData[i] = pcmData[i] / 0x8000;
