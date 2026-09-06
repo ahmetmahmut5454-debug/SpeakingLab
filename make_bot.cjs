@@ -1,8 +1,8 @@
-import { GoogleGenAI } from "@google/genai";
-import { AudioProcessor, AudioPlayer } from "./audioManager";
-import { getErrorBank, saveErrorBank } from "./errorBank";
+const fs = require('fs');
 
-export const getApiKey = () => import.meta.env.VITE_GEMINI_API_KEY || "";
+const code = `import { GoogleGenAI } from "@google/genai";
+import { AudioProcessor } from "./audioManager";
+import { getErrorBank, saveErrorBank } from "./errorBank";
 
 const getAiClient = () => new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
@@ -26,18 +26,18 @@ export const isIELTSSession = (context: BotContext) => {
 
 export const cleanTranscript = (text: string) => {
   if (!text) return text;
-  let cleaned = text.replace(/\s+/g, " ").trim();
+  let cleaned = text.replace(/\\s+/g, " ").trim();
   let prev;
   do {
     prev = cleaned;
-    cleaned = cleaned.replace(/\b([\w\u00C0-\u017F]+)\s+\1\b/gi, "$1");
+    cleaned = cleaned.replace(/\\b([\\w\\u00C0-\\u017F]+)\\s+\\1\\b/gi, "$1");
   } while (cleaned !== prev);
   const fillers = ["yani", "şey", "işte", "ıı", "eee", "ee", "hmm", "öhm", "aa", "hı hı", "he", "heh", "I mean", "um", "uh", "like", "you know", "aslında", "ne bileyim", "nasıl desem"];
-  const regex = new RegExp(`\\b(${fillers.join('|')})\\b`, 'gi');
+  const regex = new RegExp(\`\\\\b(\${fillers.join('|')})\\\\b\`, 'gi');
   cleaned = cleaned.replace(regex, "");
-  cleaned = cleaned.replace(/\s+/g, " ").trim();
-  cleaned = cleaned.replace(/^[.,?!]\s*/, "");
-  cleaned = cleaned.replace(/\s+([.,?!])/g, "$1");
+  cleaned = cleaned.replace(/\\s+/g, " ").trim();
+  cleaned = cleaned.replace(/^[.,?!]\\s*/, "");
+  cleaned = cleaned.replace(/\\s+([.,?!])/g, "$1");
   return cleaned || text;
 };
 
@@ -67,8 +67,12 @@ export class EltBot {
     // Minimal mock for audioPlayer to prevent crashes if we lost the real one.
     // In the real file this imported audioManager or used an Audio class.
     // Actually, I can just use a generic audio context player or null for now.
-    // The previous code had `this.audioPlayer.isPlaying`. Let's mock it.
-    this.audioPlayer = new AudioPlayer();
+    // The previous code had \`this.audioPlayer.isPlaying\`. Let's mock it.
+    this.audioPlayer = {
+      isPlaying: false,
+      playChunk: (data: string, onLevel: (l:number)=>void) => {},
+      clear: () => {}
+    };
   }
 
   get transcript() {
@@ -85,39 +89,43 @@ export class EltBot {
       });
       const stream = this.currentStream;
       if (!this.audioProcessor) {
-        this.audioProcessor = new AudioProcessor();
+        this.audioProcessor = new AudioProcessor(
+          stream,
+          () => this.audioPlayer.isPlaying
+        );
       }
-      let systemInstruction = `
+      await this.audioProcessor.initialize();
+      let systemInstruction = \`
         You are an IELTS Speaking Examiner and English Tutor.
-        You are talking with a student at CEFR ${context.level}.
+        You are talking with a student at CEFR \${context.level}.
         Keep your responses conversational and natural.
-      `;
+      \`;
       
       if (context.mode === "IELTS") {
-        systemInstruction = `
+        systemInstruction = \`
           You are an official IELTS Speaking Examiner. Conduct a strict but fair IELTS speaking test.
-          The user's target level is roughly ${context.level}.
+          The user's target level is roughly \${context.level}.
           DO NOT type out your instructions or internal thoughts. Speak naturally.
-        `;
+        \`;
       } else if (context.mode === "Pronunciation" && context.pronunciationPracticeWord) {
-        systemInstruction = `
-          You are an English pronunciation tutor. The student wants to practice pronouncing the word "${context.pronunciationPracticeWord}".
+        systemInstruction = \`
+          You are an English pronunciation tutor. The student wants to practice pronouncing the word "\${context.pronunciationPracticeWord}".
           CRITICAL INSTRUCTIONS FOR THIS SESSION:
-          1. Your very first response must be to simply say the word "${context.pronunciationPracticeWord}" clearly and slowly, and then ask the user to "Repeat after me". Do not say anything else in the first turn.
+          1. Your very first response must be to simply say the word "\${context.pronunciationPracticeWord}" clearly and slowly, and then ask the user to "Repeat after me". Do not say anything else in the first turn.
           2. Listen carefully to their pronunciation.
           3. Give immediate, specific feedback on how to improve, or praise them if they get it right.
           4. Keep your responses very brief, supportive, and focused only on this word.
           5. Call the endConversation tool when the user successfully pronounces the word or after 3 attempts.
-        `;
+        \`;
       } else {
          // Free practice conversational improvements
-         systemInstruction = `
+         systemInstruction = \`
           You are a highly engaging, curious, and natural conversation partner. 
-          The user's target level is roughly ${context.level}.
+          The user's target level is roughly \${context.level}.
           Always keep the conversation flowing proactively. Ask interesting follow-up questions.
           Do NOT be passive. Drive the conversation forward enthusiastically.
           DO NOT type out your instructions or internal thoughts. Speak naturally.
-         `;
+         \`;
       }
 
       const ai = getAiClient();
@@ -156,8 +164,8 @@ export class EltBot {
                   try {
                     const targetLangForTrigger = context.targetLanguage || "English";
                     const triggerMessage = context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
-                      ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLangForTrigger}.`
-                      : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
+                      ? \`SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in \${targetLangForTrigger}.\`
+                      : \`SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in \${targetLangForTrigger}.\`;
                     
                     this.session.sendClientContent({
                       turns: triggerMessage,
@@ -170,7 +178,7 @@ export class EltBot {
                setTimeout(() => {
                 if (this.session && this.isConnected) {
                   try {
-                    const historyContext = `SYSTEM NOTE: Our network connection dropped, and we just reconnected. Here is the transcript of our conversation so far:\n\n${this.transcriptHistory.join("\n")}\n\nPlease smoothly continue the conversation from where we left off without explicitly mentioning the disconnect unless necessary.`;
+                    const historyContext = \`SYSTEM NOTE: Our network connection dropped, and we just reconnected. Here is the transcript of our conversation so far:\\n\\n\${this.transcriptHistory.join("\\n")}\\n\\nPlease smoothly continue the conversation from where we left off without explicitly mentioning the disconnect unless necessary.\`;
                     this.session.sendClientContent({
                       turns: historyContext,
                       turnComplete: true,
@@ -264,7 +272,7 @@ export class EltBot {
                 this.callbacks.onTranscription(this.currentBotSubtitle, true);
               }
               if (outTrans.finished) {
-                this.transcriptHistory.push(`[Tutor]: ${this.currentBotSubtitle}`);
+                this.transcriptHistory.push(\`[Tutor]: \${this.currentBotSubtitle}\`);
                 this.currentBotSubtitle = "";
               }
             }
@@ -301,11 +309,11 @@ export class EltBot {
                   description: "Call this when the conversation naturally concludes.",
                   parameters: { type: 6, properties: {} },
                 },
-                ...(context.mode === "IELTS" || context.topic?.includes("IELTS") ? [{
+                {
                   name: "showCueCard",
-                  description: "Call this function to show the Part 2 cue card to the student. ONLY call this when you have just introduced Part 2 and are ready to give the student their topic. Provide a short, generic topic string like 'A memorable holiday'.",
-                  parameters: { type: 6, properties: { topic: { type: 1, description: "A short phrase describing the topic" } }, required: ["topic"] },
-                }] : [])
+                  description: "Call this function to show the Part 2 cue card to the student.",
+                  parameters: { type: 6, properties: { topic: { type: 1, description: "A short phrase" } }, required: ["topic"] },
+                },
               ],
             },
           ],
@@ -354,16 +362,16 @@ export class EltBot {
     const transcript = transcriptOverride || this.transcriptHistory;
     if (!transcript || transcript.length === 0) return "No transcript available.";
     
-    const transcriptText = transcript.join("\n");
+    const transcriptText = transcript.join("\\n");
     
     // We will use standard Gemini generateContent to evaluate the student
     const ai = getAiClient();
     const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
     
-    const prompt = `
+    const prompt = \`
       You are an expert English evaluator. Review the following transcript of a spoken English session.
-      The student's target level is CEFR ${context.level}.
-      Mode: ${context.mode}.
+      The student's target level is CEFR \${context.level}.
+      Mode: \${context.mode}.
       
       Generate a comprehensive evaluation report in Markdown format.
       Include sections for:
@@ -383,8 +391,8 @@ export class EltBot {
       If there are no major corrections, return an empty array for corrections.
       
       Transcript:
-      ${transcriptText}
-    `;
+      \${transcriptText}
+    \`;
 
     for (const model of models) {
       try {
@@ -396,7 +404,7 @@ export class EltBot {
         const markdownRep = response.text || "No feedback generated.";
         
         // Extract JSON
-        const jsonMatch = markdownRep.match(/\`\`\`json\s*([\s\S]*?)\s*```/);
+        const jsonMatch = markdownRep.match(/\`\`\`json\\s*([\\s\\S]*?)\\s*\`\`\`/);
         if (jsonMatch && jsonMatch[1]) {
           try {
             const data = JSON.parse(jsonMatch[1]);
@@ -411,7 +419,7 @@ export class EltBot {
                        const exists = currentBank.some((item: any) => item.original === original);
                        if (!exists) {
                            currentBank.unshift({
-                               id: `err_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                               id: \`err_\${Date.now()}_\${Math.random().toString(36).substr(2, 5)}\`,
                                original,
                                correction,
                                category: 'Grammar',
@@ -434,10 +442,14 @@ export class EltBot {
         
         return markdownRep;
       } catch (err) {
-        console.warn(`Model ${model} failed:`, err);
+        console.warn(\`Model \${model} failed:\`, err);
       }
     }
     
     return "Error generating report. AI models might be overloaded.";
   }
 }
+`;
+
+fs.writeFileSync('src/lib/eltBot.ts', code);
+console.log("Successfully rebuilt eltBot.ts");
