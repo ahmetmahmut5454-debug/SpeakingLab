@@ -30,6 +30,22 @@ export const isIELTSSession = (context: BotContext) => {
   return context.mode === "IELTS" || !!(context.topic && context.topic.includes("IELTS"));
 };
 
+
+const OriginalWebSocket = window.WebSocket;
+window.WebSocket = function(url: string | URL, protocols?: string | string[]) {
+    if (typeof url === 'string') {
+        url = url.replace(/\/\/ws\//g, '/ws/');
+    } else if (url instanceof URL) {
+        url.pathname = url.pathname.replace(/^\/\/ws\//, '/ws/');
+    }
+    return new OriginalWebSocket(url, protocols);
+} as any;
+window.WebSocket.prototype = OriginalWebSocket.prototype;
+
+
+
+
+
 export const cleanTranscript = (text: string) => {
   if (!text) return text;
   let cleaned = text.replace(/\s+/g, " ").trim();
@@ -84,12 +100,7 @@ export class EltBot {
 
   async start(context: BotContext) {
     try {
-      this.currentStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          sampleRate: 16000,
-        },
-      });
+      this.currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const stream = this.currentStream;
       if (!this.audioProcessor) {
         this.audioProcessor = new AudioProcessor();

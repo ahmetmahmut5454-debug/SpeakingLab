@@ -45,10 +45,10 @@ async function startServer() {
           }
       };
       if (req.headers['sec-websocket-extensions']) {
-          options.headers['Sec-WebSocket-Extensions'] = req.headers['sec-websocket-extensions'];
+          (options.headers as any)['Sec-WebSocket-Extensions'] = req.headers['sec-websocket-extensions'];
       }
       if (req.headers['sec-websocket-protocol']) {
-          options.headers['Sec-WebSocket-Protocol'] = req.headers['sec-websocket-protocol'];
+          (options.headers as any)['Sec-WebSocket-Protocol'] = req.headers['sec-websocket-protocol'];
       }
       
       const proxyReq = https.request(options);

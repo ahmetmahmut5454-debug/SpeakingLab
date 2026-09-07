@@ -289,8 +289,8 @@ export default function App() {
       
       level: isIELTS ? "IELTS" : context.level,
       mode: isIELTS ? "IELTS" : (context.mode || "Practice"),
-      topic: context.topic,
-      scenarioId: context.scenarioId,
+      topic: context.topic || "",
+      scenarioId: context.scenarioId || "",
       reportText: hasReport ? sessionReport : "",
       transcript: currentTranscript,
       
