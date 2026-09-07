@@ -264,7 +264,7 @@ export default function App() {
 
     if (isQualifyingSession && currentTranscript.length > 0) {
       try {
-        const stats = await updateGamificationStats(context.mode);
+        const stats = await updateGamificationStats(context.mode as any);
         if (stats) {
           setUserStats(stats);
           setIsStreakAnimating(true);
@@ -288,7 +288,7 @@ export default function App() {
       createdAt: Date.now(),
       
       level: isIELTS ? "IELTS" : context.level,
-      mode: isIELTS ? "IELTS" : context.mode,
+      mode: isIELTS ? "IELTS" : (context.mode || "Practice"),
       topic: context.topic,
       scenarioId: context.scenarioId,
       reportText: hasReport ? sessionReport : "",

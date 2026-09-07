@@ -25,7 +25,7 @@ export const translateScenario = async (
   if (!apiKey) return null;
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = new GoogleGenAI({ apiKey, httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } });
     const prompt = `
       You are a professional translator. Translate the following scenario details into ${targetLang}.
       Return ONLY a valid JSON object with the following structure:
@@ -42,7 +42,7 @@ export const translateScenario = async (
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",

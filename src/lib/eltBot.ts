@@ -1,10 +1,10 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
 import { getErrorBank, saveErrorBank } from "./errorBank";
 
 export const getApiKey = () => "proxy_key";
 
-const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
+const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey(), httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } });
 
 export type ProficiencyLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 export type VoiceType = "Aoede" | "Charon" | "Fenrir" | "Kore" | "Puck";
@@ -18,6 +18,12 @@ export interface BotContext {
   voice?: VoiceType;
   pronunciationPracticeWord?: string;
   targetLanguage?: string;
+  targetLanguageCode?: string;
+  role?: string;
+  icebreaker?: string;
+  vocabulary?: string[];
+  studentBriefing?: string;
+  taskDurationMinutes?: number;
 }
 
 export const isIELTSSession = (context: BotContext) => {
@@ -48,6 +54,7 @@ export interface EltBotCallbacks {
   onBotFinished?: () => void;
   onShowCueCard?: (topic: string) => void;
   onReportReady?: (report: string) => void;
+  onError?: (err: any) => void;
 }
 
 export class EltBot {
@@ -122,7 +129,7 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-3.8-flash",
+        model: "gemini-3.1-flash-live-preview",
         callbacks: {
           onopen: () => {
             
@@ -272,7 +279,7 @@ export class EltBot {
                 ...(context.mode === "IELTS" || context.topic?.includes("IELTS") ? [{
                   name: "showCueCard",
                   description: "Call this function to show the Part 2 cue card to the student. ONLY call this when you have just introduced Part 2 and are ready to give the student their topic. Provide a short, generic topic string like 'A memorable holiday'.",
-                  parameters: { type: "OBJECT", properties: { topic: { type: "STRING", description: "A short phrase describing the topic" } }, required: ["topic"] },
+                  parameters: { type: Type.OBJECT, properties: { topic: { type: Type.STRING, description: "A short phrase describing the topic" } }, required: ["topic"] },
                 }] : [])
               ],
             },
@@ -280,7 +287,7 @@ export class EltBot {
         },
       });
     } catch (err) {
-      console.error("Error starting EltBot", err?.message, err);
+      console.error("Error starting EltBot", err, err);
     }
   }
 
@@ -326,7 +333,7 @@ export class EltBot {
     
     // We will use standard Gemini generateContent to evaluate the student
     const ai = getAiClient();
-    const models = ["gemini-3.8-flash"];
+    const models = ["gemini-2.0-flash"];
     
     const prompt = `
       You are an expert English evaluator. Review the following transcript of a spoken English session.

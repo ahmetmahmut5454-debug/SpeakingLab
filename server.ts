@@ -1,52 +1,94 @@
 import express from "express";
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config();
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { createProxyMiddleware } from "http-proxy-middleware";
 import http from "http";
+import https from "https";
+import fs from "fs";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
-
-  // Create an HTTP server so we can handle WebSockets
+  
   const server = http.createServer(app);
 
-  // WebSocket proxy for Gemini Live API
-  const geminiProxy = createProxyMiddleware({
-    target: "wss://generativelanguage.googleapis.com",
-    changeOrigin: true,
-    ws: true, // proxy websockets
-    pathRewrite: (path, req) => {
-      // Remove the dummy key and add the real API key
-      const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        console.error("No Gemini API key found in server environment!");
-      }
-      
-      // Strip query string and add our own key
-      const pathWithoutQuery = req.originalUrl.split('?')[0];
-      return `${pathWithoutQuery}?key=${apiKey}`;
-    },
-    on: {
-      error: (err) => {
-         console.error("Proxy error:", err);
-      }
-    }
-  });
-
-  // Mount the proxy for WebSocket paths
-  // The SDK hits /ws/...
-  app.use("/ws", geminiProxy);
-  app.use("/v1alpha", geminiProxy);
-  app.use("/v1", geminiProxy);
-
-  // API route for health check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
 
-  // Vite middleware for development
+  server.on("upgrade", (req, socket, head) => {
+    // Normalize URL
+    req.url = req.url!.replace(/^\/+/, "/");
+    fs.appendFileSync("proxy_requests.log", "Manual Upgrade: " + req.url + "\n");
+    
+    if (req.url.startsWith("/ws") || req.url.startsWith("/v1alpha") || req.url.startsWith("/v1")) {
+      const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        socket.destroy();
+        return;
+      }
+      
+      const targetUrl = req.url.split('?')[0] + "?key=" + apiKey;
+            
+      const options = {
+          hostname: 'generativelanguage.googleapis.com',
+          port: 443,
+          path: targetUrl,
+          method: 'GET',
+          headers: {
+              'Connection': 'Upgrade',
+              'Upgrade': 'websocket',
+              'Sec-WebSocket-Key': req.headers['sec-websocket-key'],
+              'Sec-WebSocket-Version': req.headers['sec-websocket-version'],
+              'Host': 'generativelanguage.googleapis.com'
+          }
+      };
+      if (req.headers['sec-websocket-extensions']) {
+          options.headers['Sec-WebSocket-Extensions'] = req.headers['sec-websocket-extensions'];
+      }
+      if (req.headers['sec-websocket-protocol']) {
+          options.headers['Sec-WebSocket-Protocol'] = req.headers['sec-websocket-protocol'];
+      }
+      
+      const proxyReq = https.request(options);
+      
+      proxyReq.on('response', (res) => {
+          fs.appendFileSync('proxy_requests.log', 'Response instead of upgrade: ' + res.statusCode + '\n');
+          socket.destroy();
+      });
+      
+      proxyReq.on('upgrade', (proxyRes, proxySocket, proxyHead) => {
+          let headers = 'HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
+                       'Upgrade: WebSocket\r\n' +
+                       'Connection: Upgrade\r\n' +
+                       'Sec-WebSocket-Accept: ' + proxyRes.headers['sec-websocket-accept'] + '\r\n';
+                       
+          if (proxyRes.headers['sec-websocket-protocol']) {
+              headers += 'Sec-WebSocket-Protocol: ' + proxyRes.headers['sec-websocket-protocol'] + '\r\n';
+          }
+          if (proxyRes.headers['sec-websocket-extensions']) {
+              headers += 'Sec-WebSocket-Extensions: ' + proxyRes.headers['sec-websocket-extensions'] + '\r\n';
+          }
+          headers += '\r\n';
+          
+          socket.write(headers);
+          
+          if (proxyHead && proxyHead.length) socket.write(proxyHead);
+          proxySocket.pipe(socket);
+          if (head && head.length) proxySocket.write(head);
+          socket.pipe(proxySocket);
+      });
+      
+      proxyReq.on('error', (e) => {
+          socket.destroy();
+      });
+      
+      proxyReq.end();
+      return;
+    }
+  });
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -61,7 +103,6 @@ async function startServer() {
     });
   }
 
-  // We must listen on the `server`, not the `app`, so it binds WebSockets too!
   server.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
