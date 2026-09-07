@@ -1,4 +1,5 @@
-
+const fs = require('fs');
+let code = `
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
@@ -6,7 +7,6 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import http from "http";
 import https from "https";
-import fs from "fs";
 
 async function startServer() {
   const app = express();
@@ -26,9 +26,8 @@ async function startServer() {
   const server = http.createServer(app);
 
   server.on('upgrade', (req, socket, head) => {
-      let targetUrl = req.url.replace(/^\/+/, "/");
+      let targetUrl = req.url.replace(/^\\/+/, "/");
       const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-      fs.appendFileSync('proxy_status.log', 'APIKEY IN UPGRADE: ' + apiKey + '\nENV:' + JSON.stringify(process.env) + '\n');
       
       targetUrl = targetUrl.replace(/([?&])key=[^&]*(&|$)/g, '$1').replace(/[?&]$/, '');
       targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'key=' + apiKey;
@@ -50,15 +49,15 @@ async function startServer() {
       const proxyReq = https.request(options);
       
       proxyReq.on('response', (res) => {
-          socket.write(`HTTP/1.1 ${res.statusCode} ${res.statusMessage}\r\n\r\n`);
+          socket.write(\`HTTP/1.1 \${res.statusCode} \${res.statusMessage}\\r\\n\\r\\n\`);
           res.pipe(socket);
       });
       
       proxyReq.on('upgrade', (proxyRes, proxySocket, proxyHead) => {
-          let headers = 'HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
-                       'Upgrade: WebSocket\r\n' +
-                       'Connection: Upgrade\r\n' +
-                       'Sec-WebSocket-Accept: ' + proxyRes.headers['sec-websocket-accept'] + '\r\n\r\n';
+          let headers = 'HTTP/1.1 101 Web Socket Protocol Handshake\\r\\n' +
+                       'Upgrade: WebSocket\\r\\n' +
+                       'Connection: Upgrade\\r\\n' +
+                       'Sec-WebSocket-Accept: ' + proxyRes.headers['sec-websocket-accept'] + '\\r\\n\\r\\n';
           socket.write(headers);
           if (proxyHead && proxyHead.length) socket.write(proxyHead);
           proxySocket.pipe(socket);
@@ -70,7 +69,10 @@ async function startServer() {
   });
 
   server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(\`Server running on http://localhost:\${PORT}\`);
   });
 }
 startServer();
+`;
+
+fs.writeFileSync('server.ts', code);
