@@ -1,18 +1,49 @@
-
 import express from "express";
 import dotenv from "dotenv";
-dotenv.config();
+import fs from "fs";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import http from "http";
-import https from "https";
-import fs from "fs";
+import { createProxyMiddleware } from "http-proxy-middleware";
+
+// Load .env first, then .env.local to override
+dotenv.config();
+if (fs.existsSync(".env.local")) {
+    const envConfig = dotenv.parse(fs.readFileSync(".env.local"));
+    for (const k in envConfig) {
+        process.env[k] = envConfig[k];
+    }
+}
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
   
   app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  // Set up the websocket and REST proxy
+  const apiProxy = createProxyMiddleware({
+      target: "https://generativelanguage.googleapis.com",
+      changeOrigin: true,
+      ws: true,
+      pathRewrite: (path, req) => {
+          let newPath = path.replace(/^\/+/, "/");
+          newPath = newPath.replace(/([?&])key=[^&]*(&|$)/g, '$1').replace(/[?&]$/, '');
+          return newPath + (newPath.includes('?') ? '&' : '?') + 'key=' + apiKey;
+      },
+      onProxyReqWs: (proxyReq, req, socket, options, head) => {
+         proxyReq.setHeader('Host', 'generativelanguage.googleapis.com');
+      }
+  });
+
+  // Proxy WebSocket Live API
+  app.use('/ws', apiProxy);
+  // Proxy REST API (generateContent)
+  app.use('/v1beta', apiProxy);
+  app.use('/v1', apiProxy);
+  app.use('/v1alpha', apiProxy);
 
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
@@ -25,52 +56,9 @@ async function startServer() {
 
   const server = http.createServer(app);
 
-  server.on('upgrade', (req, socket, head) => {
-      let targetUrl = req.url.replace(/^\/+/, "/");
-      const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-      fs.appendFileSync('proxy_status.log', 'APIKEY IN UPGRADE: ' + apiKey + '\nENV:' + JSON.stringify(process.env) + '\n');
-      
-      targetUrl = targetUrl.replace(/([?&])key=[^&]*(&|$)/g, '$1').replace(/[?&]$/, '');
-      targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'key=' + apiKey;
-
-      const options = {
-          hostname: 'generativelanguage.googleapis.com',
-          port: 443,
-          path: targetUrl,
-          method: 'GET',
-          headers: {
-              'Connection': 'Upgrade',
-              'Upgrade': 'websocket',
-              'Sec-WebSocket-Key': req.headers['sec-websocket-key'],
-              'Sec-WebSocket-Version': req.headers['sec-websocket-version'],
-              'Host': 'generativelanguage.googleapis.com'
-          }
-      };
-      
-      const proxyReq = https.request(options);
-      
-      proxyReq.on('response', (res) => {
-          socket.write(`HTTP/1.1 ${res.statusCode} ${res.statusMessage}\r\n\r\n`);
-          res.pipe(socket);
-      });
-      
-      proxyReq.on('upgrade', (proxyRes, proxySocket, proxyHead) => {
-          let headers = 'HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
-                       'Upgrade: WebSocket\r\n' +
-                       'Connection: Upgrade\r\n' +
-                       'Sec-WebSocket-Accept: ' + proxyRes.headers['sec-websocket-accept'] + '\r\n\r\n';
-          socket.write(headers);
-          if (proxyHead && proxyHead.length) socket.write(proxyHead);
-          proxySocket.pipe(socket);
-          socket.pipe(proxySocket);
-      });
-      
-      proxyReq.on('error', (e) => socket.destroy());
-      proxyReq.end();
-  });
-
   server.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
+
 startServer();

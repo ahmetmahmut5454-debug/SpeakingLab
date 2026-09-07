@@ -1,21 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { SavedReport } from "./firebase";
 
-const getApiKey = () => {
-  try {
-    const local = localStorage.getItem("gemini_custom_key");
-    if (local) return local;
-    if (import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) {
-      return import.meta.env.VITE_GEMINI_API_KEY;
-    }
-    // @ts-ignore
-    if (typeof process !== "undefined" && process.env && process.env.GEMINI_API_KEY) {
-      // @ts-ignore
-      return process.env.GEMINI_API_KEY;
-    }
-  } catch (e) {}
-  return "";
-};
+
 
 export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
   improvements: string[];
@@ -50,7 +36,7 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: promptText,
       config: {
         responseMimeType: "application/json",

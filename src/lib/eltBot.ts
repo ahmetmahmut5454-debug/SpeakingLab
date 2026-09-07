@@ -31,16 +31,7 @@ export const isIELTSSession = (context: BotContext) => {
 };
 
 
-const OriginalWebSocket = window.WebSocket;
-window.WebSocket = function(url: string | URL, protocols?: string | string[]) {
-    if (typeof url === 'string') {
-        url = url.replace(/\/\/ws\//g, '/ws/');
-    } else if (url instanceof URL) {
-        url.pathname = url.pathname.replace(/^\/\/ws\//, '/ws/');
-    }
-    return new OriginalWebSocket(url, protocols);
-} as any;
-window.WebSocket.prototype = OriginalWebSocket.prototype;
+
 
 
 
@@ -100,7 +91,7 @@ export class EltBot {
 
   async start(context: BotContext) {
     try {
-      this.currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.currentStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
       const stream = this.currentStream;
       if (!this.audioProcessor) {
         this.audioProcessor = new AudioProcessor();
@@ -255,18 +246,8 @@ export class EltBot {
               }
             }
           },
-          onerror: (error: any) => {
-            console.error("Live session error");
-            console.error("Live session error:", error);
-            this.isConnected = false;
-            this.handleUnexpectedDisconnect();
-          },
-          onclose: (e: any) => {
-            
-            console.log("Gemini Live session closed.");
-            this.isConnected = false;
-            this.handleUnexpectedDisconnect();
-          },
+          onerror: (error: any) => { console.error("Live session error:", error); this.isConnected = false; if (this.callbacks.onError) this.callbacks.onError(error); this.handleUnexpectedDisconnect(); },
+          onclose: (e: any) => { console.log("Gemini Live session closed."); this.isConnected = false; this.handleUnexpectedDisconnect(); },
         },
         config: {
           httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` },
@@ -297,9 +278,7 @@ export class EltBot {
           ],
         },
       });
-    } catch (err) {
-      console.error("Error starting EltBot", err, err);
-    }
+    } catch (err) { console.error("Error starting EltBot", err); if (this.callbacks.onError) this.callbacks.onError(err); throw err; }
   }
 
   handleUnexpectedDisconnect() {
@@ -344,7 +323,7 @@ export class EltBot {
     
     // We will use standard Gemini generateContent to evaluate the student
     const ai = getAiClient();
-    const models = ["gemini-2.0-flash"];
+    const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
     
     const prompt = `
       You are an expert English evaluator. Review the following transcript of a spoken English session.
