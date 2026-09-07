@@ -25,7 +25,7 @@ async function startServer() {
       }
       
       // Strip query string and add our own key
-      const pathWithoutQuery = path.split('?')[0];
+      const pathWithoutQuery = req.originalUrl.split('?')[0];
       return `${pathWithoutQuery}?key=${apiKey}`;
     },
     on: {

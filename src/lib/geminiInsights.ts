@@ -50,7 +50,7 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.8-flash",
       contents: promptText,
       config: {
         responseMimeType: "application/json",

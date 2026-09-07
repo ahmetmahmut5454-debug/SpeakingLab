@@ -122,7 +122,7 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-2.0-flash",
+        model: "gemini-3.8-flash",
         callbacks: {
           onopen: () => {
             
@@ -251,7 +251,7 @@ export class EltBot {
           },
         },
         config: {
-          httpOptions: { baseUrl: window.location.protocol === "https:" ? `wss://${window.location.host}` : `ws://${window.location.host}` },
+          httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` },
           responseModalities: ["AUDIO"] as any,
           systemInstruction: systemInstruction,
           speechConfig: {
@@ -326,7 +326,7 @@ export class EltBot {
     
     // We will use standard Gemini generateContent to evaluate the student
     const ai = getAiClient();
-    const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    const models = ["gemini-3.8-flash"];
     
     const prompt = `
       You are an expert English evaluator. Review the following transcript of a spoken English session.
