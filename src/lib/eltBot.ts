@@ -250,7 +250,7 @@ export class EltBot {
           onclose: (e: any) => { console.log("Gemini Live session closed."); this.isConnected = false; this.handleUnexpectedDisconnect(); },
         },
         config: {
-          httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` },
+          
           responseModalities: ["AUDIO"] as any,
           systemInstruction: systemInstruction,
           speechConfig: {
