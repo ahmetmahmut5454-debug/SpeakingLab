@@ -366,24 +366,7 @@ export default function App() {
     }
   }, [pastReports, userStats]);  const toggleBot = async () => {
     // 100% STRICT UI CHECK FOR LOCAL VITE USERS OR MAC APP USERS
-    const localKey = localStorage.getItem("gemini_custom_key");
-    const metaEnv = (import.meta as any).env;
-    if (
-      !localKey &&
-      !metaEnv?.VITE_GEMINI_API_KEY &&
-      typeof process === "undefined"
-    ) {
-      const userKey = prompt(
-        "Bulut ortam değişkeni (VITE_GEMINI_API_KEY) bulunamadı.\n\nEğer kendi sunucunuzda/Vercel'de çalıştırıyorsanız, Vercel ayarlarından Environment Variables kısmına 'VITE_GEMINI_API_KEY' isminde anahtarınızı eklemelisiniz.\n\nYa da hızlıca test etmek için lütfen Gemini API Anahtarınızı buraya yapıştırın:",
-      );
-      if (userKey) {
-        localStorage.setItem("gemini_custom_key", userKey);
-        alert(
-          "API Anahtarı tarayıcınıza kaydedildi. Lütfen tekrar bağlanmayı deneyin.",
-        );
-      }
-      return;
-    }
+    
 
     if (isRunning) {
       handleStopAndReport();

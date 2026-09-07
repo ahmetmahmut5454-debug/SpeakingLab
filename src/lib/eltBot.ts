@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
 import { getErrorBank, saveErrorBank } from "./errorBank";
 
-export const getApiKey = () => import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem("gemini_custom_key") || "";
+export const getApiKey = () => "proxy_key";
 
 const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 
@@ -122,11 +122,11 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-2.0-flash",
         callbacks: {
           onopen: () => {
-            console.log("Gemini Live session opened.");
-            this.isConnected = true; console.log("Connected is now TRUE. Sending setup messages...");
+            
+            this.isConnected = true;
             this.reconnectAttempts = 0;
             
             this.audioProcessor.start(
@@ -162,7 +162,7 @@ export class EltBot {
             }
           },
           onmessage: async (message: any) => {
-            console.log("Raw message from server:", message);
+            
 
 
 
@@ -174,7 +174,7 @@ export class EltBot {
             if (functionCalls.length > 0) {
               for (const fc of functionCalls) {
                 if (fc.name === "endConversation") {
-                  console.log("AI called endConversation function!");
+                  
                   if (this.session && this.isConnected) {
                     try {
                       this.session.sendToolResponse({ functionResponses: [{ name: "endConversation", id: fc.id, response: { success: true } }] });
@@ -238,19 +238,20 @@ export class EltBot {
             }
           },
           onerror: (error: any) => {
-            console.error("Live session error details:", error?.message, error);
+            console.error("Live session error");
             console.error("Live session error:", error);
             this.isConnected = false;
             this.handleUnexpectedDisconnect();
           },
           onclose: (e: any) => {
-            console.log("Gemini Live session closed.", e?.code, e?.reason);
+            
             console.log("Gemini Live session closed.");
             this.isConnected = false;
             this.handleUnexpectedDisconnect();
           },
         },
         config: {
+          httpOptions: { baseUrl: window.location.protocol === "https:" ? `wss://${window.location.host}` : `ws://${window.location.host}` },
           responseModalities: ["AUDIO"] as any,
           systemInstruction: systemInstruction,
           speechConfig: {
@@ -279,12 +280,12 @@ export class EltBot {
         },
       });
     } catch (err) {
-      console.error("Error starting EltBot", err);
+      console.error("Error starting EltBot", err?.message, err);
     }
   }
 
   handleUnexpectedDisconnect() {
-    console.log("Unexpected disconnect.");
+    
     if (this.callbacks.onBotFinished) {
       this.callbacks.onBotFinished();
     }
@@ -309,7 +310,7 @@ export class EltBot {
   sendHintRequest() {
     if (this.session && this.isConnected) {
       try {
-        console.log("Sending hint request to bot...");
+        
         this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent. Provide EXACTLY ONE short example sentence of what they could say to help them." }] }], turnComplete: true });
       } catch (e) {
         console.error("Failed to send hint request:", e);

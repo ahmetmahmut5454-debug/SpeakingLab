@@ -22,12 +22,9 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
   persistentIssues: string[];
   summary: string;
 } | null> => {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    throw new Error("API key is missing.");
-  }
+  const apiKey = "proxy_key";
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey, httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } });
 
   // Take the last 10 reports to avoid token limits
   const sortedReports = [...reports].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
