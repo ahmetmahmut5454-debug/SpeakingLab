@@ -122,11 +122,11 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-2.0-flash",
         callbacks: {
           onopen: () => {
             console.log("Gemini Live session opened.");
-            this.isConnected = true;
+            this.isConnected = true; console.log("Connected is now TRUE. Sending setup messages...");
             this.reconnectAttempts = 0;
             
             this.audioProcessor.start(
@@ -134,12 +134,7 @@ export class EltBot {
               (data: any) => {
                 if (this.session && this.isConnected) {
                   try {
-                    this.session.sendRealtimeInput({
-                      audio: {
-                        data,
-                        mimeType: "audio/pcm;rate=16000",
-                      }
-                    });
+                    this.session.sendRealtimeInput({ audio: { data, mimeType: "audio/pcm;rate=16000" } });
                   } catch (e) {
                     console.error("Error sending audio frame:", e);
                   }
@@ -160,17 +155,14 @@ export class EltBot {
                       ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLangForTrigger}.`
                       : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
                     
-                    this.session.sendClientContent({
-                      turns: [{ role: "user", parts: [{ text: triggerMessage }] }],
-                      turnComplete: true,
-                    });
+                    this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: triggerMessage }] }], turnComplete: true });
                   } catch (e) {}
                 }
               }, 500);
             }
           },
           onmessage: async (message: any) => {
-            console.log("Raw message from server:", JSON.stringify(message).substring(0, 500));
+            console.log("Raw message from server:", message);
 
 
 
@@ -185,15 +177,7 @@ export class EltBot {
                   console.log("AI called endConversation function!");
                   if (this.session && this.isConnected) {
                     try {
-                      this.session.sendToolResponse([
-                        {
-                          functionResponse: {
-                            name: "endConversation",
-                            id: fc.id,
-                            response: { success: true },
-                          },
-                        },
-                      ]);
+                      this.session.sendToolResponse({ functionResponses: [{ name: "endConversation", id: fc.id, response: { success: true } }] });
                     } catch (e) {}
                   }
                   const checkFinish = () => {
@@ -214,15 +198,7 @@ export class EltBot {
                   }
                   if (this.session && this.isConnected) {
                     try {
-                      this.session.sendToolResponse([
-                        {
-                          functionResponse: {
-                            name: "showCueCard",
-                            id: fc.id,
-                            response: { success: true, instruction: "Tool successful. The cue card is now visible on the screen. Now briefly tell the student to take 1 minute to prepare, and to say 'I am ready' when they want to begin their 1-2 minute presentation." },
-                          },
-                        },
-                      ]);
+                      this.session.sendToolResponse({ functionResponses: [{ name: "showCueCard", id: fc.id, response: { success: true, instruction: "Tool successful." } }] });
                     } catch (e) {}
                   }
                 }
@@ -274,20 +250,26 @@ export class EltBot {
         },
         config: {
           responseModalities: ["AUDIO"] as any,
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          speechConfig: context.voice || (context.level === "C1" ? "Charon" : "Puck"),
+          systemInstruction: systemInstruction,
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: context.voice || (context.level === "C1" ? "Charon" : "Puck"),
+              }
+            }
+          },
           tools: [
             {
               functionDeclarations: [
                 {
                   name: "endConversation",
                   description: "Call this when the conversation naturally concludes.",
-                  parameters: { type: 6, properties: {} },
+                  parameters: { type: "OBJECT", properties: {} },
                 },
                 ...(context.mode === "IELTS" || context.topic?.includes("IELTS") ? [{
                   name: "showCueCard",
                   description: "Call this function to show the Part 2 cue card to the student. ONLY call this when you have just introduced Part 2 and are ready to give the student their topic. Provide a short, generic topic string like 'A memorable holiday'.",
-                  parameters: { type: 6, properties: { topic: { type: 1, description: "A short phrase describing the topic" } }, required: ["topic"] },
+                  parameters: { type: "OBJECT", properties: { topic: { type: "STRING", description: "A short phrase describing the topic" } }, required: ["topic"] },
                 }] : [])
               ],
             },
@@ -326,10 +308,7 @@ export class EltBot {
     if (this.session && this.isConnected) {
       try {
         console.log("Sending hint request to bot...");
-        this.session.sendClientContent({
-          turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent. Provide EXACTLY ONE short example sentence of what they could say to help them." }] }],
-          turnComplete: true,
-        });
+        this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent. Provide EXACTLY ONE short example sentence of what they could say to help them." }] }], turnComplete: true });
       } catch (e) {
         console.error("Failed to send hint request:", e);
       }
