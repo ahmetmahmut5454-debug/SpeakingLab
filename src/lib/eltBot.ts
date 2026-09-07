@@ -275,9 +275,7 @@ export class EltBot {
         config: {
           responseModalities: ["AUDIO"] as any,
           systemInstruction: { parts: [{ text: systemInstruction }] },
-          generationConfig: {
-            speechConfig: context.voice || (context.level === "C1" ? "Charon" : "Puck")
-          },
+          speechConfig: context.voice || (context.level === "C1" ? "Charon" : "Puck"),
           tools: [
             {
               functionDeclarations: [
