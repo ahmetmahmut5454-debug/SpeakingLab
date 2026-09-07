@@ -2,9 +2,9 @@ import { GoogleGenAI } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
 import { getErrorBank, saveErrorBank } from "./errorBank";
 
-export const getApiKey = () => import.meta.env.VITE_GEMINI_API_KEY || "";
+export const getApiKey = () => import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem("gemini_custom_key") || "";
 
-const getAiClient = () => new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey() });
 
 export type ProficiencyLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 export type VoiceType = "Aoede" | "Charon" | "Fenrir" | "Kore" | "Puck";
@@ -122,7 +122,7 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.0-flash-exp",
         callbacks: {
           onopen: () => {
             console.log("Gemini Live session opened.");
@@ -238,11 +238,13 @@ export class EltBot {
             }
           },
           onerror: (error: any) => {
+            console.error("Live session error details:", error?.message, error);
             console.error("Live session error:", error);
             this.isConnected = false;
             this.handleUnexpectedDisconnect();
           },
-          onclose: () => {
+          onclose: (e: any) => {
+            console.log("Gemini Live session closed.", e?.code, e?.reason);
             console.log("Gemini Live session closed.");
             this.isConnected = false;
             this.handleUnexpectedDisconnect();
@@ -264,7 +266,7 @@ export class EltBot {
                 {
                   name: "endConversation",
                   description: "Call this when the conversation naturally concludes.",
-                  parameters: { type: "OBJECT", properties: {} },
+                  // no parameters needed for endConversation,
                 },
                 ...(context.mode === "IELTS" || context.topic?.includes("IELTS") ? [{
                   name: "showCueCard",
