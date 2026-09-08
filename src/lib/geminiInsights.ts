@@ -8,9 +8,16 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
   persistentIssues: string[];
   summary: string;
 } | null> => {
-  const apiKey = "proxy_key";
-
-  const ai = new GoogleGenAI({ apiKey, httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } });
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "proxy_key";
+  let ai;
+  if (apiKey !== "proxy_key") {
+    ai = new GoogleGenAI({ apiKey });
+  } else {
+    ai = new GoogleGenAI({ 
+        apiKey, 
+        httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } 
+    });
+  }
 
   // Take the last 10 reports to avoid token limits
   const sortedReports = [...reports].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
