@@ -2,9 +2,17 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
 import { getErrorBank, saveErrorBank } from "./errorBank";
 
-export const getApiKey = () => "proxy_key";
-
-const getAiClient = () => new GoogleGenAI({ apiKey: getApiKey(), httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } });
+export const getApiKey = () => import.meta.env.VITE_GEMINI_API_KEY || "proxy_key";
+const getAiClient = () => {
+    const key = getApiKey();
+    if (key !== "proxy_key") {
+        return new GoogleGenAI({ apiKey: key });
+    }
+    return new GoogleGenAI({ 
+        apiKey: key, 
+        httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } 
+    });
+};
 
 export type ProficiencyLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 export type VoiceType = "Aoede" | "Charon" | "Fenrir" | "Kore" | "Puck";
