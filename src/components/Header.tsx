@@ -334,6 +334,7 @@ export function Header({
         )}
         
         <div className="flex items-center gap-2 md:gap-3">
+          
           <button
             onClick={() => setShowSubtitles(!showSubtitles)}
             className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-sm ${showSubtitles ? "bg-white border-cyan-300 text-cyan-600 shadow-[0_0_15px_rgba(6,182,212,0.2)]" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}

@@ -246,7 +246,21 @@ export class EltBot {
               }
             }
           },
-          onerror: (error: any) => { console.error("Live session error:", error); this.isConnected = false; if (this.callbacks.onError) this.callbacks.onError(error); this.handleUnexpectedDisconnect(); },
+          onerror: (error: any) => { 
+                console.error("Live session error:", error); 
+                this.isConnected = false; 
+                let msg = "Connection Error.";
+                if (error instanceof Event) {
+                    msg = "WebSocket Error. Check your API Key or Network.";
+                } else if (error && error.message) {
+                    msg = error.message;
+                }
+                const key = getApiKey();
+                msg += " (Key starts with: " + (key ? key.substring(0, 5) : "none") + ")";
+                
+                if (this.callbacks.onError) this.callbacks.onError(msg); 
+                this.handleUnexpectedDisconnect(); 
+            },
           onclose: (e: any) => { console.log("Gemini Live session closed."); this.isConnected = false; this.handleUnexpectedDisconnect(); },
         },
         config: {
