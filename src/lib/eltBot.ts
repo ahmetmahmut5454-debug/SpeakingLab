@@ -81,6 +81,8 @@ export class EltBot {
   private audioPlayer: any = null;
   private transcriptHistory: string[] = [];
   private currentBotSubtitle: string = "";
+  private recognition: any = null;
+  private currentUserSubtitle: string = "";
   private reconnectAttempts: number = 0;
 
   constructor(callbacks: EltBotCallbacks) {
@@ -144,7 +146,50 @@ export class EltBot {
           onopen: () => {
             
             this.isConnected = true;
-            this.reconnectAttempts = 0;
+      this.reconnectAttempts = 0;
+      
+      // Initialize Speech Recognition for User Transcript
+      try {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (SpeechRecognition) {
+          this.recognition = new SpeechRecognition();
+          this.recognition.continuous = true;
+          this.recognition.interimResults = true;
+          this.recognition.lang = context.targetLanguageCode || 'en-US';
+          
+          this.recognition.onresult = (event: any) => {
+            let interimTranscript = "";
+            let finalTranscript = "";
+            
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+                this.transcriptHistory.push(`[Student]: ${event.results[i][0].transcript.trim()}`);
+              } else {
+                interimTranscript += event.results[i][0].transcript;
+              }
+            }
+            
+            if (this.callbacks.onTranscription) {
+              if (finalTranscript) {
+                this.callbacks.onTranscription(finalTranscript, false);
+              } else if (interimTranscript) {
+                this.callbacks.onTranscription(interimTranscript, false);
+              }
+            }
+          };
+          
+          this.recognition.onend = () => {
+             if (this.isConnected) {
+                try { this.recognition.start(); } catch(e) {}
+             }
+          };
+          
+          this.recognition.start();
+        }
+      } catch(e) {
+        console.error("Speech recognition error:", e);
+      }
             
             this.audioProcessor.start(
               stream,
