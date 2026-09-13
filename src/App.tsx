@@ -260,7 +260,7 @@ export default function App() {
     const botTurns = currentTranscript.filter((line) => line.startsWith("[Tutor]:")).length;
     
     const sessionDuration = sessionStartTime ? Date.now() - sessionStartTime : 0;
-    const isQualifyingSession = studentTurns >= 1 || sessionDuration >= 20000;
+    const isQualifyingSession = botTurns >= 1 || sessionDuration >= 10000;
 
     if (isQualifyingSession && currentTranscript.length > 0) {
       try {

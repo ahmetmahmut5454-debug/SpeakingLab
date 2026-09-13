@@ -148,48 +148,7 @@ export class EltBot {
             this.isConnected = true;
       this.reconnectAttempts = 0;
       
-      // Initialize Speech Recognition for User Transcript
-      try {
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (SpeechRecognition) {
-          this.recognition = new SpeechRecognition();
-          this.recognition.continuous = true;
-          this.recognition.interimResults = true;
-          this.recognition.lang = context.targetLanguageCode || 'en-US';
-          
-          this.recognition.onresult = (event: any) => {
-            let interimTranscript = "";
-            let finalTranscript = "";
-            
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-              if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
-                this.transcriptHistory.push(`[Student]: ${event.results[i][0].transcript.trim()}`);
-              } else {
-                interimTranscript += event.results[i][0].transcript;
-              }
-            }
-            
-            if (this.callbacks.onTranscription) {
-              if (finalTranscript) {
-                this.callbacks.onTranscription(finalTranscript, false);
-              } else if (interimTranscript) {
-                this.callbacks.onTranscription(interimTranscript, false);
-              }
-            }
-          };
-          
-          this.recognition.onend = () => {
-             if (this.isConnected) {
-                try { this.recognition.start(); } catch(e) {}
-             }
-          };
-          
-          this.recognition.start();
-        }
-      } catch(e) {
-        console.error("Speech recognition error:", e);
-      }
+      // Speech recognition removed due to mic hijacking
             
             this.audioProcessor.start(
               stream,
@@ -286,6 +245,12 @@ export class EltBot {
                 }
               }
             }
+            if (message.serverContent?.turnComplete) {
+              if (this.currentBotSubtitle.trim().length > 0) {
+                this.transcriptHistory.push(`[Tutor]: ${this.currentBotSubtitle.trim()}`);
+                this.currentBotSubtitle = "";
+              }
+            }
             const outTrans = message.serverContent?.outputTranscription || message.serverContent?.outputAudioTranscription;
             if (outTrans?.text) {
               const text = outTrans.text;
@@ -294,9 +259,8 @@ export class EltBot {
                 this.callbacks.onTranscription(this.currentBotSubtitle, true);
               }
               if (outTrans.finished) {
-                this.transcriptHistory.push(`[Tutor]: ${this.currentBotSubtitle}`);
-                this.currentBotSubtitle = "";
-              }
+        // We will handle turnComplete separately instead of relying on outTrans.finished
+      }
             }
           },
           onerror: (error: any) => { 
@@ -393,7 +357,7 @@ export class EltBot {
     const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
     
     const prompt = `
-      You are an expert English evaluator. Review the following transcript of a spoken English session.
+      You are an expert English evaluator. Review the following transcript of a spoken English session.\n      IMPORTANT: The transcript may ONLY contain the [Tutor]'s lines due to technical limitations in capturing the student's audio text. You MUST infer what the student said, their level, and their fluency based ENTIRELY on how the Tutor responds to them. Do not give a score of 0 just because the student's lines are missing. Provide a realistic evaluation based on the conversation context.
       The student's target level is CEFR ${context.level}.
       Mode: ${context.mode}.
       
