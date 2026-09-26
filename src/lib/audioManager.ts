@@ -6,11 +6,22 @@ export class AudioProcessor {
   static workletLoaded: boolean = false;
   
   static unlockGlobal() {
-    if (!AudioProcessor.globalContext) {
+    if (!AudioProcessor.globalContext || AudioProcessor.globalContext.state === 'closed') {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      AudioProcessor.globalContext = new AudioContextClass({ sampleRate: 16000 });
+      if (!AudioContextClass) return;
+      try {
+        // Try native 16kHz first
+        AudioProcessor.globalContext = new AudioContextClass({ sampleRate: 16000 });
+      } catch (e) {
+        // If soundcard rejects 16kHz (common on desktop PC/Mac), use default system rate
+        try {
+          AudioProcessor.globalContext = new AudioContextClass();
+        } catch (err) {
+          console.error("Failed to create Mic AudioContext:", err);
+        }
+      }
     }
-    if (AudioProcessor.globalContext.state === 'suspended') {
+    if (AudioProcessor.globalContext && AudioProcessor.globalContext.state === 'suspended') {
       AudioProcessor.globalContext.resume().then(() => console.log('Mic AudioContext unlocked')).catch(() => {});
     }
   }
@@ -32,23 +43,20 @@ export class AudioProcessor {
   ) {
     this.mediaStream = stream;
     
-    if (!AudioProcessor.globalContext) {
+    if (!AudioProcessor.globalContext || AudioProcessor.globalContext.state === 'closed') {
       AudioProcessor.unlockGlobal();
     }
     this.audioContext = AudioProcessor.globalContext;
     
     if (this.audioContext && this.audioContext.state === 'suspended') {
-        try {
-          await this.audioContext.resume();
-        } catch (e) {}
+      try {
+        await this.audioContext.resume();
+      } catch (e) {}
     }
     
     if (!this.audioContext) return;
     
     this.source = this.audioContext.createMediaStreamSource(stream);
-    
-    // DynamicsCompressorNode to prevent integer overflow & hard clipping distortion
-    // Compressor removed for debugging
 
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 256;
@@ -59,41 +67,61 @@ export class AudioProcessor {
 class PCMProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.bufferSize = 2048;
-    this.buffer = new Float32Array(this.bufferSize);
-    this.bytesWritten = 0;
+    this.targetSampleRate = 16000;
+    this.sourceSampleRate = sampleRate; // Global in AudioWorkletGlobalScope
+    this.bufferSize = 2048; // Output frame buffer size
+    this.outputBuffer = new Int16Array(this.bufferSize);
+    this.outputIndex = 0;
+    this.resampleRatio = this.sourceSampleRate / this.targetSampleRate;
+    this.samplePosition = 0;
   }
 
-  process(inputs, outputs, parameters) {
+  process(inputs) {
     const input = inputs[0];
-    if (input.length > 0) {
-      const channelData = input[0];
-      if (channelData) {
-        for (let i = 0; i < channelData.length; i++) {
-          this.buffer[this.bytesWritten++] = channelData[i];
-          if (this.bytesWritten >= this.bufferSize) {
-            this.flush();
-          }
+    if (!input || input.length === 0) return true;
+    const channelData = input[0];
+    if (!channelData || channelData.length === 0) return true;
+
+    if (Math.abs(this.resampleRatio - 1) < 0.05) {
+      // 1:1 mapping if already 16kHz
+      for (let i = 0; i < channelData.length; i++) {
+        let s = Math.max(-1, Math.min(1, channelData[i]));
+        this.outputBuffer[this.outputIndex++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        if (this.outputIndex >= this.bufferSize) {
+          this.flush();
         }
       }
+    } else {
+      // Resample down to 16kHz via linear interpolation for PC/Mac hardware rates (44.1k/48k)
+      const inputLength = channelData.length;
+      while (this.samplePosition < inputLength) {
+        const index0 = Math.floor(this.samplePosition);
+        const index1 = Math.min(index0 + 1, inputLength - 1);
+        const fraction = this.samplePosition - index0;
+        const s0 = channelData[index0];
+        const s1 = channelData[index1];
+        let interpolated = s0 + fraction * (s1 - s0);
+        interpolated = Math.max(-1, Math.min(1, interpolated));
+        
+        this.outputBuffer[this.outputIndex++] = interpolated < 0 ? interpolated * 0x8000 : interpolated * 0x7FFF;
+        if (this.outputIndex >= this.bufferSize) {
+          this.flush();
+        }
+        this.samplePosition += this.resampleRatio;
+      }
+      this.samplePosition -= inputLength;
     }
     return true;
   }
 
   flush() {
-    const pcm16 = new Int16Array(this.bufferSize);
-    for (let i = 0; i < this.bufferSize; i++) {
-      let s = Math.tanh(this.buffer[i]);
-      s = Math.max(-1, Math.min(1, s));
-      pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-    }
-    
+    if (this.outputIndex === 0) return;
+    const pcm = new Int16Array(this.outputIndex);
+    pcm.set(this.outputBuffer.subarray(0, this.outputIndex));
     this.port.postMessage({
-      pcmData: pcm16.buffer
-    }, [pcm16.buffer]);
-
-    this.bytesWritten = 0;
-    this.buffer = new Float32Array(this.bufferSize);
+      pcmData: pcm.buffer
+    }, [pcm.buffer]);
+    this.outputIndex = 0;
   }
 }
 
@@ -203,11 +231,20 @@ export class AudioPlayer {
   static globalContext: AudioContext | null = null;
 
   static unlockGlobal() {
-    if (!AudioPlayer.globalContext) {
+    if (!AudioPlayer.globalContext || AudioPlayer.globalContext.state === 'closed') {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      AudioPlayer.globalContext = new AudioContextClass({ sampleRate: 24000 });
+      if (!AudioContextClass) return;
+      try {
+        AudioPlayer.globalContext = new AudioContextClass({ sampleRate: 24000 });
+      } catch (e) {
+        try {
+          AudioPlayer.globalContext = new AudioContextClass();
+        } catch (err) {
+          console.error("Failed to create Player AudioContext:", err);
+        }
+      }
     }
-    if (AudioPlayer.globalContext.state === 'suspended') {
+    if (AudioPlayer.globalContext && AudioPlayer.globalContext.state === 'suspended') {
       AudioPlayer.globalContext.resume().then(() => console.log('Player AudioContext unlocked')).catch(() => {});
     }
   }

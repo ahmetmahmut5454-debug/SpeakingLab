@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, session, systemPreferences } = require('electron');
 const path = require('path');
 
 function createWindow () {
@@ -7,26 +7,46 @@ function createWindow () {
     height: 800,
     minWidth: 800,
     minHeight: 600,
-    titleBarStyle: 'hiddenInset', // Mac'te çok şık duran gömülü pencere tarzı
+    titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
     }
   });
 
+  // Automatically grant microphone & media permissions on desktop
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (permission === 'media') {
+      return callback(true);
+    }
+    callback(true);
+  });
+
+  session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
+    if (permission === 'media') {
+      return true;
+    }
+    return true;
+  });
+
   const isDev = !app.isPackaged;
 
   if (isDev) {
-    // Geliştirme aşamasında yerel sunucuya bağlanır
     mainWindow.loadURL('http://localhost:3000');
-    // mainWindow.webContents.openDevTools(); // Konsolu açmak istersen bunu aktif edebilirsin
   } else {
-    // Uygulama paketlendiğinde derlenmiş HTML dosyasını okur
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  if (process.platform === 'darwin') {
+    try {
+      await systemPreferences.askForMediaAccess('microphone');
+    } catch (e) {
+      console.warn('Microphone permission prompt error:', e);
+    }
+  }
+
   createWindow();
 
   app.on('activate', function () {
@@ -35,6 +55,5 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', function () {
-  // Mac'in doğası gereği kırmızı çarpıya basılsa da program arka planda açık kalır (Dock'ta)
   if (process.platform !== 'darwin') app.quit();
 });

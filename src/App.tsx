@@ -249,11 +249,11 @@ export default function App() {
 
   const handleStopAndReport = async () => {
     if (!botRef.current) return;
-    const currentTranscript = botRef.current.transcript;
     setIsRunning(false);
     setCueCardTopic(null);
     setGeneratingReport(true);
-    botRef.current.stop(); // Stop audio/mic first
+    botRef.current.stop(); // Stop audio/mic and commit any in-flight speech
+    const currentTranscript = botRef.current.transcript;
 
     // Always give XP for participating, but only if they actually interacted
     const studentTurns = currentTranscript.filter((line) => line.startsWith("[Student]:")).length;

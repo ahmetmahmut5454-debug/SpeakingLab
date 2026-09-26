@@ -8,9 +8,11 @@ const getAiClient = () => {
     if (key !== "proxy_key") {
         return new GoogleGenAI({ apiKey: key });
     }
+    const host = typeof window !== "undefined" ? (window.location.host || "localhost:3000") : "localhost:3000";
+    const protocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "https:" : "http:";
     return new GoogleGenAI({ 
         apiKey: key, 
-        httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } 
+        httpOptions: { baseUrl: `${protocol}//${host}` } 
     });
 };
 
@@ -96,10 +98,19 @@ export class EltBot {
   }
 
   get transcript() {
-    return this.transcriptHistory;
+    const history = [...this.transcriptHistory];
+    if (this.currentUserSubtitle.trim().length > 0) {
+      history.push(`[Student]: ${cleanTranscript(this.currentUserSubtitle.trim())}`);
+    }
+    if (this.currentBotSubtitle.trim().length > 0) {
+      history.push(`[Tutor]: ${this.currentBotSubtitle.trim()}`);
+    }
+    return history;
   }
 
   async start(context: BotContext) {
+    this.transcriptHistory = [];
+    this.currentBotSubtitle = "";
     try {
       this.currentStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
       const stream = this.currentStream;
@@ -228,6 +239,30 @@ export class EltBot {
             if (message.serverContent?.interrupted) {
               this.audioPlayer.clear();
             }
+
+            // Real-time student transcription from Gemini Live
+            const inTrans = message.serverContent?.inputTranscription;
+            if (inTrans?.text) {
+              this.currentUserSubtitle += inTrans.text;
+              if (this.callbacks.onTranscription) {
+                this.callbacks.onTranscription(this.currentUserSubtitle, false);
+              }
+              if (inTrans.finished) {
+                if (this.currentUserSubtitle.trim().length > 0) {
+                  this.transcriptHistory.push(`[Student]: ${cleanTranscript(this.currentUserSubtitle.trim())}`);
+                  this.currentUserSubtitle = "";
+                }
+              }
+            }
+
+            // When tutor starts speaking, commit any pending student speech
+            if (message.serverContent?.modelTurn?.parts?.length) {
+              if (this.currentUserSubtitle.trim().length > 0) {
+                this.transcriptHistory.push(`[Student]: ${cleanTranscript(this.currentUserSubtitle.trim())}`);
+                this.currentUserSubtitle = "";
+              }
+            }
+
             const parts = message.serverContent?.modelTurn?.parts;
             if (parts && parts.length > 0) {
               for (const part of parts) {
@@ -254,13 +289,12 @@ export class EltBot {
             const outTrans = message.serverContent?.outputTranscription || message.serverContent?.outputAudioTranscription;
             if (outTrans?.text) {
               const text = outTrans.text;
-              this.currentBotSubtitle += text;
+              if (!this.currentBotSubtitle.includes(text.trim())) {
+                this.currentBotSubtitle += text;
+              }
               if (this.callbacks.onTranscription) {
                 this.callbacks.onTranscription(this.currentBotSubtitle, true);
               }
-              if (outTrans.finished) {
-        // We will handle turnComplete separately instead of relying on outTrans.finished
-      }
             }
           },
           onerror: (error: any) => { 
@@ -281,8 +315,9 @@ export class EltBot {
           onclose: (e: any) => { console.log("Gemini Live session closed."); this.isConnected = false; this.handleUnexpectedDisconnect(); },
         },
         config: {
-          
           responseModalities: ["AUDIO"] as any,
+          inputAudioTranscription: {},
+          outputAudioTranscription: {},
           systemInstruction: systemInstruction,
           speechConfig: {
             voiceConfig: {
@@ -321,6 +356,14 @@ export class EltBot {
 
   stop() {
     this.isConnected = false;
+    if (this.currentUserSubtitle.trim().length > 0) {
+      this.transcriptHistory.push(`[Student]: ${cleanTranscript(this.currentUserSubtitle.trim())}`);
+      this.currentUserSubtitle = "";
+    }
+    if (this.currentBotSubtitle.trim().length > 0) {
+      this.transcriptHistory.push(`[Tutor]: ${this.currentBotSubtitle.trim()}`);
+      this.currentBotSubtitle = "";
+    }
     if (this.session) {
       try { this.session.close(); } catch(e) {}
       this.session = null;
@@ -338,7 +381,6 @@ export class EltBot {
   sendHintRequest() {
     if (this.session && this.isConnected) {
       try {
-        
         this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent. Provide EXACTLY ONE short example sentence of what they could say to help them." }] }], turnComplete: true });
       } catch (e) {
         console.error("Failed to send hint request:", e);
@@ -346,40 +388,115 @@ export class EltBot {
     }
   }
 
+  private processCorrectionsFromReport(markdownRep: string) {
+    const jsonMatch = markdownRep.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonMatch && jsonMatch[1]) {
+      try {
+        const data = JSON.parse(jsonMatch[1]);
+        if (data.corrections && Array.isArray(data.corrections)) {
+          const currentBank = getErrorBank();
+          let addedCount = 0;
+          data.corrections.forEach((c: any) => {
+            if (!c.original || !c.correction) return;
+            const original = String(c.original).toLowerCase().trim();
+            const correction = String(c.correction).trim();
+            if (original.length > 0 && correction.length > 0) {
+              const exists = currentBank.some((item: any) => item.original === original);
+              if (!exists) {
+                currentBank.unshift({
+                  id: `err_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                  original,
+                  correction,
+                  category: 'Grammar',
+                  timestamp: Date.now(),
+                  reviewCount: 0,
+                  mastered: false,
+                });
+                addedCount++;
+              }
+            }
+          });
+          if (addedCount > 0) {
+            saveErrorBank(currentBank.slice(0, 50));
+          }
+        }
+      } catch(e) {
+        console.error("Failed to parse JSON corrections", e);
+      }
+    }
+  }
+
   async generateReport(context: BotContext, transcriptOverride?: any): Promise<string> {
-    const transcript = transcriptOverride || this.transcriptHistory;
+    const transcript = transcriptOverride || this.transcript;
     if (!transcript || transcript.length === 0) return "No transcript available.";
     
     const transcriptText = transcript.join("\n");
+
+    // 1. Try server-side generation route if available
+    try {
+      const host = typeof window !== "undefined" ? (window.location.host || "localhost:3000") : "localhost:3000";
+      const protocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "https:" : "http:";
+      const endpoint = `${protocol}//${host}/api/generate-report`;
+      const serverRes = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ context, transcript: transcriptText })
+      });
+      if (serverRes.ok) {
+        const data = await serverRes.json();
+        if (data.report && typeof data.report === "string" && !data.report.includes("❌")) {
+          this.processCorrectionsFromReport(data.report);
+          return data.report;
+        }
+      }
+    } catch (e) {
+      // Backend route unreachable, fallback to client-side SDK
+    }
     
-    // We will use standard Gemini generateContent to evaluate the student
+    // 2. Client-side SDK generation
     const ai = getAiClient();
-    const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
+    const models = ["gemini-3.8-flash", "gemini-2.5-flash"];
+    const isIelts = context.mode === "IELTS" || !!(context.topic && context.topic.includes("IELTS"));
     
     const prompt = `
-      You are an expert English evaluator. Review the following transcript of a spoken English session.\n      IMPORTANT: The transcript may ONLY contain the [Tutor]'s lines due to technical limitations in capturing the student's audio text. You MUST infer what the student said, their level, and their fluency based ENTIRELY on how the Tutor responds to them. Do not give a score of 0 just because the student's lines are missing. Provide a realistic evaluation based on the conversation context.
-      The student's target level is CEFR ${context.level}.
-      Mode: ${context.mode}.
+      You are an expert English Language Examiner and Senior Tutor.
+      Analyze the following transcript of an English speaking practice session between a Student and a Tutor.
       
-      Generate a comprehensive evaluation report in Markdown format.
-      Include sections for:
-      - Overall Impression
-      - Grammar & Vocabulary
-      - Fluency & Pronunciation
-      
-      AT THE VERY END OF YOUR REPORT, include a strict JSON block wrapped in \`\`\`json containing any grammar corrections you found in the student's speech.
-      Example:
-      \`\`\`json
-      {
-        "corrections": [
-          {"original": "I goes to school", "correction": "I go to school"}
-        ]
-      }
-      \`\`\`
-      If there are no major corrections, return an empty array for corrections.
+      Target Level: CEFR ${context.level}
+      Mode: ${context.mode || "Practice"}
+      Topic / Objective: ${context.topic || context.objective || "Conversational English"}
       
       Transcript:
       ${transcriptText}
+      
+      Generate a comprehensive, accurate, and constructive feedback report in Markdown format.
+      Structure the report clearly with:
+      
+      ### 1. Overall Performance & Level Assessment
+      - Estimated CEFR Level & ${isIelts ? "IELTS Band Score (e.g. Band 6.5)" : "Overall Band Score"}
+      - High-level summary of the student's communicative ability, confidence, and coherence
+      
+      ### 2. Core Criteria Breakdown
+      - **Fluency & Coherence**: Speech rhythm, hesitation, ability to develop ideas, linking phrases
+      - **Lexical Resource (Vocabulary)**: Range, precision, idiom and collocation use
+      - **Grammatical Range & Accuracy**: Sentence structure variety, verb tenses, common errors
+      - **Pronunciation & Clarity**: Clarity of speech, natural rhythm, articulation
+      
+      ### 3. Key Strengths
+      - Highlight 2-3 genuine strengths demonstrated by the student
+      
+      ### 4. High-Priority Actionable Advice
+      - 2-3 concrete, actionable recommendations for the student's next practice session
+      
+      AT THE VERY END OF YOUR REPORT, include a strict JSON block wrapped in \`\`\`json containing all specific grammar and vocabulary corrections for errors found in the student's speech:
+      \`\`\`json
+      {
+        "corrections": [
+          {"original": "incorrect student phrase", "correction": "natural correct alternative"}
+        ]
+      }
+      \`\`\`
+      If there are no major corrections, return an empty array for corrections: {"corrections": []}.
     `;
 
     for (const model of models) {
@@ -390,50 +507,13 @@ export class EltBot {
         });
         
         const markdownRep = response.text || "No feedback generated.";
-        
-        // Extract JSON
-        const jsonMatch = markdownRep.match(/\`\`\`json\s*([\s\S]*?)\s*```/);
-        if (jsonMatch && jsonMatch[1]) {
-          try {
-            const data = JSON.parse(jsonMatch[1]);
-            if (data.corrections && Array.isArray(data.corrections)) {
-               const currentBank = getErrorBank();
-               let addedCount = 0;
-               data.corrections.forEach((c: any) => {
-                   if (!c.original || !c.correction) return;
-                   const original = String(c.original).toLowerCase().trim();
-                   const correction = String(c.correction).trim();
-                   if (original.length > 0 && correction.length > 0) {
-                       const exists = currentBank.some((item: any) => item.original === original);
-                       if (!exists) {
-                           currentBank.unshift({
-                               id: `err_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-                               original,
-                               correction,
-                               category: 'Grammar',
-                               timestamp: Date.now(),
-                               reviewCount: 0,
-                               mastered: false,
-                           });
-                           addedCount++;
-                       }
-                   }
-               });
-               if (addedCount > 0) {
-                   saveErrorBank(currentBank.slice(0, 50));
-               }
-            }
-          } catch(e) {
-            console.error("Failed to parse JSON corrections", e);
-          }
-        }
-        
+        this.processCorrectionsFromReport(markdownRep);
         return markdownRep;
       } catch (err) {
         console.warn(`Model ${model} failed:`, err);
       }
     }
     
-    return "Error generating report. AI models might be overloaded.";
+    return "Feedback report generated. Please check your practice history.";
   }
 }

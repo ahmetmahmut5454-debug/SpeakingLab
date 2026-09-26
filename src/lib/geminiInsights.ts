@@ -13,9 +13,11 @@ export const generateProgressSummary = async (reports: SavedReport[]): Promise<{
   if (apiKey !== "proxy_key") {
     ai = new GoogleGenAI({ apiKey });
   } else {
+    const host = typeof window !== "undefined" ? (window.location.host || "localhost:3000") : "localhost:3000";
+    const protocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "https:" : "http:";
     ai = new GoogleGenAI({ 
         apiKey, 
-        httpOptions: { baseUrl: window.location.protocol === "https:" ? `https://${window.location.host}` : `http://${window.location.host}` } 
+        httpOptions: { baseUrl: `${protocol}//${host}` } 
     });
   }
 
