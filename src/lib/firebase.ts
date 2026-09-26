@@ -33,10 +33,16 @@ const googleProvider = new GoogleAuthProvider();
 export const loginWithGoogle = async () => {
   try {
     googleProvider.setCustomParameters({ prompt: "select_account" });
-    await signInWithPopup(auth, googleProvider);
+    const result = await signInWithPopup(auth, googleProvider);
+    if (result.user) {
+      await getUserStats();
+    }
   } catch (error: any) {
     if (error.code === 'auth/credential-already-in-use') {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result.user) {
+        await getUserStats();
+      }
     } else {
       console.error("Login failed", error);
       throw error;
@@ -140,7 +146,12 @@ export const getUserStats = async (): Promise<UserStats | null> => {
       const defaultName = isAnon ? "Guest Scholar" : "Unknown Scholar";
       if (!data.displayName || (!isAnon && data.displayName === "Guest Scholar") || data.displayName !== (auth.currentUser.displayName || defaultName)) {
         data.displayName = auth.currentUser.displayName || defaultName;
-        data.photoURL = auth.currentUser.photoURL || "";
+        needsUpdate = true;
+      }
+      
+      const currentPhoto = auth.currentUser.photoURL || "";
+      if (currentPhoto && data.photoURL !== currentPhoto) {
+        data.photoURL = currentPhoto;
         needsUpdate = true;
       }
       

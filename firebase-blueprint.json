@@ -13,12 +13,36 @@
         "reportText": { "type": "string" }
       },
       "required": ["userId", "createdAt", "level", "mode", "topic", "reportText"]
+    },
+    "UserStat": {
+      "title": "User Statistics",
+      "description": "Gamification, streaks, level, and profile info for users.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "streak": { "type": "number" },
+        "lastActiveDate": { "type": "string" },
+        "todaySessions": { "type": "number" },
+        "todayTaskSessions": { "type": "number" },
+        "xp": { "type": "number" },
+        "unlockedItems": { "type": "array" },
+        "equippedBadge": { "type": "string" },
+        "equippedOutfit": { "type": "string" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["userId", "streak", "lastActiveDate", "todaySessions", "xp", "updatedAt"]
     }
   },
   "firestore": {
     "/reports/{reportId}": {
       "schema": { "$ref": "#/entities/Report" },
       "description": "Stores individual speaking practice reports for users."
+    },
+    "/userStats/{statId}": {
+      "schema": { "$ref": "#/entities/UserStat" },
+      "description": "Stores user gamification statistics, streaks, and profile info."
     }
   }
 }

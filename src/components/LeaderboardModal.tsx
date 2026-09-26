@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, Clock, Medal } from 'lucide-react';
-import { UserStats, getLeaderboard } from '../lib/firebase';
+import { UserStats, getLeaderboard, auth } from '../lib/firebase';
 import { SHOP_ITEMS } from '../lib/shopItems';
 import { useUserStore } from '../store/userStore';
 
@@ -98,9 +98,11 @@ export function LeaderboardModal({
                 </div>
               ) : (
                 leaderboardData.map((user, index) => {
-                  const isCurrentUser = userStats?.userId === user.userId;
+                  const isCurrentUser = userStats?.userId === user.userId || (auth.currentUser && auth.currentUser.uid === user.userId);
                   const activeAvatarId = user.equippedOutfit || "outfit_default";
                   const avatarItem = SHOP_ITEMS.find((i) => i.id === activeAvatarId);
+                  const photo = user.photoURL || (isCurrentUser ? (auth.currentUser?.photoURL || userStats?.photoURL) : undefined);
+                  const badgeItem = user.equippedBadge ? SHOP_ITEMS.find((i) => i.id === user.equippedBadge) : null;
                   
                   return (
                     <div
@@ -123,8 +125,30 @@ export function LeaderboardModal({
                         )}
                       </div>
                       
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xl shadow-inner border border-slate-200">
-                        {avatarItem?.icon || "👤"}
+                      <div className="relative shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xl shadow-inner border border-slate-200 overflow-hidden">
+                          {photo ? (
+                            <img
+                              src={photo}
+                              alt={user.displayName || "Scholar"}
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                                const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <span className={`avatar-fallback ${photo ? "hidden" : "flex"} w-full h-full items-center justify-center text-xl`}>
+                            {avatarItem?.icon || "👤"}
+                          </span>
+                        </div>
+                        {badgeItem && (
+                          <div className="absolute -bottom-1 -right-1 bg-white border border-slate-200 rounded-full w-4 h-4 flex items-center justify-center text-[10px] shadow-sm z-10">
+                            {badgeItem.icon}
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex-1 min-w-0">
