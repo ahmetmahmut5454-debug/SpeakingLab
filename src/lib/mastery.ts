@@ -1,12 +1,12 @@
-import { SavedReport } from "./firebase";
+import type { SavedReport } from "./firebase";
 
-export const extractScore = (text: string, keyword: string) => {
+export const extractScore = (text: string, keyword: string): number | null => {
   if (!text) return null;
-  const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   // Matches markdown headers, bolding, lists, colons, equal signs, brackets, e.g.
-  // **Grammar Score**: 85, - Vocabulary: [70], ### Fluency & Coherence Score = 7.5
+  // **Estimated Band Score**: **6.5**, - Fluency: 7.0 / 9.0, ### Grammar Score = 6.5
   const regex = new RegExp(
-    `(?:\\*\\*|\\*|#|\\||-)*\\s*${escapedKeyword}(?:\\*\\*|\\*|#)*\\s*[:=\\|-]?\\s*(?:\\[|\\(|Band\\s*|Skoru?\\s*)?([0-9]+(?:\\.[0-9]+)?)`,
+    `[#*|\\-\\s]*${escaped}[#*|\\-\\s]*[:=\\-|]?\\s*[*_\\[(]*\\s*(?:Band|Skoru?|Score|Puan)?\\s*[*_]*\\s*([0-9]+(?:\\.[0-9]+)?)(?:\\s*\\/\\s*\\d+(?:\\.\\d+)?)?`,
     'i'
   );
   const match = regex.exec(text);
@@ -45,27 +45,28 @@ export const calculateIELTSBandScore = (
 
 export const extractRobustScore = (text: string, keywords: string[]): number | null => {
   if (!text) return null;
-  // First, try the old strict parsing which is fast and accurate if format is exactly right
+  // First, try exact regex keyword parsing
   for (const kw of keywords) {
     const strict = extractScore(text, kw);
     if (strict !== null) return strict;
   }
   
-  // If strict fails, we fall back to line-by-line heuristic parsing
+  // Heuristic line-by-line fallback
   const lines = text.split('\n');
   for (const line of lines) {
     const lower = line.toLowerCase();
-    if (keywords.some(kw => lower.includes(kw.toLowerCase()))) {
-      // Avoid matching numbering at start of line like "1. ", "2) "
-      const cleanLine = line.replace(/^[0-9]+[\.\)]\s*/, '');
-      // Look for any standard IELTS band score (1 to 9, multiple of 0.5)
-      const matches = cleanLine.match(/\b([1-9](?:\.[05])?)\b/g);
+    const matchedKw = keywords.find(kw => lower.includes(kw.toLowerCase()));
+    if (matchedKw) {
+      const kwIdx = lower.indexOf(matchedKw.toLowerCase());
+      const afterKw = line.substring(kwIdx + matchedKw.length);
+      // Remove denominators e.g. / 9, / 9.0, / 10, / 100 so they are not mistaken for scores
+      const noDenominator = afterKw.replace(/\/\s*(?:9(?:\.0)?|10|100)\b/g, '');
+      const matches = noDenominator.match(/\b([0-9](?:\.[0-9]+)?)\b/g);
       if (matches) {
-        const vals = matches.map(m => parseFloat(m)).filter(v => v >= 1 && v <= 9);
+        const vals = matches.map(m => parseFloat(m)).filter(v => v >= 0 && v <= 9);
         if (vals.length > 0) {
-          // Return the last found number, which is most likely the actual score 
-          // e.g. "Fluency Score 1. Assessment: 7.5" -> returns 7.5
-          return vals[vals.length - 1]; 
+          // The first number immediately following the criteria label is the score
+          return vals[0]; 
         }
       }
     }
@@ -74,19 +75,58 @@ export const extractRobustScore = (text: string, keywords: string[]): number | n
 };
 
 export const extractFluencyScore = (text: string): number | null => {
-  return extractRobustScore(text, ["Fluency & Coherence Score", "Fluency Score", "Fluency & Coherence", "Fluency"]);
+  return extractRobustScore(text, [
+    "Fluency & Coherence Score",
+    "Fluency and Coherence Score",
+    "Fluency & Coherence",
+    "Fluency and Coherence",
+    "Fluency Score",
+    "Fluency",
+    "Akıcılık ve Tutarlılık",
+    "Akıcılık"
+  ]);
 };
 
 export const extractGrammarScore = (text: string): number | null => {
-  return extractRobustScore(text, ["Grammatical Range & Accuracy Score", "Grammar Score", "Grammatical Range & Accuracy", "Grammar", "Grammatical"]);
+  return extractRobustScore(text, [
+    "Grammatical Range & Accuracy Score",
+    "Grammatical Range and Accuracy Score",
+    "Grammatical Range & Accuracy",
+    "Grammatical Range and Accuracy",
+    "Grammar Score",
+    "Grammatical Range",
+    "Grammar",
+    "Grammatical",
+    "Gramer ve Doğruluk",
+    "Dilbilgisi",
+    "Gramer"
+  ]);
 };
 
 export const extractVocabScore = (text: string): number | null => {
-  return extractRobustScore(text, ["Lexical Resource Score", "Vocabulary Score", "Lexical Resource", "Vocabulary", "Lexical"]);
+  return extractRobustScore(text, [
+    "Lexical Resource Score",
+    "Lexical Resource",
+    "Vocabulary Score",
+    "Vocabulary",
+    "Lexical",
+    "Kelime Kaynağı",
+    "Kelime Bilgisi",
+    "Kelime"
+  ]);
 };
 
 export const extractPronunciationScore = (text: string): number | null => {
-  return extractRobustScore(text, ["Pronunciation Score", "Pronunciation"]);
+  return extractRobustScore(text, [
+    "Pronunciation Score",
+    "Pronunciation and Clarity Score",
+    "Pronunciation & Clarity Score",
+    "Pronunciation & Clarity",
+    "Pronunciation and Clarity",
+    "Pronunciation",
+    "Telaffuz Skoru",
+    "Telaffuz"
+  ]);
 };
 
 /**
@@ -101,59 +141,81 @@ export const processIELTSReportScores = (reportText: string): string => {
   const grammar = extractGrammarScore(reportText);
   const pronunciation = extractPronunciationScore(reportText);
 
-  // Default to 6.0 or the average of others if some are missing to ALWAYS enforce math.
-  const valid = [fluency, lexical, grammar, pronunciation].filter((x) => x !== null) as number[];
-  let avg = 6.0;
-  if (valid.length > 0) {
-     avg = valid.reduce((a, b) => a + b, 0) / valid.length;
-  }
-  const f = fluency ?? avg;
-  const l = lexical ?? avg;
-  const g = grammar ?? avg;
-  const p = pronunciation ?? avg;
+  const valid = [fluency, lexical, grammar, pronunciation].filter((x): x is number => x !== null);
   
-  const calculatedBand = calculateIELTSBandScore(f, l, g, p);
+  let calculatedBand: number;
+  if (valid.length >= 2) {
+    const avg = valid.reduce((a, b) => a + b, 0) / valid.length;
+    calculatedBand = calculateIELTSBandScore(
+      fluency ?? avg,
+      lexical ?? avg,
+      grammar ?? avg,
+      pronunciation ?? avg
+    );
+  } else {
+    const rawBand = extractOverallScore(reportText);
+    calculatedBand = rawBand !== null && rawBand <= 9 ? rawBand : 6.0;
+  }
+
   const formattedBand = calculatedBand.toFixed(1);
   
-  // Very robust replacement of the overall score
-    const aggressiveRegex = /((?:\*?\*?(?:Estimated\s+|Overall\s+)?Band(?: Score)?\*?\*?\s*:\s*\*?\*?\s*))([0-9.]+)/i;
-    if (aggressiveRegex.test(reportText)) {
-      return reportText.replace(aggressiveRegex, `$1${formattedBand}`);
-    } else {
-        // Fallback: Just look for any line containing "Band Score" and replace its number
-        const lines = reportText.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].toLowerCase().includes("band score") || lines[i].toLowerCase().includes("overall score")) {
-                 lines[i] = lines[i].replace(/\b([0-9](?:\.[0-9]+)?)\b/, formattedBand);
-                 break;
-            }
-        }
-        return lines.join('\n');
+  // Robust replacement or insertion of the overall Estimated Band Score
+  const aggressiveRegex = /([#*|\-\s]*(?:Estimated\s+|Overall\s+|IELTS\s+)?Band(?: Score)?[#*|\-\s]*:?\s*[*_\\[(]*\s*(?:Band\s*)?[*_]*)\b([0-9](?:\.[0-9]+)?)\b/i;
+  if (aggressiveRegex.test(reportText)) {
+    return reportText.replace(aggressiveRegex, `$1${formattedBand}`);
+  } else {
+    const lines = reportText.split('\n');
+    let replaced = false;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].toLowerCase().includes("band score") || lines[i].toLowerCase().includes("overall score")) {
+        lines[i] = lines[i].replace(/\b([0-9](?:\.[0-9]+)?)\b/, formattedBand);
+        replaced = true;
+        break;
+      }
     }
+    if (replaced) return lines.join('\n');
+
+    // If no band score line exists, insert under Section 1 header
+    const headerRegex = /(###\s*1\.[^\n]*\n)/i;
+    if (headerRegex.test(reportText)) {
+      return reportText.replace(headerRegex, `$1- **Estimated Band Score**: ${formattedBand}\n`);
+    }
+    return `- **Estimated Band Score**: ${formattedBand}\n\n` + reportText;
+  }
 };
 
 export const extractOverallScore = (text: string): number | null => {
-  const band = extractScore(text, "Estimated Band Score") ??
-               extractScore(text, "Overall Band Score") ??
-               extractScore(text, "Overall Band") ??
-               extractScore(text, "Band Score") ??
-               extractScore(text, "Tahmini Band Skoru") ??
-               extractScore(text, "Overall Score");
-  if (band !== null) return band;
+  if (!text) return null;
 
+  // If all 4 criterion sub-scores are present, calculate the official IELTS band score directly
   const fluency = extractFluencyScore(text);
   const grammar = extractGrammarScore(text);
   const vocab = extractVocabScore(text);
   const pron = extractPronunciationScore(text);
   
   const validScores = [fluency, grammar, vocab, pron].filter((s): s is number => s !== null);
+  if (validScores.length === 4) {
+    return calculateIELTSBandScore(fluency!, vocab!, grammar!, pron!);
+  }
+
+  const band = extractScore(text, "Estimated Band Score") ??
+               extractScore(text, "Overall Band Score") ??
+               extractScore(text, "IELTS Band Score") ??
+               extractScore(text, "Overall Band") ??
+               extractScore(text, "Band Score") ??
+               extractScore(text, "Tahmini Band Skoru") ??
+               extractScore(text, "Overall Score") ??
+               extractScore(text, "Genel Skor");
+  if (band !== null) return band;
+
   if (validScores.length >= 2) {
     const sum = validScores.reduce((acc, v) => acc + v, 0);
+    const avg = sum / validScores.length;
     return calculateIELTSBandScore(
-      fluency ?? sum / validScores.length,
-      vocab ?? sum / validScores.length,
-      grammar ?? sum / validScores.length,
-      pron ?? sum / validScores.length
+      fluency ?? avg,
+      vocab ?? avg,
+      grammar ?? avg,
+      pron ?? avg
     );
   }
   return null;

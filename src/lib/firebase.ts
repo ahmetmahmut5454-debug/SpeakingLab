@@ -21,7 +21,7 @@ import {
   limit,
 } from "firebase/firestore";
 import firebaseConfig from "../../firebase-applet-config.json";
-import { BotContext } from "./eltBot";
+import { BotContext, isIELTSSession } from "./eltBot";
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
@@ -377,11 +377,12 @@ export const saveReportToDb = async (
   if (!auth.currentUser) return null;
 
   try {
+    const isIelts = isIELTSSession(context);
     const docRef = await addDoc(collection(db, "reports"), {
       userId: auth.currentUser.uid,
       createdAt: serverTimestamp(),
-      level: context.level || "",
-      mode: context.mode || "",
+      level: isIelts ? "IELTS" : (context.level || ""),
+      mode: isIelts ? "IELTS" : (context.mode || ""),
       topic: context.topic || context.objective || "",
       scenarioId: context.scenarioId || "",
       reportText: reportText || "",

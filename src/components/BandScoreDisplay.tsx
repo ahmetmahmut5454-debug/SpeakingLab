@@ -7,6 +7,7 @@ import {
   extractVocabScore,
   extractGrammarScore,
   extractPronunciationScore,
+  calculateIELTSBandScore,
 } from '../lib/mastery';
 
 interface BandScoreDisplayProps {
@@ -35,17 +36,23 @@ export const BandScoreDisplay: React.FC<BandScoreDisplayProps> = ({
   grammar: propGrammar,
   pronunciation: propPronunciation,
 }) => {
-  const overall = propOverall ?? extractOverallScore(content);
   const fluency = propFluency ?? extractFluencyScore(content);
   const lexical = propLexical ?? extractVocabScore(content);
   const grammar = propGrammar ?? extractGrammarScore(content);
   const pronunciation = propPronunciation ?? extractPronunciationScore(content);
+  let overall = propOverall ?? extractOverallScore(content);
 
-  if (overall === null && fluency === null) {
+  if (overall === null && fluency === null && lexical === null && grammar === null && pronunciation === null) {
     return null;
   }
 
-  const bandVal = overall ?? 6.0;
+  let bandVal = overall;
+  if (propOverall === undefined && fluency !== null && lexical !== null && grammar !== null && pronunciation !== null) {
+    bandVal = calculateIELTSBandScore(fluency, lexical, grammar, pronunciation);
+  } else if (bandVal === null) {
+    bandVal = 6.0;
+  }
+
   const descriptor = getCEFRDescriptor(bandVal);
 
   // SVG Gauge calculations (semi-circle or full ring)

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { SavedReport } from '../lib/firebase';
-import { extractScore } from '../lib/mastery';
+import { extractFluencyScore, extractGrammarScore, extractVocabScore } from '../lib/mastery';
 import { predefinedScenarios, Scenario } from '../lib/scenarios';
 import { Map, ArrowRight, BookOpen, MessageSquare, BookA } from 'lucide-react';
 
@@ -20,13 +20,13 @@ export const LearningPath: React.FC<Props> = ({ reports, userLevel, onSelectScen
 
     recent.forEach(report => {
       if (!report.reportText) return;
-      const f = extractScore(report.reportText, "Fluency Score");
-      const g = extractScore(report.reportText, "Grammar Score");
-      const v = extractScore(report.reportText, "Vocabulary Score");
+      const f = extractFluencyScore(report.reportText);
+      const g = extractGrammarScore(report.reportText);
+      const v = extractVocabScore(report.reportText);
       
-      if (f) { totalFluency += f; countFluency++; }
-      if (g) { totalGrammar += g; countGrammar++; }
-      if (v) { totalVocab += v; countVocab++; }
+      if (f !== null) { totalFluency += f; countFluency++; }
+      if (g !== null) { totalGrammar += g; countGrammar++; }
+      if (v !== null) { totalVocab += v; countVocab++; }
     });
 
     const avgFluency = countFluency ? totalFluency / countFluency : 100;

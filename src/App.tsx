@@ -74,7 +74,7 @@ import {
   
 } from "./lib/firebase";
 
-import { checkMasteryUnlocks } from "./lib/mastery";
+import { checkMasteryUnlocks, processIELTSReportScores } from "./lib/mastery";
 import { SHOP_ITEMS } from "./lib/shopItems";
 import { onAuthStateChanged, User } from "firebase/auth";
 
@@ -277,12 +277,13 @@ export default function App() {
       }
     }
 
-    const sessionReport = await botRef.current.generateReport(context, currentTranscript);
+    const rawReport = await botRef.current.generateReport(context, currentTranscript);
     setGeneratingReport(false);
 
     // Save directly to Firestore
-    const hasReport = sessionReport && !sessionReport.includes("❌");
     const isIELTS = isIELTSSession(context);
+    const sessionReport = isIELTS && rawReport ? processIELTSReportScores(rawReport) : rawReport;
+    const hasReport = sessionReport && !sessionReport.includes("❌");
     const newReport: SavedReport = {
       id: Date.now().toString(),
       createdAt: Date.now(),
@@ -297,7 +298,8 @@ export default function App() {
       durationMs: sessionStartTime ? Date.now() - sessionStartTime : undefined,
     };
     const cloudId = await saveReportToDb(context, sessionReport || "", currentTranscript, sessionStartTime ? Date.now() - sessionStartTime : undefined); 
-    if (cloudId) newReport.id = cloudId;    setReport(newReport);
+    if (cloudId) newReport.id = cloudId;
+    setReport(newReport);
   };
 
   const retryReportGeneration = async (report: SavedReport) => {
@@ -305,12 +307,13 @@ export default function App() {
     if (!report.transcript || report.transcript.length === 0) {
       alert("No transcript found for this session.");
       return;
-    }    try {
-      const isIeltsScenario = report.scenarioId?.toLowerCase().includes("ielts") || report.topic?.toLowerCase().includes("ielts");
-      const newReport = await botRef.current.generateReport(
+    }
+    try {
+      const isIeltsScenario = report.scenarioId?.toLowerCase().includes("ielts") || report.topic?.toLowerCase().includes("ielts") || report.mode === "IELTS";
+      const generatedReport = await botRef.current.generateReport(
         {
           level: report.level as ProficiencyLevel,
-          mode: (report.mode === "IELTS" || isIeltsScenario) ? "IELTS" : (report.mode as any),
+          mode: isIeltsScenario ? "IELTS" : (report.mode as any),
           topic: report.topic,
           objective: report.topic,
           scenarioId: report.scenarioId,
@@ -318,6 +321,8 @@ export default function App() {
         },
         report.transcript,
       );
+
+      const newReport = isIeltsScenario && generatedReport ? processIELTSReportScores(generatedReport) : generatedReport;
 
       if (newReport && !newReport.includes("❌")) {
         const updated = await updateReportInDb(report.id, newReport);
@@ -332,7 +337,8 @@ export default function App() {
     } catch (e) {
       console.error(e);
       alert("Failed to retry feedback generation.");
-    } finally {    }
+    } finally {
+    }
   };
   useEffect(() => {
     if (userStats && pastReports.length > 0) {
@@ -742,7 +748,7 @@ export default function App() {
             if (scenario) {
               const translated = await translateScenario(scenario, targetLangStr);
               setIsTranslating(false);
-              const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS";
+              const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS" || scenario.id.toLowerCase().includes("ielts");
               setContext({
                 ...context,
                 mode: isIelts ? "IELTS" : "Task",
@@ -750,7 +756,7 @@ export default function App() {
                 topic: translated?.studentBriefing || scenario.topic,
                 objective: scenario.objective,
                 role: scenario.role,
-                icebreaker: translated?.icebreaker || scenario.icebreaker,
+                icebreaker: isIelts ? undefined : (translated?.icebreaker || scenario.icebreaker),
                 scenarioId: scenario.id,
                 targetLanguage: language?.name || context.targetLanguage,
                 targetLanguageCode: language?.code || context.targetLanguageCode,

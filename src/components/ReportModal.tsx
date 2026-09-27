@@ -49,7 +49,7 @@ export function ReportModal({
                                         ));
                   return (
                     <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
-                      {isIeltsReport ? "IELTS Mock Assessment" : report.mode === "Task" ? "Scenario Task" : "Free Practice"} ({report.level})
+                      {isIeltsReport ? "IELTS Speaking Assessment" : report.mode === "Task" ? "Scenario Task" : "Free Practice"}{report.level && report.level !== "IELTS" ? ` (${report.level})` : ""}
                     </h2>
                   );
                 })()}

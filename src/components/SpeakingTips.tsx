@@ -16,6 +16,12 @@ export function SpeakingTips({ mode, level }: SpeakingTipsProps) {
     // Mode specific tips
     if (mode === 'IELTS') {
       baseTips.push({
+        title: 'Sınav Girişi & Kimlik Kontrolü',
+        icon: <Target className="w-5 h-5 text-indigo-500" />,
+        content: 'IELTS sınavı doğrudan konuyla başlamaz. Gözetmen önce kendini tanıtır ve adınızı sorar. Rahat olun ve adınızı net bir şekilde belirtin.',
+        examples: ['"My name is Ahmet Yılmaz."', '"You can call me Ahmet."']
+      });
+      baseTips.push({
         title: 'IELTS Fluency',
         icon: <Zap className="w-5 h-5 text-indigo-500" />,
         content: 'Keep talking, even if you make a mistake. Self-correction is okay but don\'t let it stop your flow.',

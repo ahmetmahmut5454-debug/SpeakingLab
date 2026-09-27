@@ -24,9 +24,10 @@ export const ProgressDashboard: React.FC<Props> = ({ reports, onSelectReport }) 
     if (filterMode === 'IELTS') {
       const ieltsOnly = sorted.filter(r => 
         r.mode === 'IELTS' || 
-        r.mode === 'Task' || 
+        r.level === 'IELTS' ||
         (r.scenarioId && r.scenarioId.toLowerCase().includes('ielts')) ||
-        (r.reportText && r.reportText.toLowerCase().includes('ielts'))
+        (r.topic && r.topic.toLowerCase().includes('ielts')) ||
+        (r.reportText && (r.reportText.toLowerCase().includes('band score') || r.reportText.toLowerCase().includes('ielts')))
       );
       return ieltsOnly.length > 0 ? ieltsOnly : sorted;
     }

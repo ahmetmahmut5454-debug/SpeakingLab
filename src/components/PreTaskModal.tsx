@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from "motion/react";
-import { FileText, Phone } from "lucide-react";
+import { FileText, Phone, Award } from "lucide-react";
 import { predefinedScenarios, extractCueCardFromScenario } from "../lib/scenarios";
 import { RoleAvatar } from "./AudioStageVisualizer";
-import { BotContext } from "../lib/eltBot";
+import { BotContext, isIELTSSession } from "../lib/eltBot";
 
 interface PreTaskModalProps {
   showPreTask: boolean;
@@ -47,12 +47,23 @@ export const PreTaskModal: React.FC<PreTaskModalProps> = ({
               )}
               <div>
                 <h2 className="text-2xl font-bold tracking-tight mb-2">
-                  Scenario Briefing
+                  {isIELTSSession(context) ? "IELTS Speaking Examination" : "Scenario Briefing"}
                 </h2>
-                <p className="text-slate-700 font-medium text-sm leading-relaxed mb-4 bg-white/80 p-4 rounded-xl border border-slate-200 shadow-inner">
+                <p className="text-slate-700 font-medium text-sm leading-relaxed mb-3 bg-white/80 p-4 rounded-xl border border-slate-200 shadow-inner">
                   {context.studentBriefing ||
                     "Get ready to solve the problem using your language skills!"}
                 </p>
+                {isIELTSSession(context) && (
+                  <div className="mb-4 bg-indigo-50 border border-indigo-200/80 rounded-xl p-3.5 text-left text-xs text-indigo-900 leading-relaxed shadow-sm">
+                    <div className="flex items-center gap-1.5 font-bold text-indigo-700 mb-1">
+                      <Award className="w-4 h-4 text-indigo-600" />
+                      <span>Resmi IELTS Sınav Akışı (Test Procedure)</span>
+                    </div>
+                    <p className="text-indigo-800/90 font-medium">
+                      Sınav doğrudan konuyla başlamaz. Tıpkı gerçek IELTS sınavındaki gibi, gözetmen önce kendisini tanıtacak ve adınızı (<span className="italic">"Could you tell me your full name, please?"</span>) soracaktır. Ardından Bölüm 1 sorularına geçilecektir.
+                    </p>
+                  </div>
+                )}
               </div>
               {(() => {
                 const currentScen = predefinedScenarios.find(

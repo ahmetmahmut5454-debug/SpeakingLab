@@ -1,6 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AudioProcessor, AudioPlayer } from "./audioManager";
 import { getErrorBank, saveErrorBank } from "./errorBank";
+import { processIELTSReportScores } from "./mastery";
 
 export const getApiKey = () => import.meta.env.VITE_GEMINI_API_KEY || "proxy_key";
 const getAiClient = () => {
@@ -37,7 +38,12 @@ export interface BotContext {
 }
 
 export const isIELTSSession = (context: BotContext) => {
-  return context.mode === "IELTS" || !!(context.topic && context.topic.includes("IELTS"));
+  return (
+    context.mode === "IELTS" ||
+    !!(context.topic && context.topic.toLowerCase().includes("ielts")) ||
+    !!(context.scenarioId && context.scenarioId.toLowerCase().includes("ielts")) ||
+    !!(context.studentBriefing && context.studentBriefing.toLowerCase().includes("ielts"))
+  );
 };
 
 
@@ -123,7 +129,7 @@ export class EltBot {
         Keep your responses conversational and natural.
       `;
       
-      if (context.mode === "IELTS" || (context.topic && context.topic.includes("IELTS Speaking Examiner"))) {
+      if (isIELTSSession(context)) {
         const scenarioTopic = context.studentBriefing || context.topic || "IELTS Speaking Assessment";
         const scenarioGuidelines = context.objective || `
 - Part 1 (Introduction & Interview): Ask 2-3 introductory questions about ${scenarioTopic}. Ask ONE question at a time. After the student answers, acknowledge and immediately ask the next question.
@@ -132,20 +138,56 @@ export class EltBot {
 - Conclude: Thank the candidate warmly at the end.`;
 
         systemInstruction = `
-You are an official, professional, and attentive IELTS Speaking Examiner.
+You are an official, professional, and attentive IELTS Speaking Examiner conducting an authentic IELTS Speaking Test.
 Target Candidate Level: CEFR ${context.level || "B2"}.
 Assigned Test Topic: "${scenarioTopic}"
 Target Language: ${context.targetLanguage || "English"}
 
-SCENARIO SPECIFICATIONS & SCRIPT:
+OFFICIAL IELTS SPEAKING TEST PHASES & PROTOCOL:
+
+PHASE 0: GREETING & CANDIDATE IDENTITY CHECK (MANDATORY AT TEST START)
+- In a real IELTS speaking test, the examiner NEVER begins with Part 1 or questions about the topic immediately.
+- Turn 1: Welcome the candidate professionally, state your examiner name, and ask for their full name:
+  "Good morning [or Good afternoon]. My name is Alex Turner. Could you tell me your full name, please?"
+- Turn 2: When the candidate states their name, acknowledge it and ask a brief identity confirmation question:
+  "Thank you. And what can I call you?" (or "Thank you. And where are you from?")
+- Turn 3: When the candidate answers, smoothly transition to the interview:
+  "Thank you, that's fine. Now, in this first part of the test, I'd like to ask you some questions about yourself. Let's talk about..."
+
+PHASE 1: PART 1 — INTRODUCTION & INTERVIEW (TOPIC QUESTIONS)
+- Introduce the topic: "Let's talk about [Topic]..."
+- Ask 2-3 questions about the assigned topic ("${scenarioTopic}"), strictly ONE question at a time.
+- After each candidate answer, acknowledge naturally ("Thank you", "I see", "Right", "That's interesting") and ask the next question.
+- Do NOT jump across unrelated topics abruptly; ask natural follow-ups or standard Part 1 questions.
+
+PHASE 2: PART 2 — INDIVIDUAL LONG TURN (CUE CARD)
+- Introduce Part 2 clearly:
+  "Now I am going to give you a topic, and I'd like you to talk about it for one to two minutes. Before you talk, you'll have one minute to think about what you are going to say."
+- Call the showCueCard tool to display the cue card on the candidate's screen.
+- Say aloud: "Here is your topic. You have one minute to prepare, and then please speak for one to two minutes. Please begin when you are ready."
+- Let the candidate speak without interrupting. If they stop too soon, prompt gently: "Can you tell me any more about that?"
+
+PHASE 3: PART 3 — TWO-WAY DISCUSSION
+- Introduce Part 3:
+  "We've been talking about [Topic], and I'd now like to discuss with you one or two more general questions related to this."
+- Ask 2-3 deeper, abstract, and analytical questions exploring broader themes related to Part 2.
+- ONE question at a time. Encourage the candidate to expand on their points.
+
+PHASE 4: CONCLUSION
+- Officially conclude:
+  "Thank you very much. That is the end of the speaking test."
+- Only after speaking this final conclusion aloud, call the endConversation tool.
+
+SCENARIO TOPIC SPECIFICATIONS:
 ${scenarioGuidelines}
 
 CRITICAL RULES FOR THE EXAMINER:
-1. FOCUS ON THE SPECIFIED TOPIC: Do NOT default to questions about houses, accommodation, or apartments unless that is explicitly the topic in the scenario guidelines above. Follow the scenario topic ("${scenarioTopic}").
-2. NEVER GO SILENT: When the candidate finishes speaking, YOU MUST immediately speak next. Acknowledge what they said with a natural examiner response ("Thank you", "That's very interesting", "I understand") and immediately ask the next question or introduce the next part.
-3. ONE QUESTION AT A TIME: Never ask multiple questions in a single turn. Ask one question, then pause for the student's answer.
-4. DO NOT END THE CONVERSATION PREMATURELY: Never call endConversation after just one or two turns. You must progress through Part 1, Part 2, and Part 3. Only when all parts are finished or if the candidate explicitly requests to stop, say "Thank you, that is the end of the speaking test." and then you may call endConversation.
-5. SPEAK NATURALLY: Never output internal thoughts or instructions. Speak only what a real human IELTS examiner would say aloud.
+1. NEVER JUMP DIRECTLY INTO THE TOPIC AT THE START: Always start with Phase 0 (formal greeting, examiner name, asking the candidate for their full name, and what to call them). Only after this brief exchange should you transition to Part 1.
+2. FOCUS ON THE SPECIFIED TOPIC FOR PART 1: Follow the scenario topic ("${scenarioTopic}").
+3. ONE QUESTION AT A TIME: Never ask multiple questions in a single turn. Wait for the candidate to finish speaking.
+4. NEVER GO SILENT: When the candidate finishes speaking, speak next immediately with a natural examiner acknowledgement and the next question or transition.
+5. DO NOT GIVE MARKS OR FEEDBACK DURING THE TEST: Real examiners never give scores or corrections while testing.
+6. SPEAK NATURALLY: Never output internal thoughts or instructions. Speak only what a real human IELTS examiner would say aloud.
 `;
       } else if (context.mode === "Task") {
         systemInstruction = `
@@ -216,12 +258,12 @@ CRITICAL RULES:
                 if (this.session && this.isConnected) {
                   try {
                     const targetLangForTrigger = context.targetLanguage || "English";
+                    const isIelts = isIELTSSession(context);
                     let triggerMessage: string;
-                    if (context.icebreaker) {
+                    if (isIelts) {
+                      triggerMessage = `SYSTEM MESSAGE: The candidate has entered the examination room. You are an official IELTS Speaking Examiner. Do NOT jump directly into the topic. Start with Phase 0 (Examiner Introduction & Candidate Identity Check): Greet the candidate professionally, state your examiner name (e.g. "Good morning. My name is Alex Turner"), and ask: "Could you tell me your full name, please?". Do NOT mention or ask about the topic yet; wait for the candidate's name first.`;
+                    } else if (context.icebreaker) {
                       triggerMessage = `SYSTEM MESSAGE: The student has connected. Greet the candidate and start the session by saying: "${context.icebreaker}"`;
-                    } else if (context.mode === "IELTS" || context.topic?.includes("IELTS Speaking Examiner")) {
-                      const topicName = context.studentBriefing || context.topic || "the assigned topic";
-                      triggerMessage = `SYSTEM MESSAGE: The candidate has entered the examination room. Please start Part 1 of the IELTS Speaking Test immediately on the topic of "${topicName}" by asking the first question in ${targetLangForTrigger}.`;
                     } else {
                       triggerMessage = `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
                     }
@@ -397,7 +439,7 @@ CRITICAL RULES:
                   name: "endConversation",
                   description: "Call this tool ONLY when the entire test or conversation has naturally and fully concluded with a farewell, or if the student explicitly asks to stop. NEVER call this after just one or two turns.",
                 },
-                ...(context.mode === "IELTS" || context.topic?.includes("IELTS") ? [{
+                ...(isIELTSSession(context) ? [{
                   name: "showCueCard",
                   description: "Call this function to show the Part 2 cue card to the student. ONLY call this when you have just introduced Part 2 and are ready to give the student their topic. Provide a short phrase describing the cue card topic.",
                   parameters: { type: Type.OBJECT, properties: { topic: { type: Type.STRING, description: "A short phrase describing the topic" } }, required: ["topic"] },
@@ -494,6 +536,7 @@ CRITICAL RULES:
     if (!transcript || transcript.length === 0) return "No transcript available.";
     
     const transcriptText = transcript.join("\n");
+    const isIelts = isIELTSSession(context);
 
     // 1. Try server-side generation route if available
     try {
@@ -508,8 +551,9 @@ CRITICAL RULES:
       if (serverRes.ok) {
         const data = await serverRes.json();
         if (data.report && typeof data.report === "string" && !data.report.includes("❌")) {
-          this.processCorrectionsFromReport(data.report);
-          return data.report;
+          const finalReport = isIelts ? processIELTSReportScores(data.report) : data.report;
+          this.processCorrectionsFromReport(finalReport);
+          return finalReport;
         }
       }
     } catch (e) {
@@ -519,9 +563,57 @@ CRITICAL RULES:
     // 2. Client-side SDK generation
     const ai = getAiClient();
     const models = ["gemini-3.8-flash", "gemini-2.5-flash"];
-    const isIelts = context.mode === "IELTS" || !!(context.topic && context.topic.includes("IELTS"));
     
-    const prompt = `
+    const prompt = isIelts ? `
+      You are an expert, certified IELTS Speaking Examiner.
+      Conduct a comprehensive, accurate, and objective IELTS Speaking assessment of the candidate based on the official IELTS Speaking Band Descriptors (scale 0.0 - 9.0 in 0.5 increments).
+      
+      Candidate Target Level: ${context.level || "IELTS"}
+      Test Topic / Cue Card: ${context.topic || context.studentBriefing || context.objective || "IELTS Mock Speaking Test"}
+      
+      Transcript of Speaking Test:
+      ${transcriptText}
+      
+      Evaluation Guidelines:
+      - Assess strictly across the 4 official IELTS criteria: Fluency and Coherence (FC), Lexical Resource (LR), Grammatical Range and Accuracy (GRA), and Pronunciation (P).
+      - Award band scores on a 0.0 - 9.0 scale in 0.5 increments (e.g. 5.5, 6.0, 6.5, 7.0, 7.5, 8.0).
+      - The Estimated Band Score MUST be the arithmetic average of the 4 sub-scores, rounded according to official IELTS rules (ending in .25 rounds up to .5; ending in .75 rounds up to next whole band).
+      - Be objective and realistic: if candidate responses are brief or limited, evaluate based strictly on the evidence shown in the transcript while acknowledging the brief sample.
+      - Disregard minor speech recognition (ASR) transcription slips or missing punctuation; focus on candidate's true spoken vocabulary, grammar, and communicative ability.
+      
+      You MUST structure the report with these EXACT Markdown section titles and bullet labels for automated score extraction:
+      
+      ### 1. Overall Performance & Level Assessment
+      - **Estimated CEFR Level**: [A1 / A2 / B1 / B2 / C1 / C2]
+      - **Estimated Band Score**: [X.X]
+      - High-level analytical summary of the candidate's fluency, coherence, exam presence, and overall communicative effectiveness.
+      
+      ### 2. Official IELTS Criteria Breakdown
+      - **Fluency & Coherence Score**: [X.X]
+        - Detailed assessment of speech tempo, hesitation vs lexical search, discourse markers, connectors, and thematic development.
+      - **Lexical Resource Score**: [X.X]
+        - Detailed assessment of vocabulary range, precision, idiomatic expressions, collocations, and paraphrase flexibility.
+      - **Grammatical Range & Accuracy Score**: [X.X]
+        - Detailed assessment of sentence complexity, subordinate clauses, tense accuracy, and frequency of systematic grammatical errors.
+      - **Pronunciation Score**: [X.X]
+        - Detailed assessment of articulation clarity, rhythm, intonation, word stress, and phoneme comprehensibility.
+      
+      ### 3. Key Strengths
+      - Highlight 2-3 genuine strengths with direct quotes or examples from the transcript.
+      
+      ### 4. High-Priority Actionable Advice
+      - 2-3 concrete, high-impact IELTS preparation strategies to elevate the candidate to the next band level.
+      
+      AT THE VERY END OF YOUR REPORT, include a strict JSON block wrapped in \`\`\`json containing all specific grammar and vocabulary corrections for errors found in the student's speech:
+      \`\`\`json
+      {
+        "corrections": [
+          {"original": "incorrect student phrase", "correction": "natural correct alternative"}
+        ]
+      }
+      \`\`\`
+      If there are no major corrections, return an empty array for corrections: {"corrections": []}.
+    ` : `
       You are an expert English Language Examiner and Senior Tutor.
       Analyze the following transcript of an English speaking practice session between a Student and a Tutor.
       
@@ -533,23 +625,28 @@ CRITICAL RULES:
       ${transcriptText}
       
       Generate a comprehensive, accurate, and constructive feedback report in Markdown format.
-      Structure the report clearly with:
+      Structure the report clearly with these EXACT Markdown section titles and bullet labels:
       
       ### 1. Overall Performance & Level Assessment
-      - Estimated CEFR Level & ${isIelts ? "IELTS Band Score (e.g. Band 6.5)" : "Overall Band Score"}
-      - High-level summary of the student's communicative ability, confidence, and coherence
+      - **Estimated CEFR Level**: [A1 / A2 / B1 / B2 / C1 / C2]
+      - **Estimated Band Score**: [X.X]
+      - High-level summary of the student's communicative ability, confidence, and coherence.
       
       ### 2. Core Criteria Breakdown
-      - **Fluency & Coherence**: Speech rhythm, hesitation, ability to develop ideas, linking phrases
-      - **Lexical Resource (Vocabulary)**: Range, precision, idiom and collocation use
-      - **Grammatical Range & Accuracy**: Sentence structure variety, verb tenses, common errors
-      - **Pronunciation & Clarity**: Clarity of speech, natural rhythm, articulation
+      - **Fluency & Coherence Score**: [X.X]
+        - Speech rhythm, hesitation, ability to develop ideas, linking phrases.
+      - **Lexical Resource Score**: [X.X]
+        - Range, precision, idiom and collocation use.
+      - **Grammatical Range & Accuracy Score**: [X.X]
+        - Sentence structure variety, verb tenses, common errors.
+      - **Pronunciation Score**: [X.X]
+        - Clarity of speech, natural rhythm, articulation.
       
       ### 3. Key Strengths
-      - Highlight 2-3 genuine strengths demonstrated by the student
+      - Highlight 2-3 genuine strengths demonstrated by the student.
       
       ### 4. High-Priority Actionable Advice
-      - 2-3 concrete, actionable recommendations for the student's next practice session
+      - 2-3 concrete, actionable recommendations for the student's next practice session.
       
       AT THE VERY END OF YOUR REPORT, include a strict JSON block wrapped in \`\`\`json containing all specific grammar and vocabulary corrections for errors found in the student's speech:
       \`\`\`json
@@ -570,8 +667,9 @@ CRITICAL RULES:
         });
         
         const markdownRep = response.text || "No feedback generated.";
-        this.processCorrectionsFromReport(markdownRep);
-        return markdownRep;
+        const finalReport = isIelts ? processIELTSReportScores(markdownRep) : markdownRep;
+        this.processCorrectionsFromReport(finalReport);
+        return finalReport;
       } catch (err) {
         console.warn(`Model ${model} failed:`, err);
       }
