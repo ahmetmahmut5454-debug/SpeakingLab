@@ -123,12 +123,45 @@ export class EltBot {
         Keep your responses conversational and natural.
       `;
       
-      if (context.mode === "IELTS") {
+      if (context.mode === "IELTS" || (context.topic && context.topic.includes("IELTS Speaking Examiner"))) {
+        const scenarioTopic = context.studentBriefing || context.topic || "IELTS Speaking Assessment";
+        const scenarioGuidelines = context.objective || `
+- Part 1 (Introduction & Interview): Ask 2-3 introductory questions about ${scenarioTopic}. Ask ONE question at a time. After the student answers, acknowledge and immediately ask the next question.
+- Part 2 (Long Turn / Cue Card): Call the showCueCard tool to display the cue card, then say aloud: "Now I will give you a topic. You have one minute to prepare, and then speak for one to two minutes." Wait for their speech.
+- Part 3 (Discussion): Ask 2-3 deeper, abstract questions exploring the themes related to Part 2.
+- Conclude: Thank the candidate warmly at the end.`;
+
         systemInstruction = `
-          You are an official IELTS Speaking Examiner. Conduct a strict but fair IELTS speaking test.
-          The user's target level is roughly ${context.level}.
-          DO NOT type out your instructions or internal thoughts. Speak naturally.
-        `;
+You are an official, professional, and attentive IELTS Speaking Examiner.
+Target Candidate Level: CEFR ${context.level || "B2"}.
+Assigned Test Topic: "${scenarioTopic}"
+Target Language: ${context.targetLanguage || "English"}
+
+SCENARIO SPECIFICATIONS & SCRIPT:
+${scenarioGuidelines}
+
+CRITICAL RULES FOR THE EXAMINER:
+1. FOCUS ON THE SPECIFIED TOPIC: Do NOT default to questions about houses, accommodation, or apartments unless that is explicitly the topic in the scenario guidelines above. Follow the scenario topic ("${scenarioTopic}").
+2. NEVER GO SILENT: When the candidate finishes speaking, YOU MUST immediately speak next. Acknowledge what they said with a natural examiner response ("Thank you", "That's very interesting", "I understand") and immediately ask the next question or introduce the next part.
+3. ONE QUESTION AT A TIME: Never ask multiple questions in a single turn. Ask one question, then pause for the student's answer.
+4. DO NOT END THE CONVERSATION PREMATURELY: Never call endConversation after just one or two turns. You must progress through Part 1, Part 2, and Part 3. Only when all parts are finished or if the candidate explicitly requests to stop, say "Thank you, that is the end of the speaking test." and then you may call endConversation.
+5. SPEAK NATURALLY: Never output internal thoughts or instructions. Speak only what a real human IELTS examiner would say aloud.
+`;
+      } else if (context.mode === "Task") {
+        systemInstruction = `
+You are an English language tutor and conversation partner playing the role: "${context.role || "Tutor"}".
+Student CEFR Level: ${context.level || "B1"}.
+Scenario: "${context.topic || "English practice"}"
+Student Briefing: "${context.studentBriefing || context.topic || ""}"
+Objective:
+${context.objective || "Engage in natural conversation based on the scenario."}
+
+CRITICAL RULES:
+1. Stay in character and follow the scenario.
+2. Ask one question or prompt at a time. Keep responses concise and engaging.
+3. When the user finishes speaking, ALWAYS respond promptly to keep the conversation flowing.
+4. Do NOT output internal thoughts. Speak naturally.
+`;
       } else if (context.mode === "Pronunciation" && context.pronunciationPracticeWord) {
         systemInstruction = `
           You are an English pronunciation tutor. The student wants to practice pronouncing the word "${context.pronunciationPracticeWord}".
@@ -152,7 +185,7 @@ export class EltBot {
 
       const ai = getAiClient();
       this.session = await ai.live.connect({
-        model: "gemini-3.1-flash-live-preview",
+        model: "gemini-3.8-live",
         callbacks: {
           onopen: () => {
             
@@ -183,9 +216,15 @@ export class EltBot {
                 if (this.session && this.isConnected) {
                   try {
                     const targetLangForTrigger = context.targetLanguage || "English";
-                    const triggerMessage = context.mode === "IELTS" || (context.mode === "Task" && context.topic?.includes("IELTS Speaking Examiner"))
-                      ? `SYSTEM MESSAGE: The student has connected. Please start the IELTS speaking test now by asking the first question in ${targetLangForTrigger}.`
-                      : `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
+                    let triggerMessage: string;
+                    if (context.icebreaker) {
+                      triggerMessage = `SYSTEM MESSAGE: The student has connected. Greet the candidate and start the session by saying: "${context.icebreaker}"`;
+                    } else if (context.mode === "IELTS" || context.topic?.includes("IELTS Speaking Examiner")) {
+                      const topicName = context.studentBriefing || context.topic || "the assigned topic";
+                      triggerMessage = `SYSTEM MESSAGE: The candidate has entered the examination room. Please start Part 1 of the IELTS Speaking Test immediately on the topic of "${topicName}" by asking the first question in ${targetLangForTrigger}.`;
+                    } else {
+                      triggerMessage = `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
+                    }
                     
                     this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: triggerMessage }] }], turnComplete: true });
                   } catch (e) {}
@@ -206,6 +245,22 @@ export class EltBot {
             if (functionCalls.length > 0) {
               for (const fc of functionCalls) {
                 if (fc.name === "endConversation") {
+                  // Only allow ending if at least 4 turns have occurred
+                  if (this.transcriptHistory.length < 4) {
+                    console.warn("Ignoring premature endConversation on turn", this.transcriptHistory.length);
+                    if (this.session && this.isConnected) {
+                      try {
+                        this.session.sendToolResponse({
+                          functionResponses: [{
+                            name: "endConversation",
+                            id: fc.id,
+                            response: { success: false, instruction: "Do not end the test yet. Please proceed with the next question in the test." }
+                          }]
+                        });
+                      } catch (e) {}
+                    }
+                    continue;
+                  }
                   
                   if (this.session && this.isConnected) {
                     try {
@@ -230,7 +285,16 @@ export class EltBot {
                   }
                   if (this.session && this.isConnected) {
                     try {
-                      this.session.sendToolResponse({ functionResponses: [{ name: "showCueCard", id: fc.id, response: { success: true, instruction: "Tool successful." } }] });
+                      this.session.sendToolResponse({
+                        functionResponses: [{
+                          name: "showCueCard",
+                          id: fc.id,
+                          response: {
+                            success: true,
+                            instruction: "The cue card is now displayed on the candidate's screen. Immediately speak aloud to the candidate: tell them they have 1 minute to think and 1-2 minutes to speak on this topic, and invite them to begin."
+                          }
+                        }]
+                      });
                     } catch (e) {}
                   }
                 }
@@ -271,8 +335,8 @@ export class EltBot {
                     this.callbacks.onBotLevel?.(level / 1.5);
                   });
                 }
-                const text = part.text || part.thought;
-                if (text && typeof text === "string") {
+                const text = part.text;
+                if (text && typeof text === "string" && !part.thought) {
                   this.currentBotSubtitle += text;
                   if (this.callbacks.onTranscription) {
                     this.callbacks.onTranscription(this.currentBotSubtitle, true);
@@ -331,12 +395,11 @@ export class EltBot {
               functionDeclarations: [
                 {
                   name: "endConversation",
-                  description: "Call this when the conversation naturally concludes.",
-                  // no parameters needed for endConversation,
+                  description: "Call this tool ONLY when the entire test or conversation has naturally and fully concluded with a farewell, or if the student explicitly asks to stop. NEVER call this after just one or two turns.",
                 },
                 ...(context.mode === "IELTS" || context.topic?.includes("IELTS") ? [{
                   name: "showCueCard",
-                  description: "Call this function to show the Part 2 cue card to the student. ONLY call this when you have just introduced Part 2 and are ready to give the student their topic. Provide a short, generic topic string like 'A memorable holiday'.",
+                  description: "Call this function to show the Part 2 cue card to the student. ONLY call this when you have just introduced Part 2 and are ready to give the student their topic. Provide a short phrase describing the cue card topic.",
                   parameters: { type: Type.OBJECT, properties: { topic: { type: Type.STRING, description: "A short phrase describing the topic" } }, required: ["topic"] },
                 }] : [])
               ],

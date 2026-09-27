@@ -103,7 +103,8 @@ async function startServer() {
       changeOrigin: true,
       ws: true,
       pathRewrite: (path, req) => {
-          let newPath = path.replace(/^\/+/, "/");
+          const original = (req as any)?.originalUrl || path;
+          let newPath = original.replace(/^\/+/, "/");
           newPath = newPath.replace(/([?&])key=[^&]*(&|$)/g, '$1').replace(/[?&]$/, '');
           if (apiKey && apiKey !== "proxy_key") {
             return newPath + (newPath.includes('?') ? '&' : '?') + 'key=' + apiKey;
