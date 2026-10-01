@@ -501,7 +501,7 @@ export default function App() {
                         <button
                           onClick={() => {
                             if (botRef.current) {
-                              botRef.current.sendHintRequest();
+                              botRef.current.sendHintRequest(isIELTSSession(context), context.targetLanguage || "English");
                             }
                             setSilenceTimer(0);
                             setShowHintButton(false);
@@ -742,21 +742,45 @@ export default function App() {
           }
           currentTargetLanguageCode={context.targetLanguageCode}
           onSelect={async (scenario, language, freeLevel) => {
-            const targetLangStr = language?.name || context.targetLanguage || "English";
-            setIsTranslating(true);
-            
             if (scenario) {
+              const isIelts =
+                scenario.category === "IELTS Preparation" ||
+                (scenario.level as string) === "IELTS" ||
+                scenario.id.toLowerCase().includes("ielts");
+
+              if (isIelts) {
+                // IELTS examinations are 100% strictly conducted in English
+                setIsTranslating(false);
+                setContext({
+                  ...context,
+                  mode: "IELTS",
+                  level: scenario.level === "B1-B2" ? "B2" : (scenario.level as any),
+                  topic: scenario.topic,
+                  objective: scenario.objective,
+                  role: scenario.role,
+                  icebreaker: undefined,
+                  scenarioId: scenario.id,
+                  targetLanguage: "English",
+                  targetLanguageCode: "en-US",
+                  vocabulary: scenario.vocabulary,
+                  studentBriefing: scenario.studentBriefing,
+                });
+                setShowPreTask(true);
+                return;
+              }
+
+              const targetLangStr = language?.name || context.targetLanguage || "English";
+              setIsTranslating(true);
               const translated = await translateScenario(scenario, targetLangStr);
               setIsTranslating(false);
-              const isIelts = scenario.category === "IELTS Preparation" || (scenario.level as string) === "IELTS" || scenario.id.toLowerCase().includes("ielts");
               setContext({
                 ...context,
-                mode: isIelts ? "IELTS" : "Task",
+                mode: "Task",
                 level: scenario.level === "B1-B2" ? "B2" : (scenario.level as any),
                 topic: translated?.studentBriefing || scenario.topic,
                 objective: scenario.objective,
                 role: scenario.role,
-                icebreaker: isIelts ? undefined : (translated?.icebreaker || scenario.icebreaker),
+                icebreaker: translated?.icebreaker || scenario.icebreaker,
                 scenarioId: scenario.id,
                 targetLanguage: language?.name || context.targetLanguage,
                 targetLanguageCode: language?.code || context.targetLanguageCode,
@@ -765,6 +789,8 @@ export default function App() {
               });
               setShowPreTask(true);
             } else {
+              const targetLangStr = language?.name || context.targetLanguage || "English";
+              setIsTranslating(true);
               const freeScenario = {
                 id: "free",
                 topic: "Friendly conversation on any topic you like.",

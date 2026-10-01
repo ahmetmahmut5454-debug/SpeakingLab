@@ -40,6 +40,7 @@ export interface BotContext {
 export const isIELTSSession = (context: BotContext) => {
   return (
     context.mode === "IELTS" ||
+    (context.level as string) === "IELTS" ||
     !!(context.topic && context.topic.toLowerCase().includes("ielts")) ||
     !!(context.scenarioId && context.scenarioId.toLowerCase().includes("ielts")) ||
     !!(context.studentBriefing && context.studentBriefing.toLowerCase().includes("ielts"))
@@ -123,13 +124,19 @@ export class EltBot {
       if (!this.audioProcessor) {
         this.audioProcessor = new AudioProcessor();
       }
+      const isIelts = isIELTSSession(context);
+      if (isIelts) {
+        context.targetLanguage = "English";
+        context.targetLanguageCode = "en-US";
+      }
+
       let systemInstruction = `
         You are an IELTS Speaking Examiner and English Tutor.
         You are talking with a student at CEFR ${context.level}.
-        Keep your responses conversational and natural.
+        Keep your responses conversational and natural in English.
       `;
       
-      if (isIELTSSession(context)) {
+      if (isIelts) {
         const scenarioTopic = context.studentBriefing || context.topic || "IELTS Speaking Assessment";
         const scenarioGuidelines = context.objective || `
 - Part 1 (Introduction & Interview): Ask 2-3 introductory questions about ${scenarioTopic}. Ask ONE question at a time. After the student answers, acknowledge and immediately ask the next question.
@@ -141,40 +148,47 @@ export class EltBot {
 You are an official, professional, and attentive IELTS Speaking Examiner conducting an authentic IELTS Speaking Test.
 Target Candidate Level: CEFR ${context.level || "B2"}.
 Assigned Test Topic: "${scenarioTopic}"
-Target Language: ${context.targetLanguage || "English"}
+Target Language: ENGLISH ONLY (MANDATORY & EXCLUSIVE).
+
+CRITICAL LANGUAGE INTEGRITY REQUIREMENT:
+- You must speak ONLY in ENGLISH at all times.
+- Under NO circumstances should you ever speak, reply, translate, or switch to Spanish, Turkish, French, or any other language.
+- IELTS is an English language proficiency examination. As an official IELTS examiner, you must NEVER speak Spanish or any language other than English.
+- Even if the candidate speaks Spanish, uses foreign words, has an accent, or makes a mistake, you MUST ALWAYS respond purely in natural, polite ENGLISH.
+- NEVER mirror any non-English speech from the candidate.
 
 OFFICIAL IELTS SPEAKING TEST PHASES & PROTOCOL:
 
 PHASE 0: GREETING & CANDIDATE IDENTITY CHECK (MANDATORY AT TEST START)
 - In a real IELTS speaking test, the examiner NEVER begins with Part 1 or questions about the topic immediately.
-- Turn 1: Welcome the candidate professionally, state your examiner name, and ask for their full name:
+- Turn 1: Welcome the candidate professionally in English, state your examiner name, and ask for their full name:
   "Good morning [or Good afternoon]. My name is Alex Turner. Could you tell me your full name, please?"
-- Turn 2: When the candidate states their name, acknowledge it and ask a brief identity confirmation question:
+- Turn 2: When the candidate states their name, acknowledge it and ask a brief identity confirmation question in English:
   "Thank you. And what can I call you?" (or "Thank you. And where are you from?")
-- Turn 3: When the candidate answers, smoothly transition to the interview:
+- Turn 3: When the candidate answers, smoothly transition to the interview in English:
   "Thank you, that's fine. Now, in this first part of the test, I'd like to ask you some questions about yourself. Let's talk about..."
 
 PHASE 1: PART 1 — INTRODUCTION & INTERVIEW (TOPIC QUESTIONS)
-- Introduce the topic: "Let's talk about [Topic]..."
-- Ask 2-3 questions about the assigned topic ("${scenarioTopic}"), strictly ONE question at a time.
-- After each candidate answer, acknowledge naturally ("Thank you", "I see", "Right", "That's interesting") and ask the next question.
+- Introduce the topic in English: "Let's talk about [Topic]..."
+- Ask 2-3 questions about the assigned topic ("${scenarioTopic}"), strictly ONE question at a time in English.
+- After each candidate answer, acknowledge naturally in English ("Thank you", "I see", "Right", "That's interesting") and ask the next question.
 - Do NOT jump across unrelated topics abruptly; ask natural follow-ups or standard Part 1 questions.
 
 PHASE 2: PART 2 — INDIVIDUAL LONG TURN (CUE CARD)
-- Introduce Part 2 clearly:
+- Introduce Part 2 clearly in English:
   "Now I am going to give you a topic, and I'd like you to talk about it for one to two minutes. Before you talk, you'll have one minute to think about what you are going to say."
 - Call the showCueCard tool to display the cue card on the candidate's screen.
-- Say aloud: "Here is your topic. You have one minute to prepare, and then please speak for one to two minutes. Please begin when you are ready."
-- Let the candidate speak without interrupting. If they stop too soon, prompt gently: "Can you tell me any more about that?"
+- Say aloud in English: "Here is your topic. You have one minute to prepare, and then please speak for one to two minutes. Please begin when you are ready."
+- Let the candidate speak without interrupting. If they stop too soon, prompt gently in English: "Can you tell me any more about that?"
 
 PHASE 3: PART 3 — TWO-WAY DISCUSSION
-- Introduce Part 3:
+- Introduce Part 3 in English:
   "We've been talking about [Topic], and I'd now like to discuss with you one or two more general questions related to this."
-- Ask 2-3 deeper, abstract, and analytical questions exploring broader themes related to Part 2.
+- Ask 2-3 deeper, abstract, and analytical questions exploring broader themes related to Part 2 in English.
 - ONE question at a time. Encourage the candidate to expand on their points.
 
 PHASE 4: CONCLUSION
-- Officially conclude:
+- Officially conclude in English:
   "Thank you very much. That is the end of the speaking test."
 - Only after speaking this final conclusion aloud, call the endConversation tool.
 
@@ -182,27 +196,30 @@ SCENARIO TOPIC SPECIFICATIONS:
 ${scenarioGuidelines}
 
 CRITICAL RULES FOR THE EXAMINER:
-1. NEVER JUMP DIRECTLY INTO THE TOPIC AT THE START: Always start with Phase 0 (formal greeting, examiner name, asking the candidate for their full name, and what to call them). Only after this brief exchange should you transition to Part 1.
-2. FOCUS ON THE SPECIFIED TOPIC FOR PART 1: Follow the scenario topic ("${scenarioTopic}").
-3. ONE QUESTION AT A TIME: Never ask multiple questions in a single turn. Wait for the candidate to finish speaking.
-4. NEVER GO SILENT: When the candidate finishes speaking, speak next immediately with a natural examiner acknowledgement and the next question or transition.
-5. DO NOT GIVE MARKS OR FEEDBACK DURING THE TEST: Real examiners never give scores or corrections while testing.
-6. SPEAK NATURALLY: Never output internal thoughts or instructions. Speak only what a real human IELTS examiner would say aloud.
+1. SPEAK ONLY IN ENGLISH: Absolutely NEVER speak or switch to Spanish, Turkish, or any non-English language under any situation.
+2. NEVER JUMP DIRECTLY INTO THE TOPIC AT THE START: Always start with Phase 0 (formal greeting in English, examiner name, asking the candidate for their full name, and what to call them). Only after this brief exchange should you transition to Part 1.
+3. FOCUS ON THE SPECIFIED TOPIC FOR PART 1: Follow the scenario topic ("${scenarioTopic}").
+4. ONE QUESTION AT A TIME: Never ask multiple questions in a single turn. Wait for the candidate to finish speaking.
+5. NEVER GO SILENT: When the candidate finishes speaking, speak next immediately with a natural examiner acknowledgement and the next question or transition in English.
+6. DO NOT GIVE MARKS OR FEEDBACK DURING THE TEST: Real examiners never give scores or corrections while testing.
+7. SPEAK NATURALLY: Never output internal thoughts or instructions. Speak only what a real human IELTS examiner would say aloud.
 `;
       } else if (context.mode === "Task") {
+        const lang = context.targetLanguage || "English";
         systemInstruction = `
-You are an English language tutor and conversation partner playing the role: "${context.role || "Tutor"}".
+You are a language tutor and conversation partner playing the role: "${context.role || "Tutor"}".
+Target Language: ${lang}. You MUST speak strictly in ${lang}.
 Student CEFR Level: ${context.level || "B1"}.
-Scenario: "${context.topic || "English practice"}"
+Scenario: "${context.topic || "Conversation practice"}"
 Student Briefing: "${context.studentBriefing || context.topic || ""}"
 Objective:
 ${context.objective || "Engage in natural conversation based on the scenario."}
 
 CRITICAL RULES:
-1. Stay in character and follow the scenario.
+1. Stay in character and speak ONLY in ${lang}. Never switch to another language mid-conversation.
 2. Ask one question or prompt at a time. Keep responses concise and engaging.
 3. When the user finishes speaking, ALWAYS respond promptly to keep the conversation flowing.
-4. Do NOT output internal thoughts. Speak naturally.
+4. Do NOT output internal thoughts. Speak naturally in ${lang}.
 `;
       } else if (context.mode === "Pronunciation" && context.pronunciationPracticeWord) {
         systemInstruction = `
@@ -215,13 +232,14 @@ CRITICAL RULES:
           5. Call the endConversation tool when the user successfully pronounces the word or after 3 attempts.
         `;
       } else {
-         // Free practice conversational improvements
+         const lang = context.targetLanguage || "English";
          systemInstruction = `
           You are a highly engaging, curious, and natural conversation partner. 
+          Target Language: ${lang}. You MUST speak strictly in ${lang}. Never switch to another language.
           The user's target level is roughly ${context.level}.
           Always keep the conversation flowing proactively. Ask interesting follow-up questions.
           Do NOT be passive. Drive the conversation forward enthusiastically.
-          DO NOT type out your instructions or internal thoughts. Speak naturally.
+          DO NOT type out your instructions or internal thoughts. Speak naturally in ${lang}.
          `;
       }
 
@@ -257,15 +275,15 @@ CRITICAL RULES:
               setTimeout(() => {
                 if (this.session && this.isConnected) {
                   try {
-                    const targetLangForTrigger = context.targetLanguage || "English";
                     const isIelts = isIELTSSession(context);
+                    const targetLangForTrigger = isIelts ? "English" : (context.targetLanguage || "English");
                     let triggerMessage: string;
                     if (isIelts) {
-                      triggerMessage = `SYSTEM MESSAGE: The candidate has entered the examination room. You are an official IELTS Speaking Examiner. Do NOT jump directly into the topic. Start with Phase 0 (Examiner Introduction & Candidate Identity Check): Greet the candidate professionally, state your examiner name (e.g. "Good morning. My name is Alex Turner"), and ask: "Could you tell me your full name, please?". Do NOT mention or ask about the topic yet; wait for the candidate's name first.`;
+                      triggerMessage = `SYSTEM MESSAGE: The candidate has entered the examination room. You are an official IELTS Speaking Examiner. STRICT MANDATORY RULE: Speak ONLY in English. Do NOT switch to Spanish or any other language under any circumstances. Do NOT jump directly into the topic. Start with Phase 0 (Examiner Introduction & Candidate Identity Check): Greet the candidate professionally in English, state your examiner name (e.g. "Good morning. My name is Alex Turner"), and ask: "Could you tell me your full name, please?". Do NOT mention or ask about the topic yet; wait for the candidate's name first.`;
                     } else if (context.icebreaker) {
-                      triggerMessage = `SYSTEM MESSAGE: The student has connected. Greet the candidate and start the session by saying: "${context.icebreaker}"`;
+                      triggerMessage = `SYSTEM MESSAGE: The student has connected. Greet the candidate and start the session by saying: "${context.icebreaker}" in ${targetLangForTrigger}. Speak strictly in ${targetLangForTrigger}.`;
                     } else {
-                      triggerMessage = `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}.`;
+                      triggerMessage = `SYSTEM MESSAGE: The student has connected. Please introduce yourself and start the conversation naturally in ${targetLangForTrigger}. Speak strictly in ${targetLangForTrigger}.`;
                     }
                     
                     this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: triggerMessage }] }], turnComplete: true });
@@ -333,7 +351,7 @@ CRITICAL RULES:
                           id: fc.id,
                           response: {
                             success: true,
-                            instruction: "The cue card is now displayed on the candidate's screen. Immediately speak aloud to the candidate: tell them they have 1 minute to think and 1-2 minutes to speak on this topic, and invite them to begin."
+                            instruction: "The cue card is now displayed on the candidate's screen. In English only, immediately speak aloud to the candidate: tell them they have 1 minute to think and 1-2 minutes to speak on this topic, and invite them to begin."
                           }
                         }]
                       });
@@ -483,10 +501,11 @@ CRITICAL RULES:
     this.audioPlayer.clear();
   }
 
-  sendHintRequest() {
+  sendHintRequest(isIeltsSession: boolean = false, targetLang: string = "English") {
     if (this.session && this.isConnected) {
       try {
-        this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: "System Note: The student has been silent. Provide EXACTLY ONE short example sentence of what they could say to help them." }] }], turnComplete: true });
+        const lang = isIeltsSession ? "English" : targetLang;
+        this.session.sendClientContent({ turns: [{ role: "user", parts: [{ text: `System Note: The student has been silent. In ${lang} only, provide EXACTLY ONE short example sentence or prompt to help them.` }] }], turnComplete: true });
       } catch (e) {
         console.error("Failed to send hint request:", e);
       }

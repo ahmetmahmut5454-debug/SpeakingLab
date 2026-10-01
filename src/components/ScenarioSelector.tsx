@@ -249,7 +249,12 @@ export const ScenarioSelector = ({
                         <div
                           key={scenario.id}
                           onClick={() => {
-                            if (selectedGroup === "IELTS") {
+                            const isIelts =
+                              selectedGroup === "IELTS" ||
+                              scenario.category === "IELTS Preparation" ||
+                              (scenario.level as string) === "IELTS" ||
+                              scenario.id.toLowerCase().includes("ielts");
+                            if (isIelts) {
                               const englishLang = LANGUAGES.find(l => l.code === "en-US") || LANGUAGES[0];
                               onSelect(scenario, englishLang);
                               onClose();
