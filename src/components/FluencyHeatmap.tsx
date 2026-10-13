@@ -65,7 +65,8 @@ export const FluencyHeatmap: React.FC<Props> = ({ transcript }) => {
          <div className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-100 border border-red-200"></span> Filler / Hesitation</div>
       </div>
       <div className="flex flex-col gap-4 bg-slate-50 p-4 rounded-xl border border-slate-900/5 max-h-96 overflow-y-auto custom-scrollbar">
-        {transcript.map((line, i) => {
+        {transcript.map((rawLine, i) => {
+          const line = typeof rawLine === 'string' ? rawLine : (rawLine && typeof (rawLine as any).text === 'string' ? (rawLine as any).text : '');
           const isStudent = line.startsWith("[Student]:");
           const isTutor = line.startsWith("[Tutor]:");
 

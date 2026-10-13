@@ -8,10 +8,12 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
   const [wordDefinition, setWordDefinition] = useState<{ word: string; definition: string; phonetic: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const isIeltsReport = (content.toLowerCase().includes('band score') ||
-                        content.toLowerCase().includes('ielts') ||
-                        content.toLowerCase().includes('lexical resource')) &&
-                        !content.toLowerCase().includes('cambridge criteria');
+  const safeContent = typeof content === 'string' ? content : '';
+
+  const isIeltsReport = (safeContent.toLowerCase().includes('band score') ||
+                        safeContent.toLowerCase().includes('ielts') ||
+                        safeContent.toLowerCase().includes('lexical resource')) &&
+                        !safeContent.toLowerCase().includes('cambridge criteria');
 
   const handleWordClick = async (word: string) => {
     // Strip punctuation if any sneaked in
@@ -54,7 +56,21 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
     setLoading(false);
   };
 
-  const processedReport = content.replace(/<u>(.*?)<\/u>/g, '[$1](#define-$1)');
+  // Extract corrections JSON block so it doesn't render as an ugly raw code block
+  const jsonMatch = safeContent.match(/```json\s*([\s\S]*?)\s*```/);
+  let corrections: Array<{ original: string; correction: string }> = [];
+  if (jsonMatch && jsonMatch[1]) {
+    try {
+      const parsed = JSON.parse(jsonMatch[1]);
+      if (parsed.corrections && Array.isArray(parsed.corrections)) {
+        corrections = parsed.corrections.filter((c: any) => c && c.original && c.correction);
+      }
+    } catch (e) {}
+  }
+
+  // Strip the JSON block completely from the rendered markdown
+  const markdownWithoutJson = safeContent.replace(/```json\s*[\s\S]*?\s*```/g, '').trim();
+  const processedReport = markdownWithoutJson.replace(/<u>(.*?)<\/u>/g, '[$1](#define-$1)');
 
   return (
     <div className="text-slate-700 leading-relaxed space-y-4 font-medium">
@@ -164,6 +180,55 @@ export function FeedbackMarkdown({ content, onPracticeWord }: { content: string,
       >
         {processedReport}
       </Markdown>
+
+      {corrections.length > 0 && (
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-indigo-600" />
+            <h3 className="text-base font-bold text-slate-800">
+              Grammar & Vocabulary Corrections
+            </h3>
+          </div>
+          <div className="space-y-3">
+            {corrections.map((item, idx) => (
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div className="space-y-1.5 flex-1">
+                  <div className="flex items-start gap-2 text-xs sm:text-sm">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 uppercase shrink-0 mt-0.5">
+                      Spoken
+                    </span>
+                    <span className="line-through text-slate-500 font-medium">
+                      "{item.original}"
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2 text-xs sm:text-sm font-semibold text-emerald-800">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase shrink-0 mt-0.5">
+                      Better
+                    </span>
+                    <span className="text-emerald-700">
+                      "{item.correction}"
+                    </span>
+                  </div>
+                </div>
+
+                {onPracticeWord && (
+                  <button
+                    onClick={() => onPracticeWord(item.correction)}
+                    className="self-start sm:self-auto px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                    title="Practice this phrase"
+                  >
+                    <Mic className="w-3.5 h-3.5 text-indigo-500" />
+                    Practice
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <AnimatePresence>
         {wordDefinition && (

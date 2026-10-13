@@ -301,16 +301,14 @@ export class AudioPlayer {
     }
     
     
-    if (bytes.length % 2 !== 0) {
-        console.warn("Odd byte length:", bytes.length);
-    }
-    // safely create Int16Array
-    const bufferLength = Math.floor(bytes.length / 2) * 2;
-    const pcmData = new Int16Array(bytes.buffer, 0, bufferLength / 2);
+    const numSamples = Math.floor(bytes.length / 2);
+    if (numSamples === 0) return;
 
-    const floatData = new Float32Array(pcmData.length);
-    for (let i = 0; i < pcmData.length; i++) {
-      floatData[i] = pcmData[i] / 0x8000;
+    const floatData = new Float32Array(numSamples);
+    const dataView = new DataView(bytes.buffer, bytes.byteOffset, numSamples * 2);
+    for (let i = 0; i < numSamples; i++) {
+      const int16 = dataView.getInt16(i * 2, true);
+      floatData[i] = int16 / 0x8000;
     }
 
     const audioBuffer = this.audioContext.createBuffer(1, floatData.length, 24000);

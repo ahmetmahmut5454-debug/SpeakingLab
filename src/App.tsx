@@ -182,6 +182,14 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  const [toast, setToast] = useState<{ message: string; type: 'info' | 'success' | 'error' } | null>(null);
+  const showToast = (message: string, type: 'info' | 'success' | 'error' = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast((current) => (current?.message === message ? null : current));
+    }, 4000);
+  };
+
   useEffect(() => {
     botRef.current = new EltBot({
       onUserLevel: (l) => audioLevelEmitter.emitUser(l),
@@ -198,7 +206,7 @@ export default function App() {
       },
       onError: (err) => {
         console.error("Bot error:", err);
-        alert("Connection error: " + (err.message || err));
+        showToast("Bağlantı hatası: " + (err.message || err), "error");
         setIsRunning(false);
       },
       onBotFinished: () => {
@@ -277,35 +285,44 @@ export default function App() {
       }
     }
 
-    const rawReport = await botRef.current.generateReport(context, currentTranscript);
-    setGeneratingReport(false);
+    try {
+      const rawReport = await botRef.current.generateReport(context, currentTranscript);
+      const isIELTS = isIELTSSession(context);
+      const sessionReport = isIELTS && rawReport ? processIELTSReportScores(rawReport) : rawReport;
+      const hasReport = sessionReport && !sessionReport.includes("❌");
+      const newReport: SavedReport = {
+        id: Date.now().toString(),
+        createdAt: Date.now(),
+        level: isIELTS ? "IELTS" : context.level,
+        mode: isIELTS ? "IELTS" : (context.mode || "Practice"),
+        topic: context.topic || "",
+        scenarioId: context.scenarioId || "",
+        reportText: hasReport ? sessionReport : "",
+        transcript: currentTranscript,
+        durationMs: sessionStartTime ? Date.now() - sessionStartTime : undefined,
+      };
+      const cloudId = await saveReportToDb(context, sessionReport || "", currentTranscript, sessionStartTime ? Date.now() - sessionStartTime : undefined); 
+      if (cloudId) newReport.id = cloudId;
+      setReport(newReport);
+      setPastReports([newReport, ...pastReports]);
 
-    // Save directly to Firestore
-    const isIELTS = isIELTSSession(context);
-    const sessionReport = isIELTS && rawReport ? processIELTSReportScores(rawReport) : rawReport;
-    const hasReport = sessionReport && !sessionReport.includes("❌");
-    const newReport: SavedReport = {
-      id: Date.now().toString(),
-      createdAt: Date.now(),
-      
-      level: isIELTS ? "IELTS" : context.level,
-      mode: isIELTS ? "IELTS" : (context.mode || "Practice"),
-      topic: context.topic || "",
-      scenarioId: context.scenarioId || "",
-      reportText: hasReport ? sessionReport : "",
-      transcript: currentTranscript,
-      
-      durationMs: sessionStartTime ? Date.now() - sessionStartTime : undefined,
-    };
-    const cloudId = await saveReportToDb(context, sessionReport || "", currentTranscript, sessionStartTime ? Date.now() - sessionStartTime : undefined); 
-    if (cloudId) newReport.id = cloudId;
-    setReport(newReport);
+      if (hasReport) {
+        showToast("Geri bildirim raporunuz hazır!", "success");
+      } else {
+        showToast("Rapor oluşturulamadı, rapor penceresinden tekrar deneyebilirsiniz.", "info");
+      }
+    } catch (reportErr: any) {
+      console.error("Error generating or saving report:", reportErr);
+      showToast("Geri bildirim oluşturulurken hata meydana geldi.", "error");
+    } finally {
+      setGeneratingReport(false);
+    }
   };
 
   const retryReportGeneration = async (report: SavedReport) => {
     if (!botRef.current) return;
     if (!report.transcript || report.transcript.length === 0) {
-      alert("No transcript found for this session.");
+      showToast("Bu oturum için konuşma kaydı bulunamadı.", "info");
       return;
     }
     try {
@@ -325,19 +342,17 @@ export default function App() {
       const newReport = isIeltsScenario && generatedReport ? processIELTSReportScores(generatedReport) : generatedReport;
 
       if (newReport && !newReport.includes("❌")) {
-        const updated = await updateReportInDb(report.id, newReport);
-        if (updated) { report.reportText = newReport; }
-        if (updated) {
-          setPastReports(pastReports.map((r) => (r.id === report.id ? report : r)));
-        }
-        alert("Feedback generated successfully!");
+        await updateReportInDb(report.id, newReport);
+        const updatedReport = { ...report, reportText: newReport };
+        setPastReports(pastReports.map((r) => (r.id === report.id ? updatedReport : r)));
+        setReport(updatedReport);
+        showToast("Geri bildirim başarıyla oluşturuldu!", "success");
       } else {
-        alert("AI server is still busy. Please try again later.");
+        showToast("Yapay zeka sunucusu şu anda meşgul, lütfen biraz sonra tekrar deneyin.", "error");
       }
     } catch (e) {
       console.error(e);
-      alert("Failed to retry feedback generation.");
-    } finally {
+      showToast("Geri bildirim oluşturulurken hata meydana geldi.", "error");
     }
   };
   useEffect(() => {
@@ -686,6 +701,7 @@ export default function App() {
           setReport={setReport}
           setPronunciationWord={setPronunciationWord}
           transcript={botRef.current?.transcript || []}
+          retryReportGeneration={retryReportGeneration}
         />
         {/* Pre-Task / Scaffolding Modal */}
         <PreTaskModal 
@@ -824,6 +840,39 @@ export default function App() {
         <AnimatePresence>{pronunciationWord && <PronunciationPractice word={pronunciationWord} onClose={() => setPronunciationWord(null)} />}</AnimatePresence>
         <SpeakingTips mode={context.mode} level={context.level} />
       </main>
+
+      {/* Toast Notification Banner */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] max-w-md w-full px-4 pointer-events-none"
+          >
+            <div
+              className={`p-4 rounded-2xl shadow-2xl border text-sm font-bold flex items-center justify-between gap-3 pointer-events-auto ${
+                toast.type === "error"
+                  ? "bg-rose-900 border-rose-700 text-white"
+                  : toast.type === "success"
+                  ? "bg-emerald-900 border-emerald-700 text-white"
+                  : "bg-slate-900 border-slate-700 text-white"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span>{toast.type === "error" ? "⚠️" : toast.type === "success" ? "✅" : "ℹ️"}</span>
+                <span className="leading-snug">{toast.message}</span>
+              </div>
+              <button
+                onClick={() => setToast(null)}
+                className="p-1 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

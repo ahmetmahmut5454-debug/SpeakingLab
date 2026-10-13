@@ -154,7 +154,11 @@ export const processIELTSReportScores = (reportText: string): string => {
     );
   } else {
     const rawBand = extractOverallScore(reportText);
-    calculatedBand = rawBand !== null && rawBand <= 9 ? rawBand : 6.0;
+    calculatedBand = rawBand !== null && !isNaN(rawBand) && rawBand <= 9 ? rawBand : 6.0;
+  }
+
+  if (isNaN(calculatedBand) || calculatedBand < 0 || calculatedBand > 9) {
+    calculatedBand = 6.0;
   }
 
   const formattedBand = calculatedBand.toFixed(1);
@@ -222,8 +226,9 @@ export const extractOverallScore = (text: string): number | null => {
 };
 
 export const extractEstimatedLevel = (text: string): string | null => {
-  // Try CEFR first
-  const cefrRegex = /\*?\*?Estimated Level\*?\*?\s*:\s*\**\s*([A-C][1-2])/i;
+  if (!text) return null;
+  // Try CEFR first (e.g. - **Estimated CEFR Level**: B2 or Estimated Level: B1)
+  const cefrRegex = /\*?\*?Estimated\s+(?:CEFR\s+)?Level\*?\*?\s*[:=]?\s*[*_\[(]*\s*([A-C][1-2])/i;
   let match = cefrRegex.exec(text);
   if (match && match[1]) {
     return match[1].toUpperCase();

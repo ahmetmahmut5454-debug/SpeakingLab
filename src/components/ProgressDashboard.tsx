@@ -18,9 +18,21 @@ interface Props {
 export const ProgressDashboard: React.FC<Props> = ({ reports, onSelectReport }) => {
   const [filterMode, setFilterMode] = useState<'ALL' | 'IELTS'>('IELTS');
 
+  const parseTime = (r: SavedReport): number => {
+    const val = (r as any)?.createdAt;
+    if (typeof val === 'number') return val;
+    if (val?.toMillis) return val.toMillis();
+    if (val?.seconds) return val.seconds * 1000;
+    if (typeof val === 'string') {
+      const t = new Date(val).getTime();
+      if (!isNaN(t)) return t;
+    }
+    return 0;
+  };
+
   // Filter reports according to selected mode
   const filteredReports = useMemo(() => {
-    const sorted = [...reports].sort((a, b) => a.createdAt - b.createdAt);
+    const sorted = [...reports].sort((a, b) => parseTime(a) - parseTime(b));
     if (filterMode === 'IELTS') {
       const ieltsOnly = sorted.filter(r => 
         r.mode === 'IELTS' || 
@@ -44,7 +56,7 @@ export const ProgressDashboard: React.FC<Props> = ({ reports, onSelectReport }) 
       const pronunciation = extractPronunciationScore(text);
       let overall = extractOverallScore(text);
 
-      const d = new Date(report.createdAt);
+      const d = new Date(parseTime(report) || Date.now());
       const formattedDate = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
 
       return {

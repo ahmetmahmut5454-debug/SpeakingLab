@@ -685,15 +685,17 @@ CRITICAL RULES:
           contents: prompt
         });
         
-        const markdownRep = response.text || "No feedback generated.";
-        const finalReport = isIelts ? processIELTSReportScores(markdownRep) : markdownRep;
-        this.processCorrectionsFromReport(finalReport);
-        return finalReport;
+        if (response.text && response.text.trim().length > 0) {
+          const markdownRep = response.text;
+          const finalReport = isIelts ? processIELTSReportScores(markdownRep) : markdownRep;
+          this.processCorrectionsFromReport(finalReport);
+          return finalReport;
+        }
       } catch (err) {
         console.warn(`Model ${model} failed:`, err);
       }
     }
     
-    return "Feedback report generated. Please check your practice history.";
+    return "❌ Geri bildirim raporu şu anda oluşturulamadı. Lütfen geçmiş ekranından tekrar deneyin.";
   }
 }

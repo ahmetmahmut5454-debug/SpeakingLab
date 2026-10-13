@@ -49,9 +49,12 @@ export const BandScoreDisplay: React.FC<BandScoreDisplayProps> = ({
   let bandVal = overall;
   if (propOverall === undefined && fluency !== null && lexical !== null && grammar !== null && pronunciation !== null) {
     bandVal = calculateIELTSBandScore(fluency, lexical, grammar, pronunciation);
-  } else if (bandVal === null) {
+  }
+  
+  if (bandVal === null || bandVal === undefined || isNaN(bandVal)) {
     bandVal = 6.0;
   }
+  bandVal = Math.min(9, Math.max(0, Number(bandVal)));
 
   const descriptor = getCEFRDescriptor(bandVal);
 
@@ -143,7 +146,8 @@ export const BandScoreDisplay: React.FC<BandScoreDisplayProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {subCriteria.map((item) => {
-              const val = item.score ?? bandVal;
+              const rawVal = item.score ?? bandVal;
+              const val = typeof rawVal === 'number' && !isNaN(rawVal) ? Math.min(9, Math.max(0, rawVal)) : bandVal;
               const subPct = Math.min(100, Math.max(0, (val / 9) * 100));
               const Icon = item.icon;
 

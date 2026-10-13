@@ -145,14 +145,29 @@ async function startServer() {
         If there are no major corrections, return an empty array for corrections: {"corrections": []}.
       `;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: prompt
-      });
+      const candidateModels = ["gemini-3.8-flash", "gemini-2.5-flash"];
+      let rawReport = "";
 
-      const rawReport = response.text || "No feedback generated.";
+      for (const model of candidateModels) {
+        try {
+          const response = await ai.models.generateContent({
+            model,
+            contents: prompt
+          });
+          if (response.text && response.text.trim().length > 0) {
+            rawReport = response.text;
+            break;
+          }
+        } catch (e: any) {
+          console.warn(`Model ${model} failed on server generate-report:`, e.message || e);
+        }
+      }
+
+      if (!rawReport) {
+        return res.status(500).json({ error: "Failed to generate report from available models." });
+      }
+
       const finalReport = isIelts ? processIELTSReportScores(rawReport) : rawReport;
-
       return res.json({ report: finalReport });
     } catch (err: any) {
       console.error("Error generating report in /api/generate-report:", err);

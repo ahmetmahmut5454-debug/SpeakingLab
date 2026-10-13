@@ -12,14 +12,40 @@ interface ReportModalProps {
   setReport: (report: SavedReport | null) => void;
   setPronunciationWord: (word: string | null) => void;
   transcript: any[];
+  retryReportGeneration?: (report: SavedReport) => void;
 }
 
 export function ReportModal({
   report,
   setReport,
   setPronunciationWord,
-  transcript
+  transcript,
+  retryReportGeneration
 }: ReportModalProps) {
+  const [retrying, setRetrying] = React.useState(false);
+
+  const handleRetry = async () => {
+    if (!report || !retryReportGeneration) return;
+    setRetrying(true);
+    try {
+      await retryReportGeneration(report);
+    } finally {
+      setRetrying(false);
+    }
+  };
+
+  const getFormattedDate = (createdAt: any) => {
+    let time = Date.now();
+    if (typeof createdAt === 'number') time = createdAt;
+    else if (createdAt?.toMillis) time = createdAt.toMillis();
+    else if (createdAt?.seconds) time = createdAt.seconds * 1000;
+    else if (typeof createdAt === 'string') {
+      const parsed = new Date(createdAt).getTime();
+      if (!isNaN(parsed)) time = parsed;
+    }
+    return new Date(time).toLocaleDateString();
+  };
+
   return (
     <AnimatePresence>
       {report && (
@@ -34,6 +60,7 @@ export function ReportModal({
               <LayoutDashboard className="w-6 h-6 text-emerald-500" />
               <div>
                 {(() => {
+                  const rawReportText = typeof report.reportText === 'string' ? report.reportText : '';
                   const isIeltsReport = report.mode === "IELTS" ||
                                         isIELTSSession({
                                           mode: report.mode as any,
@@ -42,10 +69,10 @@ export function ReportModal({
                                           scenarioId: report.scenarioId,
                                           level: report.level as any,
                                         } as any) ||
-                                        (report.reportText && (
-                                          report.reportText.toLowerCase().includes("band score") ||
-                                          report.reportText.toLowerCase().includes("ielts") ||
-                                          report.reportText.toLowerCase().includes("fluency & coherence")
+                                        (rawReportText && (
+                                          rawReportText.toLowerCase().includes("band score") ||
+                                          rawReportText.toLowerCase().includes("ielts") ||
+                                          rawReportText.toLowerCase().includes("fluency & coherence")
                                         ));
                   return (
                     <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight">
@@ -54,7 +81,7 @@ export function ReportModal({
                   );
                 })()}
                 <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">
-                  <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+                  <span>{getFormattedDate(report.createdAt)}</span>
                   {report.durationMs && (
                     <>
                       <span>•</span>
@@ -67,9 +94,44 @@ export function ReportModal({
             
             <div className="overflow-y-auto custom-scrollbar flex-1 min-h-0 p-4 sm:p-8">
               {(() => {
-                const match = report.reportText.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
+                const rawReportText = typeof report.reportText === 'string' ? report.reportText : '';
+                const hasValidReport = rawReportText.trim().length > 0 && !rawReportText.includes("❌");
+
+                if (!hasValidReport) {
+                  return (
+                    <div className="py-8 px-4 text-center space-y-4">
+                      <div className="w-14 h-14 bg-amber-50 border border-amber-200 text-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                        <AudioLines className="w-7 h-7" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-800 text-base mb-1">
+                          Detaylı Geri Bildirim Hazırlanıyor
+                        </h3>
+                        <p className="text-slate-500 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
+                          Bu oturumun detaylı değerlendirme raporu henüz tamamlanmadı veya bağlantı kaynaklı gecikti.
+                        </p>
+                      </div>
+                      {retryReportGeneration && (
+                        <button
+                          onClick={handleRetry}
+                          disabled={retrying}
+                          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50"
+                        >
+                          {retrying ? "Rapor Oluşturuluyor..." : "Raporu Tekrar Oluştur"}
+                        </button>
+                      )}
+                      {transcript && transcript.length > 0 && (
+                        <div className="mt-8 text-left">
+                          <FluencyHeatmap transcript={transcript} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                const match = rawReportText.match(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)/i);
                 const struggledText = match ? match[1] : null;
-                const cleanReport = report.reportText.replace(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)\n?/i, '');
+                const cleanReport = rawReportText.replace(/(?:\*\s*)?\*?\*?Struggled Sounds\/Words:\*?\*?\s*(.+)\n?/i, '');
                 
                 return (
                   <>

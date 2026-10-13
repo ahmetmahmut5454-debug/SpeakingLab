@@ -138,12 +138,19 @@ export function HistoryModal({
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-md">
                             <Calendar className="w-3.5 h-3.5" />
-                            {new Date(r.createdAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                            {" "}
-                            {new Date(r.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {(() => {
+                              let t = Date.now();
+                              const raw = (r as any)?.createdAt;
+                              if (typeof raw === 'number') t = raw;
+                              else if (raw?.toMillis) t = raw.toMillis();
+                              else if (raw?.seconds) t = raw.seconds * 1000;
+                              else if (typeof raw === 'string') {
+                                const parsed = new Date(raw).getTime();
+                                if (!isNaN(parsed)) t = parsed;
+                              }
+                              const d = new Date(t);
+                              return `${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+                            })()}
                           </span>
                           <span
                             className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${

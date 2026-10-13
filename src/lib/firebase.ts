@@ -437,7 +437,17 @@ export const getUserReports = async (): Promise<SavedReport[]> => {
     const snapshot = await getDocs(q);
     const reports = snapshot.docs.map((doc) => {
       const data = doc.data();
-      const time = data.createdAt?.toMillis?.() || data.createdAt?.seconds * 1000 || Date.now();
+      let time = Date.now();
+      if (typeof data.createdAt === 'number') {
+        time = data.createdAt;
+      } else if (data.createdAt?.toMillis) {
+        time = data.createdAt.toMillis();
+      } else if (data.createdAt?.seconds) {
+        time = data.createdAt.seconds * 1000;
+      } else if (typeof data.createdAt === 'string') {
+        const parsed = new Date(data.createdAt).getTime();
+        if (!isNaN(parsed)) time = parsed;
+      }
       return {
         id: doc.id,
         ...data,

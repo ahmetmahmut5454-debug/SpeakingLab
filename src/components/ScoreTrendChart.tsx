@@ -18,8 +18,20 @@ interface Props {
 
 export const ScoreTrendChart: React.FC<Props> = ({ reports }) => {
   const chartData = useMemo(() => {
+    const parseTime = (r: SavedReport): number => {
+      const val = (r as any)?.createdAt;
+      if (typeof val === 'number') return val;
+      if (val?.toMillis) return val.toMillis();
+      if (val?.seconds) return val.seconds * 1000;
+      if (typeof val === 'string') {
+        const t = new Date(val).getTime();
+        if (!isNaN(t)) return t;
+      }
+      return 0;
+    };
+
     // Sort chronologically
-    const sorted = [...reports].sort((a, b) => a.createdAt - b.createdAt);
+    const sorted = [...reports].sort((a, b) => parseTime(a) - parseTime(b));
     // Take the last 10
     const last10 = sorted.slice(-10);
     
@@ -40,7 +52,8 @@ export const ScoreTrendChart: React.FC<Props> = ({ reports }) => {
         }
       }
       
-      const date = new Date(report.createdAt);
+      const timeMs = parseTime(report);
+      const date = new Date(timeMs || Date.now());
       return {
         name: `Session ${idx + 1}`,
         date: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
