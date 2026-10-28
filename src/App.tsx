@@ -190,6 +190,9 @@ export default function App() {
     }, 4000);
   };
 
+  const handleStopAndReportRef = useRef<() => void>(() => {});
+  const isGeneratingReportRef = useRef<boolean>(false);
+
   useEffect(() => {
     botRef.current = new EltBot({
       onUserLevel: (l) => audioLevelEmitter.emitUser(l),
@@ -210,7 +213,7 @@ export default function App() {
         setIsRunning(false);
       },
       onBotFinished: () => {
-        handleStopAndReport();
+        handleStopAndReportRef.current();
       },
       onShowCueCard: (topic) => {
         setCueCardTopic(topic);
@@ -256,15 +259,15 @@ export default function App() {
   }, [isRunning]);
 
   const handleStopAndReport = async () => {
-    if (!botRef.current) return;
+    if (!botRef.current || isGeneratingReportRef.current) return;
+    isGeneratingReportRef.current = true;
     setIsRunning(false);
     setCueCardTopic(null);
     setGeneratingReport(true);
     botRef.current.stop(); // Stop audio/mic and commit any in-flight speech
-    const currentTranscript = botRef.current.transcript;
+    const currentTranscript = [...botRef.current.transcript];
 
     // Always give XP for participating, but only if they actually interacted
-    const studentTurns = currentTranscript.filter((line) => line.startsWith("[Student]:")).length;
     const botTurns = currentTranscript.filter((line) => line.startsWith("[Tutor]:")).length;
     
     const sessionDuration = sessionStartTime ? Date.now() - sessionStartTime : 0;
@@ -289,7 +292,11 @@ export default function App() {
       const rawReport = await botRef.current.generateReport(context, currentTranscript);
       const isIELTS = isIELTSSession(context);
       const sessionReport = isIELTS && rawReport ? processIELTSReportScores(rawReport) : rawReport;
-      const hasReport = sessionReport && !sessionReport.includes("❌");
+      const hasReport = Boolean(
+        sessionReport &&
+        !sessionReport.includes("❌") &&
+        sessionReport.trim() !== "No transcript available."
+      );
       const newReport: SavedReport = {
         id: Date.now().toString(),
         createdAt: Date.now(),
@@ -301,7 +308,7 @@ export default function App() {
         transcript: currentTranscript,
         durationMs: sessionStartTime ? Date.now() - sessionStartTime : undefined,
       };
-      const cloudId = await saveReportToDb(context, sessionReport || "", currentTranscript, sessionStartTime ? Date.now() - sessionStartTime : undefined); 
+      const cloudId = await saveReportToDb(context, hasReport ? sessionReport : "", currentTranscript, sessionStartTime ? Date.now() - sessionStartTime : undefined); 
       if (cloudId) newReport.id = cloudId;
       setReport(newReport);
       setPastReports([newReport, ...pastReports]);
@@ -316,8 +323,10 @@ export default function App() {
       showToast("Geri bildirim oluşturulurken hata meydana geldi.", "error");
     } finally {
       setGeneratingReport(false);
+      isGeneratingReportRef.current = false;
     }
   };
+  handleStopAndReportRef.current = handleStopAndReport;
 
   const retryReportGeneration = async (report: SavedReport) => {
     if (!botRef.current) return;
@@ -700,7 +709,7 @@ export default function App() {
           report={report}
           setReport={setReport}
           setPronunciationWord={setPronunciationWord}
-          transcript={botRef.current?.transcript || []}
+          transcript={report?.transcript || botRef.current?.transcript || []}
           retryReportGeneration={retryReportGeneration}
         />
         {/* Pre-Task / Scaffolding Modal */}

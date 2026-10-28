@@ -28,6 +28,8 @@ export class AudioProcessor {
 
   private audioContext: AudioContext | null = null;
   private workletNode: AudioWorkletNode | null = null;
+  private scriptProcessor: ScriptProcessorNode | null = null;
+  private silentGain: GainNode | null = null;
   private workletUrl: string | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
   private compressor: DynamicsCompressorNode | null = null;
@@ -63,13 +65,35 @@ export class AudioProcessor {
     const bufferLength = this.analyser.frequencyBinCount;
     this.dataArray = new Uint8Array(bufferLength);
 
+    const handlePcmBuffer = (pcmData: ArrayBuffer) => {
+      if (!this.audioContext || this.audioContext.state === 'closed') return;
+
+      let avgLevel = 0;
+      if (this.analyser && this.dataArray) {
+        this.analyser.getByteFrequencyData(this.dataArray as any);
+        const sum = this.dataArray.reduce((a, b) => a + b, 0);
+        avgLevel = sum / this.dataArray.length;
+        if (onLevel) onLevel(avgLevel);
+      }
+
+      // Smart Echo Suppression:
+      // While the AI tutor's voice is playing through speakers, suppress low-energy speaker bleed
+      // so the model does not falsely interrupt itself, while still allowing intentional user barge-in.
+      if (isAudioPlaying && isAudioPlaying() && avgLevel < 28) {
+        return;
+      }
+
+      const base64 = this.arrayBufferToBase64(pcmData);
+      onAudioData(base64);
+    };
+
     const workletCode = `
 class PCMProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this.targetSampleRate = 16000;
-    this.sourceSampleRate = sampleRate; // Global in AudioWorkletGlobalScope
-    this.bufferSize = 2048; // Output frame buffer size
+    this.sourceSampleRate = sampleRate;
+    this.bufferSize = 2048;
     this.outputBuffer = new Int16Array(this.bufferSize);
     this.outputIndex = 0;
     this.resampleRatio = this.sourceSampleRate / this.targetSampleRate;
@@ -83,7 +107,6 @@ class PCMProcessor extends AudioWorkletProcessor {
     if (!channelData || channelData.length === 0) return true;
 
     if (Math.abs(this.resampleRatio - 1) < 0.05) {
-      // 1:1 mapping if already 16kHz
       for (let i = 0; i < channelData.length; i++) {
         let s = Math.max(-1, Math.min(1, channelData[i]));
         this.outputBuffer[this.outputIndex++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
@@ -92,7 +115,6 @@ class PCMProcessor extends AudioWorkletProcessor {
         }
       }
     } else {
-      // Resample down to 16kHz via linear interpolation for PC/Mac hardware rates (44.1k/48k)
       const inputLength = channelData.length;
       while (this.samplePosition < inputLength) {
         const index0 = Math.floor(this.samplePosition);
@@ -128,48 +150,73 @@ class PCMProcessor extends AudioWorkletProcessor {
 registerProcessor('pcm-processor', PCMProcessor);
     `;
 
-    if (!this.workletUrl) {
-      const blob = new Blob([workletCode], { type: 'application/javascript' });
-      this.workletUrl = URL.createObjectURL(blob);
-    }
-
-    try {
-      if (!AudioProcessor.workletLoaded) {
-        await this.audioContext.audioWorklet.addModule(this.workletUrl);
-        AudioProcessor.workletLoaded = true;
-      }
-    } catch (e) {
-      console.warn("AudioWorklet load issue:", e);
-      AudioProcessor.workletLoaded = true; // Assume it's loaded if it throws
-    }
-
-    this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-processor');
-
-    // Audio Pipeline: Source -> Dynamics Compressor -> Analyser -> AudioWorklet -> Destination
     this.source.connect(this.analyser);
-    this.analyser.connect(this.workletNode);
-    // this.workletNode.connect(this.audioContext.destination);
 
-    this.workletNode.port.onmessage = (e) => {
-      if (!this.audioContext || this.audioContext.state === 'closed') return;
-      
-      const pcmData = e.data.pcmData;
-      
-      // Calculate energy level
-      let avgLevel = 0;
-      if (this.analyser && this.dataArray) {
-        this.analyser.getByteFrequencyData(this.dataArray as any);
-        const sum = this.dataArray.reduce((a, b) => a + b, 0);
-        avgLevel = sum / this.dataArray.length;
-        if (onLevel) onLevel(avgLevel);
+    let useWorklet = false;
+    if (this.audioContext.audioWorklet) {
+      try {
+        if (!this.workletUrl) {
+          const blob = new Blob([workletCode], { type: 'application/javascript' });
+          this.workletUrl = URL.createObjectURL(blob);
+        }
+        if (!(this.audioContext as any).__pcmWorkletLoaded) {
+          await this.audioContext.audioWorklet.addModule(this.workletUrl);
+          (this.audioContext as any).__pcmWorkletLoaded = true;
+        }
+        this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-processor');
+        this.analyser.connect(this.workletNode);
+        this.workletNode.port.onmessage = (e) => {
+          if (e.data?.pcmData) {
+            handlePcmBuffer(e.data.pcmData);
+          }
+        };
+        useWorklet = true;
+      } catch (e) {
+        console.warn("AudioWorklet unavailable, falling back to ScriptProcessorNode:", e);
+        useWorklet = false;
       }
+    }
 
-      // Echo / Self-Interruption Guard:
-      // If the bot is speaking, we drop low-volume packets to prevent the microphone from picking up the speakers and causing self-interruption.
-      // Echo Guard removed for stability.
-      const base64 = this.arrayBufferToBase64(pcmData);
-      onAudioData(base64);
-    };
+    // Fallback to ScriptProcessorNode if AudioWorklet failed or is blocked
+    if (!useWorklet && this.audioContext) {
+      const sourceRate = this.audioContext.sampleRate || 16000;
+      const targetRate = 16000;
+      const ratio = sourceRate / targetRate;
+      this.scriptProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
+      this.silentGain = this.audioContext.createGain();
+      this.silentGain.gain.value = 0;
+
+      this.scriptProcessor.onaudioprocess = (event) => {
+        const inputData = event.inputBuffer.getChannelData(0);
+        if (!inputData || inputData.length === 0) return;
+
+        if (Math.abs(ratio - 1) < 0.05) {
+          const pcm = new Int16Array(inputData.length);
+          for (let i = 0; i < inputData.length; i++) {
+            const s = Math.max(-1, Math.min(1, inputData[i]));
+            pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          }
+          handlePcmBuffer(pcm.buffer);
+        } else {
+          const outLength = Math.floor(inputData.length / ratio);
+          if (outLength <= 0) return;
+          const pcm = new Int16Array(outLength);
+          for (let i = 0; i < outLength; i++) {
+            const pos = i * ratio;
+            const idx0 = Math.floor(pos);
+            const idx1 = Math.min(idx0 + 1, inputData.length - 1);
+            const frac = pos - idx0;
+            const sample = Math.max(-1, Math.min(1, inputData[idx0] + frac * (inputData[idx1] - inputData[idx0])));
+            pcm[i] = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+          }
+          handlePcmBuffer(pcm.buffer);
+        }
+      };
+
+      this.analyser.connect(this.scriptProcessor);
+      this.scriptProcessor.connect(this.silentGain);
+      this.silentGain.connect(this.audioContext.destination);
+    }
   }
 
   stop() {
@@ -179,6 +226,19 @@ registerProcessor('pcm-processor', PCMProcessor);
         this.workletNode.disconnect();
       } catch (e) {}
       this.workletNode = null;
+    }
+    if (this.scriptProcessor) {
+      this.scriptProcessor.onaudioprocess = null;
+      try {
+        this.scriptProcessor.disconnect();
+      } catch (e) {}
+      this.scriptProcessor = null;
+    }
+    if (this.silentGain) {
+      try {
+        this.silentGain.disconnect();
+      } catch (e) {}
+      this.silentGain = null;
     }
     if (this.analyser) {
       try {
@@ -204,12 +264,7 @@ registerProcessor('pcm-processor', PCMProcessor);
       } catch (e) {}
       this.mediaStream = null;
     }
-    if (this.audioContext) {
-      if (false) {
-        this.audioContext?.close().catch(() => {});
-      }
-      this.audioContext = null;
-    }
+    this.audioContext = null;
     this.dataArray = null;
   }
 
@@ -260,17 +315,21 @@ export class AudioPlayer {
   }
 
   private initContext() {
-    if (!AudioPlayer.globalContext) {
+    if (!AudioPlayer.globalContext || AudioPlayer.globalContext.state === 'closed') {
       AudioPlayer.unlockGlobal();
+    }
+    if (this.audioContext !== AudioPlayer.globalContext) {
+      this.analyser = null;
+      this.startTime = 0;
     }
     this.audioContext = AudioPlayer.globalContext;
     if (!this.audioContext) return;
     
     if (!this.analyser) {
-        this.analyser = this.audioContext.createAnalyser();
-        this.analyser.fftSize = 256;
-        this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-        this.analyser.connect(this.audioContext.destination);
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 256;
+      this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+      this.analyser.connect(this.audioContext.destination);
     }
   }
 

@@ -85,6 +85,7 @@ export class EltBot {
   private callbacks: EltBotCallbacks;
   private session: any = null;
   public isConnected: boolean = false;
+  private isStopping: boolean = false;
   private currentStream: MediaStream | null = null;
   private audioProcessor: any = null;
   private audioPlayer: any = null;
@@ -96,11 +97,6 @@ export class EltBot {
 
   constructor(callbacks: EltBotCallbacks) {
     this.callbacks = callbacks;
-    
-    // Minimal mock for audioPlayer to prevent crashes if we lost the real one.
-    // In the real file this imported audioManager or used an Audio class.
-    // Actually, I can just use a generic audio context player or null for now.
-    // The previous code had `this.audioPlayer.isPlaying`. Let's mock it.
     this.audioPlayer = new AudioPlayer();
   }
 
@@ -116,8 +112,10 @@ export class EltBot {
   }
 
   async start(context: BotContext) {
+    this.isStopping = false;
     this.transcriptHistory = [];
     this.currentBotSubtitle = "";
+    this.currentUserSubtitle = "";
     try {
       this.currentStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
       const stream = this.currentStream;
@@ -364,8 +362,8 @@ CRITICAL RULES:
               this.audioPlayer.clear();
             }
 
-            // Real-time student transcription from Gemini Live
-            const inTrans = message.serverContent?.inputTranscription;
+            // Real-time student transcription from Gemini Live (handles both field names)
+            const inTrans = message.serverContent?.inputTranscription || message.serverContent?.inputAudioTranscription;
             if (inTrans?.text) {
               this.currentUserSubtitle += inTrans.text;
               if (this.callbacks.onTranscription) {
@@ -380,13 +378,14 @@ CRITICAL RULES:
             }
 
             // When tutor starts speaking, commit any pending student speech
-            if (message.serverContent?.modelTurn?.parts?.length) {
+            if (message.serverContent?.modelTurn?.parts?.length || message.serverContent?.outputTranscription?.text || message.serverContent?.outputAudioTranscription?.text) {
               if (this.currentUserSubtitle.trim().length > 0) {
                 this.transcriptHistory.push(`[Student]: ${cleanTranscript(this.currentUserSubtitle.trim())}`);
                 this.currentUserSubtitle = "";
               }
             }
 
+            let addedModelPartText = false;
             const parts = message.serverContent?.modelTurn?.parts;
             if (parts && parts.length > 0) {
               for (const part of parts) {
@@ -398,45 +397,51 @@ CRITICAL RULES:
                 const text = part.text;
                 if (text && typeof text === "string" && !part.thought) {
                   this.currentBotSubtitle += text;
+                  addedModelPartText = true;
                   if (this.callbacks.onTranscription) {
                     this.callbacks.onTranscription(this.currentBotSubtitle, true);
                   }
                 }
               }
             }
-            if (message.serverContent?.turnComplete) {
+
+            const outTrans = message.serverContent?.outputTranscription || message.serverContent?.outputAudioTranscription;
+            if (outTrans?.text && !addedModelPartText) {
+              this.currentBotSubtitle += outTrans.text;
+              if (this.callbacks.onTranscription) {
+                this.callbacks.onTranscription(this.currentBotSubtitle, true);
+              }
+            }
+
+            if (message.serverContent?.turnComplete || outTrans?.finished) {
               if (this.currentBotSubtitle.trim().length > 0) {
                 this.transcriptHistory.push(`[Tutor]: ${this.currentBotSubtitle.trim()}`);
                 this.currentBotSubtitle = "";
               }
             }
-            const outTrans = message.serverContent?.outputTranscription || message.serverContent?.outputAudioTranscription;
-            if (outTrans?.text) {
-              const text = outTrans.text;
-              if (!this.currentBotSubtitle.includes(text.trim())) {
-                this.currentBotSubtitle += text;
-              }
-              if (this.callbacks.onTranscription) {
-                this.callbacks.onTranscription(this.currentBotSubtitle, true);
-              }
+          },
+          onerror: (error: any) => {
+            console.error("Live session error:", error);
+            this.isConnected = false;
+            if (this.isStopping) return;
+            let msg = "Bağlantı hatası oluştu.";
+            if (error instanceof Event) {
+              msg = "Ses sunucusu bağlantısı kesildi. İnternet bağlantınızı kontrol edin.";
+            } else if (error && error.message) {
+              msg = error.message;
+            }
+            if (this.callbacks.onError) this.callbacks.onError(msg);
+            if (this.transcriptHistory.length > 0) {
+              this.handleUnexpectedDisconnect();
             }
           },
-          onerror: (error: any) => { 
-                console.error("Live session error:", error); 
-                this.isConnected = false; 
-                let msg = "Connection Error.";
-                if (error instanceof Event) {
-                    msg = "WebSocket Error. Check your API Key or Network.";
-                } else if (error && error.message) {
-                    msg = error.message;
-                }
-                const key = getApiKey();
-                msg += " (Key starts with: " + (key ? key.substring(0, 5) : "none") + ")";
-                
-                if (this.callbacks.onError) this.callbacks.onError(msg); 
-                this.handleUnexpectedDisconnect(); 
-            },
-          onclose: (e: any) => { console.log("Gemini Live session closed."); this.isConnected = false; this.handleUnexpectedDisconnect(); },
+          onclose: (e: any) => {
+            console.log("Gemini Live session closed.");
+            this.isConnected = false;
+            if (!this.isStopping) {
+              this.handleUnexpectedDisconnect();
+            }
+          },
         },
         config: {
           responseModalities: ["AUDIO"] as any,
@@ -446,7 +451,11 @@ CRITICAL RULES:
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: {
-                voiceName: context.voice || (context.level === "C1" ? "Charon" : "Puck"),
+                voiceName: (() => {
+                  const requested = context.voice || (context.level === "C1" ? "Charon" : "Puck");
+                  // Map 'Aoede' to supported Live API voice 'Zephyr'
+                  return requested === "Aoede" ? "Zephyr" : requested;
+                })(),
               }
             }
           },
@@ -471,13 +480,14 @@ CRITICAL RULES:
   }
 
   handleUnexpectedDisconnect() {
-    
+    if (this.isStopping) return;
     if (this.callbacks.onBotFinished) {
       this.callbacks.onBotFinished();
     }
   }
 
   stop() {
+    this.isStopping = true;
     this.isConnected = false;
     if (this.currentUserSubtitle.trim().length > 0) {
       this.transcriptHistory.push(`[Student]: ${cleanTranscript(this.currentUserSubtitle.trim())}`);
@@ -551,8 +561,13 @@ CRITICAL RULES:
   }
 
   async generateReport(context: BotContext, transcriptOverride?: any): Promise<string> {
-    const transcript = transcriptOverride || this.transcript;
-    if (!transcript || transcript.length === 0) return "No transcript available.";
+    const transcript = Array.isArray(transcriptOverride) && transcriptOverride.length > 0
+      ? transcriptOverride
+      : this.transcript;
+
+    if (!transcript || transcript.length === 0) {
+      return "❌ Oturumda yeterli konuşma kaydı algılanamadı. Lütfen mikrofonunuzun açık olduğundan emin olarak en az birkaç cümle konuşup tekrar deneyin.";
+    }
     
     const transcriptText = transcript.join("\n");
     const isIelts = isIELTSSession(context);
@@ -581,7 +596,7 @@ CRITICAL RULES:
     
     // 2. Client-side SDK generation
     const ai = getAiClient();
-    const models = ["gemini-3.8-flash", "gemini-2.5-flash"];
+    const models = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
     
     const prompt = isIelts ? `
       You are an expert, certified IELTS Speaking Examiner.

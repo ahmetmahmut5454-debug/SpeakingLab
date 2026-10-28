@@ -23,7 +23,8 @@ async function startServer() {
   
   app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+  const getServerApiKey = () =>
+    process.env.GEMINI_API_KEY || process.env.API_KEY || process.env.VITE_GEMINI_API_KEY;
 
   // Server-side report generation endpoint
   app.post("/api/generate-report", express.json(), async (req, res) => {
@@ -33,6 +34,7 @@ async function startServer() {
         return res.status(400).json({ error: "Transcript is required" });
       }
 
+      const apiKey = getServerApiKey();
       if (!apiKey || apiKey === "proxy_key") {
         return res.status(500).json({ error: "No API key configured on server" });
       }
@@ -145,7 +147,7 @@ async function startServer() {
         If there are no major corrections, return an empty array for corrections: {"corrections": []}.
       `;
 
-      const candidateModels = ["gemini-3.8-flash", "gemini-2.5-flash"];
+      const candidateModels = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
       let rawReport = "";
 
       for (const model of candidateModels) {
@@ -181,6 +183,7 @@ async function startServer() {
       changeOrigin: true,
       ws: true,
       pathRewrite: (path, req) => {
+          const apiKey = getServerApiKey();
           const original = (req as any)?.originalUrl || path;
           let newPath = original.replace(/^\/+/, "/");
           newPath = newPath.replace(/([?&])key=[^&]*(&|$)/g, '$1').replace(/[?&]$/, '');
@@ -191,6 +194,7 @@ async function startServer() {
       },
       on: {
         proxyReq: (proxyReq: any) => {
+           const apiKey = getServerApiKey();
            proxyReq.setHeader('Host', 'generativelanguage.googleapis.com');
            if (apiKey && apiKey !== "proxy_key") {
              proxyReq.setHeader('x-goog-api-key', apiKey);
@@ -199,6 +203,7 @@ async function startServer() {
            }
         },
         proxyReqWs: (proxyReq: any) => {
+           const apiKey = getServerApiKey();
            proxyReq.setHeader('Host', 'generativelanguage.googleapis.com');
            if (apiKey && apiKey !== "proxy_key") {
              proxyReq.setHeader('x-goog-api-key', apiKey);

@@ -95,7 +95,10 @@ export function ReportModal({
             <div className="overflow-y-auto custom-scrollbar flex-1 min-h-0 p-4 sm:p-8">
               {(() => {
                 const rawReportText = typeof report.reportText === 'string' ? report.reportText : '';
-                const hasValidReport = rawReportText.trim().length > 0 && !rawReportText.includes("❌");
+                const hasValidReport =
+                  rawReportText.trim().length > 0 &&
+                  !rawReportText.includes("❌") &&
+                  rawReportText.trim() !== "No transcript available.";
 
                 if (!hasValidReport) {
                   return (
